@@ -72,7 +72,7 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
-### **3. Frontend Setup (React.js)**
+### **3. Frontend Setup (Next.js)**
 ```bash
 cd frontend
 npm install
