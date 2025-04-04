@@ -1,0 +1,170 @@
+"use client";
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import "leaflet/dist/leaflet.css";
+
+// Dynamically import Leaflet only on the client side
+const L = dynamic(() => import("leaflet"), { ssr: false });
+
+// Zod validation schema
+const formSchema = z.object({
+  pickupLocation: z.string().min(1, "Pickup Location is required"),
+  destination: z.string().min(1, "Destination is required"),
+  duration: z.string().min(1, "Duration is required"),
+  passengers: z.string().min(1, "Passenger names are required"),
+  reason: z.string().min(1, "Reason is required"),
+  urgency: z.string().min(1, "Urgency Level is required"),
+});
+
+export default function Page() {
+  const mapRef = useRef(null); // Store map instance
+
+  useEffect(() => {
+    const initializeMap = async () => {
+      if (typeof window !== "undefined" && document.getElementById("map")) {
+        const leaflet = await import("leaflet"); // Import inside useEffect
+
+        // Prevent duplicate map initialization
+        if (mapRef.current) return;
+
+        // Initialize the map and store it in the ref
+        mapRef.current = leaflet.map("map").setView([9.005401, 38.763611], 13);
+
+        // Add OpenStreetMap tiles
+        leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(mapRef.current);
+
+        // Add a marker
+        leaflet
+          .marker([9.005401, 38.763611], { draggable: false })
+          .addTo(mapRef.current)
+          .bindPopup("A pretty CSS popup.<br> Easily customizable.")
+          .openPopup();
+      }
+    };
+
+    initializeMap();
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove(); // Cleanup to prevent duplicate maps
+        mapRef.current = null;
+      }
+    };
+  }, []); // Run only once
+
+  // Form handling with react-hook-form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(formSchema),
+  });
+
+  const onSubmit = (data) => {
+    console.log("Form Data:", data);
+    alert("Request submitted successfully!");
+  };
+
+  return (
+    <div className="max-w-7xl xxl:max-w-[1600px] w-full py-4 justify-between mx-auto flex flex-col sm:flex-row bg-white px-4 md:px-0 space-y-6 sm:space-y-0 sm:space-x-8">
+      {/* Form Section */}
+      <div className="w-full sm:w-1/2 px-6 py-2 ring-1 ring-[#043755] rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-[#043755] mb-2 text-center">Vehicle Request</h2>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Pickup Location */}
+          <div className="mb-2">
+            <label className="block text-[#043755] mb-2">Pickup Location</label>
+            <input
+              {...register("pickupLocation")}
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+              placeholder="Enter pickup location"
+            />
+            {errors.pickupLocation && <p className="text-red-500 text-sm mt-1">{errors.pickupLocation.message}</p>}
+          </div>
+
+          {/* Destination */}
+          <div className="mb-2">
+            <label className="block text-[#043755] mb-2">Destination</label>
+            <input
+              {...register("destination")}
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+              placeholder="Enter destination"
+            />
+            {errors.destination && <p className="text-red-500 text-sm mt-1">{errors.destination.message}</p>}
+          </div>
+
+          {/* Duration */}
+          <div className="mb-2">
+            <label className="block text-[#043755] mb-2">Duration</label>
+            <input
+              {...register("duration")}
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+              placeholder="Enter duration"
+            />
+            {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration.message}</p>}
+          </div>
+
+          {/* Name of Passengers */}
+          <div className="mb-2">
+            <label className="block text-[#043755] mb-2">Name of Passengers</label>
+            <input
+              {...register("passengers")}
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+              placeholder="Enter names"
+            />
+            {errors.passengers && <p className="text-red-500 text-sm mt-1">{errors.passengers.message}</p>}
+          </div>
+
+          {/* Reason */}
+          <div className="mb-2">
+            <label className="block text-[#043755] mb-2">Reason</label>
+            <input
+              {...register("reason")}
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
+              placeholder="Enter reason"
+            />
+            {errors.reason && <p className="text-red-500 text-sm mt-1">{errors.reason.message}</p>}
+          </div>
+
+          {/* Urgency Level */}
+          <div className="mb-4">
+            <label className="block text-[#043755] mb-2">Urgency Level</label>
+            <select
+              {...register("urgency")}
+              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
+            >
+              <option value="">Select Urgency Level</option>
+              <option value="Regular">Regular</option>
+              <option value="Priority">Priority</option>
+              <option value="Emergency">Emergency</option>
+            </select>
+            {errors.urgency && <p className="text-red-500 text-sm mt-1">{errors.urgency.message}</p>}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
+          >
+            Submit Request
+          </button>
+        </form>
+      </div>
+
+      {/* Map Section */}
+      <div id="map" className="w-full sm:w-1/2 h-64 sm:h-[585px] border border-gray-300 rounded-lg"></div>
+    </div>
+  );
+}

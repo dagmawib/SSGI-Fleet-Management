@@ -43,11 +43,11 @@ export default function Home() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter strong password"
-                  className="block w-full px-4 py-3 rounded-lg border border-gray-200 placeholder-darkgrey focus:outline-blue-400 font-normal font-inter text-[14px] placeholder:text-sm placeholder:text-zinc-500"
+                  className="block w-full px-4 py-3 rounded-lg border placeholder-darkgrey text-[#043755] font-normal font-inter text-[14px] placeholder:text-sm placeholder:text-zinc-500"
                 />
                 <span
                   onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#043755]"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -78,6 +78,7 @@ export default function Home() {
             <button
               type="submit"
               className="w-[105px] py-2 text-white font-semibold text-lg rounded-xl"
+              href="/user"
             >
               Login
             </button>
