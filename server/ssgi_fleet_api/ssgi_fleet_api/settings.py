@@ -31,6 +31,9 @@ INSTALLED_APPS = [
     'users',    # Custom user app
     'rest_framework',##for JWT authentication
     'rest_framework_simplejwt',#for JWT authentication
+    'rest_framework_simplejwt.token_blacklist', #for JWT authentication
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
@@ -49,12 +52,26 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'SSGI Vehicle Request System API',
+    'DESCRIPTION': 'API documentation for Fleet Management System',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
+
 ROOT_URLCONF = 'ssgi_fleet_api.urls'
 
 TEMPLATES = [

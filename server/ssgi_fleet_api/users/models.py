@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 
 # Custom user manager
 class CustomUserManager(BaseUserManager):
@@ -112,3 +113,22 @@ class User(AbstractUser):
     @property
     def is_driver(self):
         return self.role == 'driver'
+    
+    
+    def generate_username(self):
+        """Generate username from first_name + last_name + ID"""
+        base_username = f"{slugify(self.first_name)}_{slugify(self.last_name)}".lower()
+        return f"{base_username}_{str(self.id)[:4]}"
+
+    def generate_temp_password(self):
+        """Generate random password"""
+        return str(uuid.uuid4())[:8]  # First 8 chars of UUID
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only for new users
+            if not self.username:
+                self.username = self.generate_username()
+            if not self.password:
+                temp_pass = self.generate_temp_password()
+                self.set_password(temp_pass)
+        super().save(*args, **kwargs)
