@@ -5,6 +5,27 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserRegistrationSerializer, UserProfileSerializer, AdminUserCreateSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiResponse
+
+@extend_schema(
+    description="User registration endpoint (Admin only)",
+    request=UserRegistrationSerializer,
+    responses={201: UserRegistrationSerializer},
+    examples=[
+        OpenApiExample(
+            'Admin User Creation',
+            value={
+                "email": "driver@ssgi.com",
+                "first_name": "Ali",
+                "last_name": "Hassan",
+                "role": "driver",
+                "department": 1
+            },
+            request_only=True
+        ),
+    ]
+)
 
 class UserRegistrationView(CreateAPIView):
     serializer_class = UserRegistrationSerializer
@@ -44,3 +65,41 @@ class AdminUserCreateView(CreateAPIView):
         # Add the temp password to response data
         instance.temporary_password = instance.generate_temp_password()
         instance.save()
+
+from drf_spectacular.utils import extend_schema
+
+@extend_schema(
+    tags=['Authentication'],
+    description="Obtain JWT token pair",
+    responses={
+        200: OpenApiResponse(
+            description="Successful authentication",
+            examples={
+                "application/json": {
+                    "refresh": "eyJhb...",
+                    "access": "eyJhb..."
+                }
+            }
+        ),
+        400: OpenApiResponse(
+            description="Invalid credentials",
+            examples={
+                "application/json": {
+                    "detail": "No active account found with the given credentials"
+                }
+            }
+        )
+    },
+    examples=[
+        OpenApiExample(
+            "Login Example",
+            value={
+                "email": "user@example.com",
+                "password": "string"
+            },
+            request_only=True
+        )
+    ]
+)
+class CustomTokenObtainPairView(TokenObtainPairView):
+    pass        
