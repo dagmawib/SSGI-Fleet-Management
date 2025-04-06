@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "../../ui/button";
-import { ChevronDown, Globe, MoreVertical, Bell } from "lucide-react";
+import {  Globe, MoreVertical } from "lucide-react";
 import {
   Sheet,
   SheetContent,

@@ -18,7 +18,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import {  useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { setCookie } from "cookies-next";
 // import { isAuthenticated } from "@/utils/auth";
 import { useRouter } from "next/navigation";
@@ -30,7 +30,7 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
   const t = useTranslations("Navbar");
   const pathname = usePathname();
- 
+
   //   const access_token = getCookie("access_token");
   //   const { data: user } = useUser();
   //   const userAvatar = user?.avatar || "/images/profile/profileAvater.png";
@@ -49,10 +49,10 @@ export default function Navbar() {
 
   const isActive = (path) => pathname === path;
 
-    const handleLanguageChange = (lang) => {
-      setCookie("NEXT_LOCALE", lang);
-      window.location.reload();
-    };
+  const handleLanguageChange = (lang) => {
+    setCookie("NEXT_LOCALE", lang);
+    window.location.reload();
+  };
 
   //   const handleLogout = async () => {
   //       try {

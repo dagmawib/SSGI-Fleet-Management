@@ -70,5 +70,17 @@
       "declined": "ተተውቷል",
       "pending": "በመጠባበቅ ላይ"
     }
+  },
+  "login": {
+    "title": "መግቢያ",
+    "email": "ኢሜይል",
+    "emailPlaceholder": "john.doe@mail.com",
+    "password": "የይለፍ ቃል",
+    "passwordPlaceholder": "ጠንካራ የይለፍ ቃል ያስገቡ",
+    "rememberMe": "አስታውሰኝ",
+    "forgotPassword": "የይለፍ ቃልን ረስተዋል?",
+    "loginButton": "ግባ",
+    "showPassword": "የይለፍ ቃል አሳይ",
+    "hidePassword": "የይለፍ ቃል ደብቅ"
   }  
 }

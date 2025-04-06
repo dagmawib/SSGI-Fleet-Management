@@ -70,6 +70,17 @@
       "declined": "Declined",
       "pending": "Pending"
     }
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "emailPlaceholder": "john.doe@mail.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter strong password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Login",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   }
-  
 }
