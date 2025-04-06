@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import "leaflet/dist/leaflet.css";
+import DirectorDashboard from "@/components/user/director";
 
 // Dynamically import Leaflet only on the client side
 const L = dynamic(() => import("leaflet"), { ssr: false });
@@ -21,6 +22,36 @@ const formSchema = z.object({
 
 export default function Page() {
   const mapRef = useRef(null); // Store map instance
+  const [isDirector, setIsDirector] = useState(false); // State to check if user is a director
+
+  const sampleRequests = [
+    {
+      id: 1,
+      pickupLocation: "Addis Ababa University",
+      destination: "Bole International Airport",
+      duration: "45 minutes",
+      passengers: "John Doe, Jane Smith",
+      reason: "Official government meeting",
+      urgency: "Priority",
+    },
+    {
+      id: 2,
+      pickupLocation: "Megenagna",
+      destination: "Sarbet",
+      duration: "30 minutes",
+      passengers: "Alex Johnson",
+      reason: "Site inspection",
+      urgency: "Regular",
+    },
+  ];
+
+  const handleApprove = (id) => {
+    console.log("Approved request:", id);
+  };
+
+  const handleReject = (id) => {
+    console.log("Rejected request:", id);
+  };
 
   useEffect(() => {
     const initializeMap = async () => {
@@ -34,10 +65,12 @@ export default function Page() {
         mapRef.current = leaflet.map("map").setView([9.005401, 38.763611], 13);
 
         // Add OpenStreetMap tiles
-        leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(mapRef.current);
+        leaflet
+          .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          })
+          .addTo(mapRef.current);
 
         // Add a marker
         leaflet
@@ -73,98 +106,142 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-7xl xxl:max-w-[1600px] w-full py-4 justify-between mx-auto flex flex-col sm:flex-row bg-white px-4 md:px-0 space-y-6 sm:space-y-0 sm:space-x-8">
-      {/* Form Section */}
-      <div className="w-full sm:w-1/2 px-6 py-2 ring-1 ring-[#043755] rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-[#043755] mb-2 text-center">Vehicle Request</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Pickup Location */}
-          <div className="mb-2">
-            <label className="block text-[#043755] mb-2">Pickup Location</label>
-            <input
-              {...register("pickupLocation")}
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-              placeholder="Enter pickup location"
-            />
-            {errors.pickupLocation && <p className="text-red-500 text-sm mt-1">{errors.pickupLocation.message}</p>}
-          </div>
+    <div className="max-w-7xl xxl:max-w-[1600px] w-full py-4 mx-auto">
+      {/* Director Check */}
+      {isDirector && (
+        <DirectorDashboard
+          isDirector={isDirector}
+          requests={sampleRequests}
+          handleApprove={handleApprove}
+          handleReject={handleReject}
+        />
+      )}
+      <div className="justify-between flex flex-col sm:flex-row bg-white px-4 md:px-0 space-y-6 sm:space-y-0 sm:space-x-8">
+        {/* Form Section */}
+        <div className="w-full sm:w-1/2 px-6 py-2 ring-1 ring-[#043755] rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold text-[#043755] mb-2 text-center">
+            Vehicle Request
+          </h2>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Pickup Location */}
+            <div className="mb-2">
+              <label className="block text-[#043755] mb-2">
+                Pickup Location
+              </label>
+              <input
+                {...register("pickupLocation")}
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                placeholder="Enter pickup location"
+              />
+              {errors.pickupLocation && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.pickupLocation.message}
+                </p>
+              )}
+            </div>
 
-          {/* Destination */}
-          <div className="mb-2">
-            <label className="block text-[#043755] mb-2">Destination</label>
-            <input
-              {...register("destination")}
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-              placeholder="Enter destination"
-            />
-            {errors.destination && <p className="text-red-500 text-sm mt-1">{errors.destination.message}</p>}
-          </div>
+            {/* Destination */}
+            <div className="mb-2">
+              <label className="block text-[#043755] mb-2">Destination</label>
+              <input
+                {...register("destination")}
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                placeholder="Enter destination"
+              />
+              {errors.destination && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.destination.message}
+                </p>
+              )}
+            </div>
 
-          {/* Duration */}
-          <div className="mb-2">
-            <label className="block text-[#043755] mb-2">Duration</label>
-            <input
-              {...register("duration")}
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-              placeholder="Enter duration"
-            />
-            {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration.message}</p>}
-          </div>
+            {/* Duration */}
+            <div className="mb-2">
+              <label className="block text-[#043755] mb-2">Duration</label>
+              <input
+                {...register("duration")}
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                placeholder="Enter duration"
+              />
+              {errors.duration && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.duration.message}
+                </p>
+              )}
+            </div>
 
-          {/* Name of Passengers */}
-          <div className="mb-2">
-            <label className="block text-[#043755] mb-2">Name of Passengers</label>
-            <input
-              {...register("passengers")}
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-              placeholder="Enter names"
-            />
-            {errors.passengers && <p className="text-red-500 text-sm mt-1">{errors.passengers.message}</p>}
-          </div>
+            {/* Name of Passengers */}
+            <div className="mb-2">
+              <label className="block text-[#043755] mb-2">
+                Name of Passengers
+              </label>
+              <input
+                {...register("passengers")}
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                placeholder="Enter names"
+              />
+              {errors.passengers && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.passengers.message}
+                </p>
+              )}
+            </div>
 
-          {/* Reason */}
-          <div className="mb-2">
-            <label className="block text-[#043755] mb-2">Reason</label>
-            <input
-              {...register("reason")}
-              type="text"
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
-              placeholder="Enter reason"
-            />
-            {errors.reason && <p className="text-red-500 text-sm mt-1">{errors.reason.message}</p>}
-          </div>
+            {/* Reason */}
+            <div className="mb-2">
+              <label className="block text-[#043755] mb-2">Reason</label>
+              <input
+                {...register("reason")}
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
+                placeholder="Enter reason"
+              />
+              {errors.reason && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.reason.message}
+                </p>
+              )}
+            </div>
 
-          {/* Urgency Level */}
-          <div className="mb-4">
-            <label className="block text-[#043755] mb-2">Urgency Level</label>
-            <select
-              {...register("urgency")}
-              className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
+            {/* Urgency Level */}
+            <div className="mb-4">
+              <label className="block text-[#043755] mb-2">Urgency Level</label>
+              <select
+                {...register("urgency")}
+                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
+              >
+                <option value="">Select Urgency Level</option>
+                <option value="Regular">Regular</option>
+                <option value="Priority">Priority</option>
+                <option value="Emergency">Emergency</option>
+              </select>
+              {errors.urgency && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.urgency.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
             >
-              <option value="">Select Urgency Level</option>
-              <option value="Regular">Regular</option>
-              <option value="Priority">Priority</option>
-              <option value="Emergency">Emergency</option>
-            </select>
-            {errors.urgency && <p className="text-red-500 text-sm mt-1">{errors.urgency.message}</p>}
-          </div>
+              Submit Request
+            </button>
+          </form>
+        </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
-          >
-            Submit Request
-          </button>
-        </form>
+        {/* Map Section */}
+        <div
+          id="map"
+          className="relative z-0 w-full sm:w-1/2 h-64 sm:h-[585px] border border-gray-300 rounded-lg"
+        ></div>
       </div>
-
-      {/* Map Section */}
-      <div id="map" className="w-full sm:w-1/2 h-64 sm:h-[585px] border border-gray-300 rounded-lg"></div>
     </div>
   );
 }
