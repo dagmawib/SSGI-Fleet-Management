@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 
 const mockCars = [
   {
@@ -45,24 +46,26 @@ const statusColors = {
 };
 
 export default function CarsTable() {
+  const t = useTranslations("vehicleTable");
+
   return (
     <div className="overflow-auto bg-white rounded-lg shadow border mx-2 md:mx-0">
       <table className="min-w-full table-auto text-sm">
         <thead className="bg-[#043755] text-white">
           <tr>
-            <th className="px-4 py-2 text-left">License Plate</th>
-            <th className="px-4 py-2 text-left">Make</th>
-            <th className="px-4 py-2 text-left">Model</th>
-            <th className="px-4 py-2 text-left">Year</th>
-            <th className="px-4 py-2 text-left">Color</th>
-            <th className="px-4 py-2 text-left">Type</th>
-            <th className="px-4 py-2 text-left">Capacity</th>
-            <th className="px-4 py-2 text-left">Current Mileage</th>
-            <th className="px-4 py-2 text-left">Last Maintenance</th>
-            <th className="px-4 py-2 text-left">Next Maintenance Mileage</th>
-            <th className="px-4 py-2 text-left">Fuel Type</th>
-            <th className="px-4 py-2 text-left">Fuel Efficiency (km/l)</th>
-            <th className="px-4 py-2 text-left">Status</th>
+            <th className="px-4 py-2 text-left">{t("licensePlate")}</th>
+            <th className="px-4 py-2 text-left">{t("make")}</th>
+            <th className="px-4 py-2 text-left">{t("model")}</th>
+            <th className="px-4 py-2 text-left">{t("year")}</th>
+            <th className="px-4 py-2 text-left">{t("color")}</th>
+            <th className="px-4 py-2 text-left">{t("type")}</th>
+            <th className="px-4 py-2 text-left">{t("capacity")}</th>
+            <th className="px-4 py-2 text-left">{t("currentMileage")}</th>
+            <th className="px-4 py-2 text-left">{t("lastMaintenance")}</th>
+            <th className="px-4 py-2 text-left">{t("nextMaintenanceMileage")}</th>
+            <th className="px-4 py-2 text-left">{t("fuelType")}</th>
+            <th className="px-4 py-2 text-left">{t("fuelEfficiency")}</th>
+            <th className="px-4 py-2 text-left">{t("status")}</th>
           </tr>
         </thead>
         <tbody>

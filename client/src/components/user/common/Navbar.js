@@ -214,7 +214,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      Request
+                      {t("Request")}
                     </Link>
                     <Link
                       href="/user/profile"
@@ -225,7 +225,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      Profile
+                      {t("Profile")}
                     </Link>
                     <Link
                       href="/user/contact"
@@ -236,7 +236,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      Contact Us
+                      {t("Contact")}
                     </Link>
                     <Link
                       href="/user/history"
@@ -247,7 +247,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      History
+                      {t("History")}
                     </Link>
                   </nav>
 
@@ -259,7 +259,9 @@ export default function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center p-2 rounded hover:bg-gray-100 w-full">
                         <Globe className="w-5 h-5" />
-                        <span className="ml-2">Change Language</span>
+                        <span className="ml-2">
+                          { t("changeLanguage") }
+                        </span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-36">

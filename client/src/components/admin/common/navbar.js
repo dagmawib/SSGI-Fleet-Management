@@ -1,6 +1,6 @@
 "use client";
 
-import {  Globe, MoreVertical } from "lucide-react";
+import { Globe, MoreVertical } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -18,8 +18,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
-// import { useLocale, useTranslations } from "next-intl";
-// import { setCookie } from "cookies-next";
+import { useLocale, useTranslations } from "next-intl";
+import { setCookie } from "cookies-next";
 // import { isAuthenticated } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import WorldFlag from "react-world-flags";
@@ -28,7 +28,7 @@ import { usePathname } from "next/navigation";
 // import { deleteCookie,getCookie } from "cookies-next";
 
 export default function Navbar() {
-  //   const t = useTranslations("Navbar");
+  const t = useTranslations("AdminNavbar");
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,10 +50,10 @@ export default function Navbar() {
 
   const isActive = (path) => pathname === path;
 
-  //   const handleLanguageChange = (lang) => {
-  //     setCookie("NEXT_LOCALE", lang);
-  //     window.location.reload();
-  //   };
+  const handleLanguageChange = (lang) => {
+    setCookie("NEXT_LOCALE", lang);
+    window.location.reload();
+  };
 
   //   const handleLogout = async () => {
   //       try {
@@ -109,7 +109,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                Request
+                {t("request")}
               </Link>
 
               {/* <Link
@@ -140,7 +140,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                History
+                {t("history")}
               </Link>
             </div>
           </nav>
@@ -215,7 +215,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      Request
+                      {t("request")}
                     </Link>
                     {/* <Link
                       href="/user/profile"
@@ -248,7 +248,7 @@ export default function Navbar() {
                       }
                       onClick={closeSidebar}
                     >
-                      History
+                      {t("history")}
                     </Link>
                   </nav>
 
@@ -260,7 +260,7 @@ export default function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center p-2 rounded hover:bg-gray-100 w-full">
                         <Globe className="w-5 h-5" />
-                        <span className="ml-2">Change Language</span>
+                        <span className="ml-2">{t("changeLanguage")}</span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-36">
