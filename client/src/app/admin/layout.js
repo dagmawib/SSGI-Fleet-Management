@@ -1,3 +1,11 @@
+import React from "react";
+import Navbar from "@/components/admin/common/navbar"; // Ensure this path is correct
+
 export default function AdminLayout({ children }) {
-  return <div className="">{children}</div>;
+  return (
+    <>
+      <Navbar />
+      <div className="">{children}</div>
+    </>
+  );
 }
