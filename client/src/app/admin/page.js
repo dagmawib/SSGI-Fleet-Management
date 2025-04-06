@@ -1,6 +1,6 @@
 import React from "react";
 
-export function DriverPage() {
+export default function Page() {
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto p-6 bg-white shadow-md rounded-lg my-4">
       <h2 className="text-2xl font-semibold text-[#043755]">
