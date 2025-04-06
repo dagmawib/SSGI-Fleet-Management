@@ -1,0 +1,74 @@
+{
+  "Navbar": {
+    "Request": "ጥያቄ",
+    "Profile": "መገለጫ",
+    "Contact": "ያግኙን",
+    "History": "ታሪክ"
+  },
+  "vehicleRequest": {
+    "title": "የተሽከርካሪ ጥያቄ",
+    "description": "እባክዎ በታች ያለውን ቅጽ በመሙላት የተሽከርካሪ ጥያቄዎን ያቅርቡ።",
+    "pickupLocation": "የመነሻ ቦታ",
+    "dropoffLocation": "የመድረሻ ቦታ",
+    "Duration": "ቆይታ ጊዜ",
+    "passangers": "የተሳፋሪዎች ስም",
+    "Reason": "የጥያቄ ምክንያት",
+    "urgency": "የአስቸኳይነት ደረጃ",
+    "selectUrgency": "የአስቸኳይነት ደረጃ ይምረጡ",
+    "regular": "መደበኛ",
+    "priority": "ቅድሚያ የሚሰጥ",
+    "emergency": "አስቸኳይ",
+    "submit": "ጥያቄ ያቅርቡ",
+    "passanger": "ተሳፋሪ"
+  },
+  "profile": {
+    "title": "መለያ",
+    "description": "የመለያ መረጃዎን ያስተካክሉ።",
+    "upload": "አዲስ ፎቶ ያስገቡ",
+    "delete": "ያጥፉ",
+    "fullName": "ሙሉ ስም",
+    "username": "የተጠቃሚ ስም",
+    "email": "ኢሜይል",
+    "phone": "ስልክ ቁጥር",
+    "department": "ዲፓርትመንት",
+    "role": "ሚና",
+    "status": "የመለያ ሁኔታ",
+    "active": "ንቁ",
+    "inactive": "ዝምተኛ",
+    "password": "የይለፍ ቃል",
+    "update": "መለያን ያዘምኑ"
+  },
+  "contact": {
+    "title": "ከኛ ጋር ያግኙ",
+    "description": "ያላችሁን ችሎታ እንደገና እንዲጨምሩ እንረዳዎታለን።",
+    "firstName": "የመጀመሪያ ስም",
+    "lastName": "የአባት ስም",
+    "email": "ኢሜይል",
+    "phone": "የስልክ ቁጥር",
+    "message": "መልዕክት",
+    "send": "መልዕክት ላክ"
+  },
+  "history":{
+    "title": "የመጠየቂያ እከታ",
+    "description": "የተጠየቁትን ትራንስፖርት እከታ ይድረሱ።",
+    "totalRequests": "ጠቅላላ ጥያቄዎች",
+    "acceptedRequests": "የተቀበሉ ጥያቄዎች",
+    "declinedRequests": "የተተዉ ጥያቄዎች",
+    "table": {
+      "requestId": "የጥያቄ መለያ",
+      "date": "ቀን",
+      "requester": "ጠያቂ",
+      "vehicle": "ተሽከርካሪ",
+      "driver": "አሽከርካሪ",
+      "pickup": "የመነሻ ቦታ",
+      "destination": "መድረሻ",
+      "reason": "ምክንያት",
+      "status": "ሁኔታ"
+    },
+    "statuses": {
+      "accepted": "ተቀብሏል",
+      "declined": "ተተውቷል",
+      "pending": "በመጠባበቅ ላይ"
+    }
+  }  
+}

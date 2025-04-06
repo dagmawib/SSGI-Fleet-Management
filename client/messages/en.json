@@ -1,0 +1,75 @@
+{
+  "Navbar": {
+    "Request": "Request",
+    "Profile": "Profile",
+    "Contact": "Contact Us",
+    "History": "History"
+  },
+  "vehicleRequest": {
+    "title": "Vehicle Request",
+    "description": "Please fill out the form below to request a vehicle.",
+    "pickupLocation": "Pickup Location",
+    "dropoffLocation": "Drop-off Location",
+    "Duration": "Duration",
+    "passangers": "Name of Passengers",
+    "Reason": "Reason for Request",
+    "urgency": "Urgency Level",
+    "selectUrgency": "Select Urgency Level",
+    "regular": "Regular",
+    "priority": "Priority",
+    "emergency": "Emergency",
+    "submit": "Submit Request",
+    "passanger": "Passenger"
+  },
+  "profile": {
+    "title": "Account",
+    "description": "Manage your profile information.",
+    "upload": "Upload new picture",
+    "delete": "Delete",
+    "fullName": "Full Name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone Number",
+    "department": "Department",
+    "role": "Role",
+    "status": "Account Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "password": "Password",
+    "update": "Update profile"
+  },
+  "contact": {
+    "title": "Get in touch with us",
+    "description": "Let us help you become even greater at what you do.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone number",
+    "message": "Message",
+    "send": "Send message"
+  },
+  "history":{
+    "title": "Request Tracking",
+    "description": "Monitor your vehicle requests.",
+    "totalRequests": "Total Requests",
+    "acceptedRequests": "Accepted Requests",
+    "declinedRequests": "Declined Requests",
+    "table": {
+      "requestId": "Request ID",
+      "date": "Date",
+      "requester": "Requester",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "pickup": "Pickup",
+      "destination": "Destination",
+      "reason": "Reason",
+      "status": "Status"
+    },
+    "statuses": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "pending": "Pending"
+    }
+  }
+  
+}

@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import "leaflet/dist/leaflet.css";
 import DirectorDashboard from "@/components/user/director";
-
+import { useTranslations } from "next-intl";
 // Dynamically import Leaflet only on the client side
 const L = dynamic(() => import("leaflet"), { ssr: false });
 
@@ -23,6 +23,7 @@ const formSchema = z.object({
 export default function Page() {
   const mapRef = useRef(null); // Store map instance
   const [isDirector, setIsDirector] = useState(false); // State to check if user is a director
+  const t = useTranslations("vehicleRequest"); // i18n translations
 
   const sampleRequests = [
     {
@@ -95,9 +96,18 @@ export default function Page() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      passengers: [{ name: "" }, { name: "" }, { name: "" }, { name: "" }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "passengers",
   });
 
   const onSubmit = (data) => {
@@ -120,13 +130,15 @@ export default function Page() {
         {/* Form Section */}
         <div className="w-full sm:w-1/2 px-6 py-2 ring-1 ring-[#043755] rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold text-[#043755] mb-2 text-center">
-            Vehicle Request
+            {t("title")}
           </h2>
+          <p className="text-[#043755] text-center mb-2">{t("description")}</p>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Pickup Location */}
             <div className="mb-2">
               <label className="block text-[#043755] mb-2">
-                Pickup Location
+                {t("pickupLocation")}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 {...register("pickupLocation")}
@@ -143,7 +155,10 @@ export default function Page() {
 
             {/* Destination */}
             <div className="mb-2">
-              <label className="block text-[#043755] mb-2">Destination</label>
+              <label className="block text-[#043755] mb-2">
+                {t("dropoffLocation")}
+                <span className="text-red-500">*</span>
+              </label>
               <input
                 {...register("destination")}
                 type="text"
@@ -159,7 +174,10 @@ export default function Page() {
 
             {/* Duration */}
             <div className="mb-2">
-              <label className="block text-[#043755] mb-2">Duration</label>
+              <label className="block text-[#043755] mb-2">
+                {t("Duration")}
+                <span className="text-red-500">*</span>
+              </label>
               <input
                 {...register("duration")}
                 type="text"
@@ -174,16 +192,47 @@ export default function Page() {
             </div>
 
             {/* Name of Passengers */}
-            <div className="mb-2">
-              <label className="block text-[#043755] mb-2">
-                Name of Passengers
-              </label>
-              <input
-                {...register("passengers")}
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter names"
-              />
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[#043755] text-base font-medium">
+                  {t("passangers")}
+                  <span className="text-red-500">*</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => append({ name: "" })}
+                  className="w-8 h-8 rounded-full bg-[#043755] text-white flex items-center justify-center hover:bg-opacity-90"
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {fields.map(
+                  (field, index) =>
+                    index % 2 === 0 && (
+                      <div key={field.id} className="flex gap-2">
+                        <input
+                          {...register(`passengers.${index}.name`)}
+                          type="text"
+                          placeholder={`${t("passanger")} ${index + 1}`}
+                          className="w-1/2 px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                        />
+                        {fields[index + 1] ? (
+                          <input
+                            {...register(`passengers.${index + 1}.name`)}
+                            type="text"
+                            placeholder={`${t("passanger")} ${index + 2}`}
+                            className="w-1/2 px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                          />
+                        ) : (
+                          <div className="w-1/2" />
+                        )}
+                      </div>
+                    )
+                )}
+              </div>
               {errors.passengers && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.passengers.message}
@@ -193,7 +242,10 @@ export default function Page() {
 
             {/* Reason */}
             <div className="mb-2">
-              <label className="block text-[#043755] mb-2">Reason</label>
+              <label className="block text-[#043755] mb-2">
+                {t("Reason")}
+                <span className="text-red-500">*</span>
+              </label>
               <input
                 {...register("reason")}
                 type="text"
@@ -209,15 +261,18 @@ export default function Page() {
 
             {/* Urgency Level */}
             <div className="mb-4">
-              <label className="block text-[#043755] mb-2">Urgency Level</label>
+              <label className="block text-[#043755] mb-2">
+                {t("urgency")}
+                <span className="text-red-500">*</span>
+              </label>
               <select
                 {...register("urgency")}
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
               >
-                <option value="">Select Urgency Level</option>
-                <option value="Regular">Regular</option>
-                <option value="Priority">Priority</option>
-                <option value="Emergency">Emergency</option>
+                <option value="">{t("selectUrgency")}</option>
+                <option value="Regular">{t("regular")}</option>
+                <option value="Priority">{t("priority")}</option>
+                <option value="Emergency">{t("emergency")}</option>
               </select>
               {errors.urgency && (
                 <p className="text-red-500 text-sm mt-1">
@@ -231,7 +286,7 @@ export default function Page() {
               type="submit"
               className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
             >
-              Submit Request
+              {t("submit")}
             </button>
           </form>
         </div>
@@ -239,7 +294,7 @@ export default function Page() {
         {/* Map Section */}
         <div
           id="map"
-          className="relative z-0 w-full sm:w-1/2 h-64 sm:h-[585px] border border-gray-300 rounded-lg"
+          className="relative z-0 w-full sm:w-1/2 h-64 sm:h-[690px] border border-gray-300 rounded-lg"
         ></div>
       </div>
     </div>

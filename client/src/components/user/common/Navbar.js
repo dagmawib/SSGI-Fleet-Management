@@ -17,10 +17,9 @@ import {
 } from "../../ui/dropdown-menu";
 import Image from "next/image";
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
-// import { useLocale, useTranslations } from "next-intl";
-// import { setCookie } from "cookies-next";
+import {  useTranslations } from "next-intl";
+import { setCookie } from "cookies-next";
 // import { isAuthenticated } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import WorldFlag from "react-world-flags";
@@ -29,10 +28,9 @@ import { usePathname } from "next/navigation";
 // import { deleteCookie,getCookie } from "cookies-next";
 
 export default function Navbar() {
-  //   const t = useTranslations("Navbar");
+  const t = useTranslations("Navbar");
   const pathname = usePathname();
-  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+ 
   //   const access_token = getCookie("access_token");
   //   const { data: user } = useUser();
   //   const userAvatar = user?.avatar || "/images/profile/profileAvater.png";
@@ -51,10 +49,10 @@ export default function Navbar() {
 
   const isActive = (path) => pathname === path;
 
-  //   const handleLanguageChange = (lang) => {
-  //     setCookie("NEXT_LOCALE", lang);
-  //     window.location.reload();
-  //   };
+    const handleLanguageChange = (lang) => {
+      setCookie("NEXT_LOCALE", lang);
+      window.location.reload();
+    };
 
   //   const handleLogout = async () => {
   //       try {
@@ -110,7 +108,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                Request
+                {t("Request")}
               </Link>
 
               <Link
@@ -121,7 +119,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                Profile
+                {t("Profile")}
               </Link>
               <Link
                 href="/user/contact"
@@ -131,7 +129,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                Contact Us
+                {t("Contact")}
               </Link>
               <Link
                 href="/user/history"
@@ -141,7 +139,7 @@ export default function Navbar() {
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                History
+                {t("History")}
               </Link>
             </div>
           </nav>
