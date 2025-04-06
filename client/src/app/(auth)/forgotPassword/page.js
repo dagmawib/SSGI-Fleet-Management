@@ -19,10 +19,20 @@ import Image from "next/image";
 
 export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
-  const t = useTranslations("login");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const t = useTranslations("forgotPassword");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const toggleNewPasswordVisibility = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const handleLanguageChange = (lang) => {
@@ -78,27 +88,15 @@ export default function Home() {
             </DropdownMenu>
           </div>
 
-          {/* Email */}
+          {/* Old Password */}
           <div className="mb-3">
             <label className="block text-[#043755] text-sm leading-6 mb-1 font-inter font-medium">
-              {t("email")}
-            </label>
-            <input
-              type="email"
-              placeholder={t("emailPlaceholder")}
-              className="block w-full px-4 py-3 rounded-lg border border-lightbodercolor text-[#043755] font-inter outline-none placeholder:text-sm placeholder:text-zinc-500"
-            />
-          </div>
-
-          {/* Password */}
-          <div className="mb-3">
-            <label className="block text-[#043755] text-sm leading-6 mb-1 font-inter font-medium">
-              {t("password")}
+              {t("oldPassword")}
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder={t("passwordPlaceholder")}
+                placeholder={t("oldPasswordPlaceholder")}
                 className="block w-full px-4 py-3 rounded-lg border text-[#043755] font-normal font-inter text-sm placeholder:text-zinc-500"
               />
               <span
@@ -117,31 +115,69 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Remember Me + Forgot */}
-          <div className="flex items-center justify-between gap-2 mt-2 md:mt-4">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="rememberMe" />
-              <label className="text-[#043755] font-medium text-sm font-inter">
-                {t("rememberMe")}
-              </label>
+          {/* Password */}
+          <div className="mb-3">
+            <label className="block text-[#043755] text-sm leading-6 mb-1 font-inter font-medium">
+              {t("newPassword")}
+            </label>
+            <div className="relative">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                placeholder={t("newPasswordPlaceholder")}
+                className="block w-full px-4 py-3 rounded-lg border text-[#043755] font-normal font-inter text-sm placeholder:text-zinc-500"
+              />
+              <span
+                onClick={toggleNewPasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#043755] cursor-pointer"
+                aria-label={
+                  showNewPassword ? t("hidePassword") : t("showPassword")
+                }
+              >
+                {showNewPassword ? (
+                  <VisibilityOffIcon />
+                ) : (
+                  <RemoveRedEyeOutlinedIcon />
+                )}
+              </span>
             </div>
-            <Link
-              href="/forgotPassword"
-              className="text-[#043755] font-medium underline text-sm font-inter"
-            >
-              {t("forgotPassword")}
-            </Link>
+          </div>
+
+          {/* Password */}
+          <div className="mb-3">
+            <label className="block text-[#043755] text-sm leading-6 mb-1 font-inter font-medium">
+              {t("confirmPassword")}
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder={t("confirmPasswordPlaceholder")}
+                className="block w-full px-4 py-3 rounded-lg border text-[#043755] font-normal font-inter text-sm placeholder:text-zinc-500"
+              />
+              <span
+                onClick={toggleConfirmPasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#043755] cursor-pointer"
+                aria-label={
+                  showConfirmPassword ? t("hidePassword") : t("showPassword")
+                }
+              >
+                {showConfirmPassword ? (
+                  <VisibilityOffIcon />
+                ) : (
+                  <RemoveRedEyeOutlinedIcon />
+                )}
+              </span>
+            </div>
           </div>
 
           <hr className="border-gray-300 mt-6" />
 
-          {/* Login Button */}
+          {/* submit Button */}
           <div className="flex justify-center bg-[#043755] mt-6">
             <button
               type="submit"
-              className="w-[105px] py-2 text-white font-semibold text-lg rounded-xl"
+              className="w-[205px] py-2 text-white font-semibold text-md rounded-xl"
             >
-              {t("loginButton")}
+              {t("updatePassword")}
             </button>
           </div>
         </form>

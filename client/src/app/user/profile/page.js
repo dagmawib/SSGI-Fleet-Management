@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 const userData = {
   user_id: 1,
@@ -18,11 +19,12 @@ const userData = {
 
 export default function ProfilePage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const t = useTranslations("profile");
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto p-6 bg-white shadow-md rounded-lg my-4">
-      <h2 className="text-2xl font-semibold text-[#043755]">Account</h2>
-      <p className="text-[#043755]">Manage your profile information.</p>
+      <h2 className="text-2xl font-semibold text-[#043755]">{t("title")}</h2>
+      <p className="text-[#043755]">{t("description")}</p>
 
       <div className="mt-4 flex items-center space-x-4">
         <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
@@ -35,13 +37,13 @@ export default function ProfilePage() {
           />
         </div>
         <div>
-          <button className="text-[#043755]">Upload new picture</button>
-          <button className="text-red-500 ml-4">Delete</button>
+          <button className="text-[#043755]">{t("upload")}</button>
+          <button className="text-red-500 ml-4">{t("delete")}</button>
         </div>
       </div>
 
       <div className="mt-6">
-        <label className="text-[#043755]">Full Name</label>
+        <label className="text-[#043755]">{t("fullName")}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
           <input
             type="text"
@@ -60,7 +62,7 @@ export default function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[#043755]">Username</label>
+          <label className="text-[#043755]">{t("username")}</label>
           <input
             type="text"
             value={userData.username}
@@ -69,7 +71,7 @@ export default function ProfilePage() {
           />
         </div>
         <div>
-          <label className="text-[#043755]">Email</label>
+          <label className="text-[#043755]">{t("email")}</label>
           <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
             <Icon icon="mdi:email-outline" className="text-[#043755] mr-2" />
             <input
@@ -84,7 +86,7 @@ export default function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[#043755]">Phone Number</label>
+          <label className="text-[#043755]">{t("phone")}</label>
           <input
             type="text"
             value={userData.phone_number}
@@ -93,7 +95,7 @@ export default function ProfilePage() {
           />
         </div>
         <div>
-          <label className="text-[#043755]">Department</label>
+          <label className="text-[#043755]">{t("department")}</label>
           <input
             type="text"
             value={userData.department}
@@ -105,7 +107,7 @@ export default function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[#043755]">Role</label>
+          <label className="text-[#043755]">{t("role")}</label>
           <input
             type="text"
             value={userData.role}
@@ -114,10 +116,10 @@ export default function ProfilePage() {
           />
         </div>
         <div>
-          <label className="text-[#043755]">Account Status</label>
+          <label className="text-[#043755]">{t("status")}</label>
           <input
             type="text"
-            value={userData.is_active ? "Active" : "Inactive"}
+            value={userData.is_active ? t("active") : t("inactive")}
             className="border text-[#043755] p-2 rounded w-full mt-1"
             readOnly
           />
@@ -125,7 +127,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="mt-6">
-        <label className="text-[#043755]">Password</label>
+        <label className="text-[#043755]">{t("password")}</label>
         <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
           <input
             type={passwordVisible ? "text" : "password"}
@@ -147,7 +149,7 @@ export default function ProfilePage() {
           type="submit"
           className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
         >
-          Update profile
+          {t("update")}
         </button>
       </div>
     </div>

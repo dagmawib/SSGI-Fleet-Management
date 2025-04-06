@@ -1,0 +1,170 @@
+{
+  "Navbar": {
+    "Request": "ጥያቄ",
+    "Profile": "መገለጫ",
+    "Contact": "ያግኙን",
+    "History": "ታሪክ",
+    "changeLanguage": "ቋንቋ ይለውጡ"
+  },
+  "vehicleRequest": {
+    "title": "የተሽከርካሪ ጥያቄ",
+    "description": "እባክዎ በታች ያለውን ቅጽ በመሙላት የተሽከርካሪ ጥያቄዎን ያቅርቡ።",
+    "pickupLocation": "የመነሻ ቦታ",
+    "dropoffLocation": "የመድረሻ ቦታ",
+    "Duration": "ቆይታ ጊዜ",
+    "passangers": "የተሳፋሪዎች ስም",
+    "Reason": "የጥያቄ ምክንያት",
+    "urgency": "የአስቸኳይነት ደረጃ",
+    "selectUrgency": "የአስቸኳይነት ደረጃ ይምረጡ",
+    "regular": "መደበኛ",
+    "priority": "ቅድሚያ የሚሰጥ",
+    "emergency": "አስቸኳይ",
+    "submit": "ጥያቄ ያቅርቡ",
+    "passanger": "ተሳፋሪ"
+  },
+  "profile": {
+    "title": "መለያ",
+    "description": "የመለያ መረጃዎን ያስተካክሉ።",
+    "upload": "አዲስ ፎቶ ያስገቡ",
+    "delete": "ያጥፉ",
+    "fullName": "ሙሉ ስም",
+    "username": "የተጠቃሚ ስም",
+    "email": "ኢሜይል",
+    "phone": "ስልክ ቁጥር",
+    "department": "ዲፓርትመንት",
+    "role": "ሚና",
+    "status": "የመለያ ሁኔታ",
+    "active": "ንቁ",
+    "inactive": "ዝምተኛ",
+    "password": "የይለፍ ቃል",
+    "update": "መለያን ያዘምኑ"
+  },
+  "contact": {
+    "title": "ከኛ ጋር ያግኙ",
+    "description": "ያላችሁን ችሎታ እንደገና እንዲጨምሩ እንረዳዎታለን።",
+    "firstName": "የመጀመሪያ ስም",
+    "lastName": "የአባት ስም",
+    "email": "ኢሜይል",
+    "phone": "የስልክ ቁጥር",
+    "message": "መልዕክት",
+    "send": "መልዕክት ላክ"
+  },
+  "history": {
+    "title": "የመጠየቂያ እከታ",
+    "description": "የተጠየቁትን ትራንስፖርት እከታ ይድረሱ።",
+    "totalRequests": "ጠቅላላ ጥያቄዎች",
+    "acceptedRequests": "የተቀበሉ ጥያቄዎች",
+    "declinedRequests": "የተተዉ ጥያቄዎች",
+    "table": {
+      "requestId": "የጥያቄ መለያ",
+      "date": "ቀን",
+      "requester": "ጠያቂ",
+      "vehicle": "ተሽከርካሪ",
+      "driver": "አሽከርካሪ",
+      "pickup": "የመነሻ ቦታ",
+      "destination": "መድረሻ",
+      "reason": "ምክንያት",
+      "status": "ሁኔታ"
+    },
+    "statuses": {
+      "accepted": "ተቀብሏል",
+      "declined": "ተተውቷል",
+      "pending": "በመጠባበቅ ላይ"
+    }
+  },
+  "login": {
+    "title": "መግቢያ",
+    "email": "ኢሜይል",
+    "emailPlaceholder": "john.doe@mail.com",
+    "password": "የይለፍ ቃል",
+    "passwordPlaceholder": "ጠንካራ የይለፍ ቃል ያስገቡ",
+    "rememberMe": "አስታውሰኝ",
+    "forgotPassword": "የይለፍ ቃልን ረስተዋል?",
+    "loginButton": "ግባ",
+    "showPassword": "የይለፍ ቃል አሳይ",
+    "hidePassword": "የይለፍ ቃል ደብቅ"
+  },
+  "forgotPassword": {
+    "title": "የይለፍ ቃል መርማሪያ",
+    "oldPassword": "ያለፈ የይለፍ ቃል",
+    "oldPasswordPlaceholder": "ያለፈውን የይለፍ ቃል ያስገቡ",
+    "newPassword": "አዲስ የይለፍ ቃል",
+    "newPasswordPlaceholder": "አዲሱን የይለፍ ቃል ያስገቡ",
+    "confirmPassword": "አዲሱን የይለፍ ቃል ያረጋግጡ",
+    "confirmPasswordPlaceholder": "አዲሱን የይለፍ ቃል ድጋሚ ያስገቡ",
+    "updatePassword": "የይለፍ ቃል አዘምን",
+    "showPassword": "የይለፍ ቃል አሳይ",
+    "hidePassword": "የይለፍ ቃል ደብቅ"
+  },
+  "AdminPage":{
+    "request": "ጥያቄዎች",
+    "car": "ተሽከርካሪዎች"
+  },
+  "RequestTable": {
+    "requester": "ጠየቃ",
+    "approver": "አጽዳቂ",
+    "pickup": "መነሻ ቦታ",
+    "destination": "መድረሻ ቦታ",
+    "date": "ቀን",
+    "status": "ሁኔታ",
+    "statusLabels": {
+      "pending": "በመጠባበቅ ላይ",
+      "approved": "የተፈቀደ",
+      "rejected": "የተተወ",
+      "assigned": "የተመደበ"
+    }
+  },
+  "vehicleTable": {
+    "licensePlate": "የመኪና ሰሌዳ ቁጥር",
+    "make": "አምራች",
+    "model": "ሞዴል",
+    "year": "ዓመት",
+    "color": "ቀለም",
+    "type": "አይነት",
+    "capacity": "የመቀመጫ ችሎታ",
+    "currentMileage": "አሁን ያለው ማይሌጅ",
+    "lastMaintenance": "የመጨረሻ እንኳን ጥገና",
+    "nextMaintenanceMileage": "የሚቀጥለው የጥገና ማይሌጅ",
+    "fuelType": "የነዳጅ አይነት",
+    "fuelEfficiency": "የነዳጅ ብቃት (ኪ.ሜ/ሊትር)",
+    "status": "ሁኔታ"
+  },
+  "assignModal": {
+    "title": "መኪናን ለጥያቄ መመደብ",
+    "requester": "ጠያቂ",
+    "approver": "አጽዳቂ",
+    "pickup": "መነሻ ቦታ",
+    "destination": "መድረሻ ቦታ",
+    "date": "ቀን",
+    "selectVehicleLabel": "መኪና ይምረጡ",
+    "selectPlaceholder": "-- ይምረጡ --",
+    "cancel": "መተው",
+    "reject": "መትቀል",
+    "assign": "መመደብ"
+  },
+  "AdminNavbar":{
+    "request": "ጥያቄዎች",
+    "history": "ታሪክ",
+    "changeLanguage": "ቋንቋ ይለውጡ"
+  },
+  "driverDashboard": {
+    "title": "የነጋሪ ዳሽቦርድ",
+    "description": "የነጋሪ መገለጫና ጉዞዎችዎን ያስተዳድሩ።",
+    "upcomingRequest": "የሚመጣ ጥያቄ",
+    "pickup": "መነሻ ቦታ",
+    "destination": "መድረሻ",
+    "requester": "ተጠያቂ",
+    "department": "ክፍል",
+    "phone": "ስልክ",
+    "passengers": "ጓደኞች",
+    "kmBefore": "ጉዞ ከመጀመር በፊት ኪ.ሜ",
+    "kmAfter": "ጉዞ ከመጨረሻ በኋላ ኪ.ሜ",
+    "accept": "ተቀበል",
+    "decline": "አትቀበል",
+    "submit": "አስገባ",
+    "upcomingTrips": "የሚመጡ ጉዞዎች",
+    "noUpcomingTrips": "የሚመጡ ጉዞዎች የሉም።",
+    "completedTrips": "የተጠናቀቁ ጉዞዎች",
+    "noCompletedTrips": "የተጠናቀቁ ጉዞዎች አልተመዘገቡም።"
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "Navbar": {
+    "Request": "Request",
+    "Profile": "Profile",
+    "Contact": "Contact Us",
+    "History": "History",
+    "changeLanguage": "Change Language"
+  },
+  "vehicleRequest": {
+    "title": "Vehicle Request",
+    "description": "Please fill out the form below to request a vehicle.",
+    "pickupLocation": "Pickup Location",
+    "dropoffLocation": "Drop-off Location",
+    "Duration": "Duration",
+    "passangers": "Name of Passengers",
+    "Reason": "Reason for Request",
+    "urgency": "Urgency Level",
+    "selectUrgency": "Select Urgency Level",
+    "regular": "Regular",
+    "priority": "Priority",
+    "emergency": "Emergency",
+    "submit": "Submit Request",
+    "passanger": "Passenger"
+  },
+  "profile": {
+    "title": "Account",
+    "description": "Manage your profile information.",
+    "upload": "Upload new picture",
+    "delete": "Delete",
+    "fullName": "Full Name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone Number",
+    "department": "Department",
+    "role": "Role",
+    "status": "Account Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "password": "Password",
+    "update": "Update profile"
+  },
+  "contact": {
+    "title": "Get in touch with us",
+    "description": "Let us help you become even greater at what you do.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone number",
+    "message": "Message",
+    "send": "Send message"
+  },
+  "history":{
+    "title": "Request Tracking",
+    "description": "Monitor your vehicle requests.",
+    "totalRequests": "Total Requests",
+    "acceptedRequests": "Accepted Requests",
+    "declinedRequests": "Declined Requests",
+    "table": {
+      "requestId": "Request ID",
+      "date": "Date",
+      "requester": "Requester",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "pickup": "Pickup",
+      "destination": "Destination",
+      "reason": "Reason",
+      "status": "Status"
+    },
+    "statuses": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "pending": "Pending"
+    }
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "emailPlaceholder": "john.doe@mail.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter strong password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Login",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "forgotPassword":{
+    "title": "Forgot Password",
+    "oldPassword": "Old Password",
+    "oldPasswordPlaceholder": "Enter your old password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter your new password",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Re-enter your new password",
+    "updatePassword": "Update Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "AdminPage":{
+    "request": "Requests",
+    "car": "Vehicles"
+  },
+  "RequestTable": {
+    "requester": "Requester",
+    "approver": "Approver",
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "date": "Date",
+    "status": "Status",
+    "statusLabels": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "assigned": "Assigned"
+    }
+  },
+  "vehicleTable": {
+    "licensePlate": "License Plate",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "color": "Color",
+    "type": "Type",
+    "capacity": "Capacity",
+    "currentMileage": "Current Mileage",
+    "lastMaintenance": "Last Maintenance",
+    "nextMaintenanceMileage": "Next Maintenance Mileage",
+    "fuelType": "Fuel Type",
+    "fuelEfficiency": "Fuel Efficiency (km/l)",
+    "status": "Status"
+  },
+  "assignModal": {
+    "title": "Assign Vehicle to Request",
+    "requester": "Requester",
+    "approver": "Approver",
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "date": "Date",
+    "selectVehicleLabel": "Select Vehicle",
+    "selectPlaceholder": "-- Select --",
+    "cancel": "Cancel",
+    "reject": "Reject",
+    "assign": "Assign"
+  },
+  "AdminNavbar":{
+    "request": "Requests",
+    "history": "History",
+    "changeLanguage": "Change Language"
+  },
+  "driverDashboard": {
+    "title": "Driver Dashboard",
+    "description": "Manage your driver profile and trips.",
+    "upcomingRequest": "Upcoming Request",
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "requester": "Requester",
+    "department": "Department",
+    "phone": "Phone",
+    "passengers": "Passengers",
+    "kmBefore": "Kilo Meter Before Start",
+    "kmAfter": "Kilo Meter After Trip",
+    "accept": "Accept",
+    "decline": "Decline",
+    "submit": "Submit",
+    "upcomingTrips": "Upcoming Trips",
+    "noUpcomingTrips": "No upcoming trips scheduled.",
+    "completedTrips": "Completed Trips",
+    "noCompletedTrips": "No completed trips yet."
+  }
+}
