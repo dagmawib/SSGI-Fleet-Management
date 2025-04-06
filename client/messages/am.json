@@ -96,7 +96,7 @@
     "showPassword": "የይለፍ ቃል አሳይ",
     "hidePassword": "የይለፍ ቃል ደብቅ"
   },
-  "AdminPage":{
+  "AdminPage": {
     "request": "ጥያቄዎች",
     "car": "ተሽከርካሪዎች"
   },
@@ -142,7 +142,7 @@
     "reject": "መትቀል",
     "assign": "መመደብ"
   },
-  "AdminNavbar":{
+  "AdminNavbar": {
     "request": "ጥያቄዎች",
     "history": "ታሪክ",
     "changeLanguage": "ቋንቋ ይለውጡ"
@@ -166,5 +166,47 @@
     "noUpcomingTrips": "የሚመጡ ጉዞዎች የሉም።",
     "completedTrips": "የተጠናቀቁ ጉዞዎች",
     "noCompletedTrips": "የተጠናቀቁ ጉዞዎች አልተመዘገቡም።"
+  },
+  "superAdminNavbar": {
+    "register": "የተጠቃሚ መዝግብ",
+    "Users": "ተጠቃሚዎች",
+    "changeLanguage": "ቋንቋ ይለውጡ"
+  },
+  "register": {
+    "title": "አዲስ ተጠቃሚ መመዝገብ",
+    "username": "የተጠቃሚ ስም",
+    "email": "ኢሜል",
+    "firstName": "ስም",
+    "lastName": "የአባት ስም",
+    "phoneNumber": "ስልክ ቁጥር",
+    "department": "መድረክ",
+    "selectDepartment": "መድረክ ይምረጡ",
+    "role": "ሚና",
+    "selectRole": "ሚና ይምረጡ",
+    "tempPassword": "በቀላሉ የተፈጠረ ፓስዎርድ",
+    "generate": "ፓስዎርድ ይፍጠሩ",
+    "submit": "ተጠቃሚን ይመዝግቡ",
+    "usernamePlaceholder": "የተጠቃሚ ስም ያስገቡ",
+    "emailPlaceholder": "ኢሜል አድራሻ ያስገቡ",
+    "firstNamePlaceholder": "ስም ያስገቡ",
+    "lastNamePlaceholder": "የአባት ስም ያስገቡ",
+    "phoneNumberPlaceholder": "ስልክ ቁጥር ያስገቡ",
+    "passwordPlaceholder": "ተፈጥሮ ፓስዎርድ ያስገቡ"
+  },
+  "regeisteredUsers": {
+    "title": "ሁሉም የተመዘገቡ ተጠቃሚዎች",
+    "username": "የተጠቃሚ ስም",
+    "email": "ኢሜይል",
+    "firstName": "የመጀመሪያ ስም",
+    "lastName": "የአባት ስም",
+    "role": "ሚና",
+    "action": "ተግባር",
+    "edit": "አርትዕ",
+    "remove": "አስወግድ",
+    "loading": "ተጠቃሚዎች በመጫን ላይ...",
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ",
+    "page": "ገፅ",
+    "of": "ከ"
   }
 }
