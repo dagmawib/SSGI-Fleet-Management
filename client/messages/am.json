@@ -48,7 +48,7 @@
     "message": "መልዕክት",
     "send": "መልዕክት ላክ"
   },
-  "history":{
+  "history": {
     "title": "የመጠየቂያ እከታ",
     "description": "የተጠየቁትን ትራንስፖርት እከታ ይድረሱ።",
     "totalRequests": "ጠቅላላ ጥያቄዎች",
@@ -82,5 +82,17 @@
     "loginButton": "ግባ",
     "showPassword": "የይለፍ ቃል አሳይ",
     "hidePassword": "የይለፍ ቃል ደብቅ"
-  }  
+  },
+  "forgotPassword": {
+    "title": "የይለፍ ቃል መርማሪያ",
+    "oldPassword": "ያለፈ የይለፍ ቃል",
+    "oldPasswordPlaceholder": "ያለፈውን የይለፍ ቃል ያስገቡ",
+    "newPassword": "አዲስ የይለፍ ቃል",
+    "newPasswordPlaceholder": "አዲሱን የይለፍ ቃል ያስገቡ",
+    "confirmPassword": "አዲሱን የይለፍ ቃል ያረጋግጡ",
+    "confirmPasswordPlaceholder": "አዲሱን የይለፍ ቃል ድጋሚ ያስገቡ",
+    "updatePassword": "የይለፍ ቃል አዘምን",
+    "showPassword": "የይለፍ ቃል አሳይ",
+    "hidePassword": "የይለፍ ቃል ደብቅ"
+  }
 }

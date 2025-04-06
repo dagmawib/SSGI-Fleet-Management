@@ -82,5 +82,17 @@
     "loginButton": "Login",
     "showPassword": "Show password",
     "hidePassword": "Hide password"
+  },
+  "forgotPassword":{
+    "title": "Forgot Password",
+    "oldPassword": "Old Password",
+    "oldPasswordPlaceholder": "Enter your old password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter your new password",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Re-enter your new password",
+    "updatePassword": "Update Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   }
 }
