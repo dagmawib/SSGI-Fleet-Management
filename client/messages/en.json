@@ -49,7 +49,7 @@
     "message": "Message",
     "send": "Send message"
   },
-  "history":{
+  "history": {
     "title": "Request Tracking",
     "description": "Monitor your vehicle requests.",
     "totalRequests": "Total Requests",
@@ -84,7 +84,7 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password"
   },
-  "forgotPassword":{
+  "forgotPassword": {
     "title": "Forgot Password",
     "oldPassword": "Old Password",
     "oldPasswordPlaceholder": "Enter your old password",
@@ -96,7 +96,7 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password"
   },
-  "AdminPage":{
+  "AdminPage": {
     "request": "Requests",
     "car": "Vehicles"
   },
@@ -142,7 +142,7 @@
     "reject": "Reject",
     "assign": "Assign"
   },
-  "AdminNavbar":{
+  "AdminNavbar": {
     "request": "Requests",
     "history": "History",
     "changeLanguage": "Change Language"
@@ -166,5 +166,63 @@
     "noUpcomingTrips": "No upcoming trips scheduled.",
     "completedTrips": "Completed Trips",
     "noCompletedTrips": "No completed trips yet."
+  },
+  "superAdminNavbar": {
+    "register": "Register User",
+    "Users": "Users",
+    "changeLanguage": "Change Language"
+  },
+  "register": {
+    "title": "Register New User",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "department": "Department",
+    "selectDepartment": "Select Department",
+    "role": "Role",
+    "selectRole": "Select Role",
+    "tempPassword": "Temporary Password",
+    "generate": "Generate",
+    "submit": "Register User",
+    "usernamePlaceholder": "Enter username",
+    "emailPlaceholder": "Enter email address",
+    "firstNamePlaceholder": "Enter first name",
+    "lastNamePlaceholder": "Enter last name",
+    "phoneNumberPlaceholder": "Enter phone number",
+    "passwordPlaceholder": "Generated temporary password"
+  },
+  "regeisteredUsers": {
+    "title": "All Registered Users",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "role": "Role",
+    "action": "Action",
+    "edit": "Edit",
+    "remove": "Remove",
+    "loading": "Loading users...",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of"
+  },
+  "editModal":{
+    "editUser": "Edit User",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "role": "Role",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "removeModal":{
+    "confirmDeletion": "Confirm Deletion",
+    "confirmMessage": "Are you sure you want to remove this user?",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }
