@@ -1,6 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import EditUserModal from "@/components/superAdmin/editModal";
+import DeleteConfirmModal from "@/components/superAdmin/removeUserModal";
+import { Icon } from "@iconify/react";
 
 // Static users data defined directly inside the component
 const usersData = [
@@ -94,20 +97,39 @@ export default function SuperAdminUsersPage() {
     Math.ceil(usersData.length / 10)
   );
   const [loading, setLoading] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [openMenu, setOpenMenu] = useState(null);
+  const buttonRef = useRef(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
+  const toggleMenu = (userId, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuPosition({ top: rect.bottom + 8, left: rect.right });
+    setOpenMenu(openMenu === userId ? null : userId);
+  };
+
+  // handlers
   const handleEdit = (user) => {
-    console.log("Edit", user);
-    // Add your edit logic here
+    setSelectedUser(user);
+    setEditModalOpen(true);
   };
 
   const handleRemove = (userId) => {
-    console.log("Remove", userId);
-    // Add your remove logic here
+    setSelectedUser(userId);
+    setDeleteModalOpen(true);
   };
 
-  const toggleMenu = (userId) => {
-    setOpenMenu(openMenu === userId ? null : userId); // Toggle menu visibility
+  const confirmDelete = () => {
+    // Call delete function here
+    console.log("Deleting user with ID:", selectedUser);
+    setDeleteModalOpen(false);
+  };
+
+  const saveUser = (updatedUser) => {
+    // Update user data logic here
+    console.log("Updated user:", updatedUser);
   };
 
   const usersPerPage = 10; // Number of users per page
@@ -177,53 +199,38 @@ export default function SuperAdminUsersPage() {
                     <td className="px-4 py-2 text-[#043755]">
                       <div className="relative inline-block text-left">
                         <button
+                          ref={buttonRef}
                           type="button"
-                          onClick={() => toggleMenu(user.id)}
-                          className="inline-flex justify-center w-full rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-                          id="menu-button"
-                          aria-expanded={
-                            openMenu === user.id ? "true" : "false"
-                          }
-                          aria-haspopup="true"
+                          onClick={(e) => toggleMenu(user.id, e)}
+                          className="inline-flex justify-center w-full bg-white text-sm font-medium text-black cursor-pointer focus:outline-none"
                         >
                           <span className="sr-only">Open options</span>
-                          {/* Vertical Dots */}
-                          <svg
-                            className="w-5 h-5 text-gray-600"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M6 12h12M6 6h12M6 18h12"
-                            />
-                          </svg>
+                          <Icon icon="ph:dots-three-vertical-bold" width={24} height={24} />
                         </button>
 
                         {/* Dropdown Menu (conditionally rendered) */}
-                        {openMenu === user.id && (
+                        {openMenu && (
                           <div
-                            className="origin-top-right absolute z-50 right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                            role="menu"
-                            aria-orientation="vertical"
-                            aria-labelledby="menu-button"
+                            className="fixed z-50 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            style={{
+                              top: menuPosition.top,
+                              left: menuPosition.left,
+                            }}
                           >
-                            <div className="py-1" role="none">
+                            <div className="py-1" role="menu">
                               <button
-                                onClick={() => handleEdit(user)}
-                                className="text-gray-700 block px-4 py-2 text-sm"
-                                role="menuitem"
+                                onClick={() =>
+                                  handleEdit(
+                                    users.find((u) => u.id === openMenu)
+                                  )
+                                }
+                                className="text-gray-700 block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 cursor-pointer"
                               >
                                 {t("edit")}
                               </button>
                               <button
-                                onClick={() => handleRemove(user.id)}
-                                className="text-gray-700 block px-4 py-2 text-sm"
-                                role="menuitem"
+                                onClick={() => handleRemove(openMenu)}
+                                className="text-gray-700 block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 cursor-pointer"
                               >
                                 {t("remove")}
                               </button>
@@ -261,6 +268,18 @@ export default function SuperAdminUsersPage() {
           </button>
         </div>
       </div>
+      <EditUserModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        user={selectedUser}
+        onSave={saveUser}
+      />
+
+      <DeleteConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

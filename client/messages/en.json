@@ -208,5 +208,21 @@
     "next": "Next",
     "page": "Page",
     "of": "of"
+  },
+  "editModal":{
+    "editUser": "Edit User",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "role": "Role",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "removeModal":{
+    "confirmDeletion": "Confirm Deletion",
+    "confirmMessage": "Are you sure you want to remove this user?",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }

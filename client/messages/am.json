@@ -208,5 +208,21 @@
     "next": "ቀጣይ",
     "page": "ገፅ",
     "of": "ከ"
+  },
+  "editModal": {
+    "editUser": "ተጠቃሚን አርትዕ",
+    "username": "የተጠቃሚ ስም",
+    "email": "ኢሜል",
+    "firstName": "የመጀመሪያ ስም",
+    "lastName": "የአያት ስም",
+    "role": "ኃላፊነት",
+    "cancel": "ሰርዝ",
+    "save": "አስቀምጥ"
+  },
+  "removeModal": {
+    "confirmDeletion": "መሰረዝ ያረጋግጡ",
+    "confirmMessage": "ይህን ተጠቃሚ መሰረዝ እንደሚፈልጉ እርግጠኛ ነኝ?",
+    "cancel": "ሰርዝ",
+    "delete": "አስወግድ"
   }
 }
