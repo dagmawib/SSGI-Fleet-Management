@@ -7,6 +7,7 @@ const requests = [
     id: "#001",
     date: "11 Feb, 2024",
     requester: "John Doe",
+    approver: "Jane Smith",
     vehicle: "Sedan",
     driver: "Michael Smith",
     pickup: "Location A",
@@ -18,6 +19,7 @@ const requests = [
     id: "#002",
     date: "13 Feb, 2024",
     requester: "Alice Johnson",
+    approver: "Tom Johnson",
     vehicle: "SUV",
     driver: "Robert Brown",
     pickup: "Location C",
@@ -29,6 +31,7 @@ const requests = [
     id: "#003",
     date: "15 Feb, 2024",
     requester: "David Lee",
+    approver: "Alice Williams",
     vehicle: "Truck",
     driver: "William Davis",
     pickup: "Location E",
@@ -40,6 +43,7 @@ const requests = [
     id: "#004",
     date: "17 Feb, 2024",
     requester: "John Doe",
+    approver: "Jane Smith",
     vehicle: "Sedan",
     driver: "Michael Smith",
     pickup: "Location A",
@@ -51,6 +55,7 @@ const requests = [
     id: "#005",
     date: "19 Feb, 2024",
     requester: "Alice Johnson",
+    approver: "Tom Johnson",
     vehicle: "SUV",
     driver: "Robert Brown",
     pickup: "Location C",
@@ -62,6 +67,7 @@ const requests = [
     id: "#006",
     date: "21 Feb, 2024",
     requester: "David Lee",
+    approver: "Alice Williams",
     vehicle: "Truck",
     driver: "William Davis",
     pickup: "Location E",
@@ -107,6 +113,7 @@ export default function RequestTrackingPage() {
               <th className="p-2">{t("table.requestId")}</th>
               <th className="p-2">{t("table.date")}</th>
               <th className="p-2">{t("table.requester")}</th>
+              <th className="p-2">{t("table.approver")}</th>
               <th className="p-2">{t("table.vehicle")}</th>
               <th className="p-2">{t("table.driver")}</th>
               <th className="p-2">{t("table.pickup")}</th>
@@ -121,6 +128,7 @@ export default function RequestTrackingPage() {
                 <td className="p-2">{req.id}</td>
                 <td className="p-2">{req.date}</td>
                 <td className="p-2">{req.requester}</td>
+                <td className="p-2">{req.approver}</td>
                 <td className="p-2">{req.vehicle}</td>
                 <td className="p-2">{req.driver}</td>
                 <td className="p-2">{req.pickup}</td>

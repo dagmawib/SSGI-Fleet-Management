@@ -26,7 +26,7 @@ export default function ProfilePage() {
       <h2 className="text-2xl font-semibold text-[#043755]">{t("title")}</h2>
       <p className="text-[#043755]">{t("description")}</p>
 
-      <div className="mt-4 flex items-center space-x-4">
+      {/* <div className="mt-4 flex items-center space-x-4">
         <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
           <Image
             src="/images/profile2.jpg"
@@ -40,23 +40,26 @@ export default function ProfilePage() {
           <button className="text-[#043755]">{t("upload")}</button>
           <button className="text-red-500 ml-4">{t("delete")}</button>
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-6">
-        <label className="text-[#043755]">{t("fullName")}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
-          <input
-            type="text"
-            value={userData.first_name}
-            className="border text-[#043755] p-2 rounded w-full"
-            readOnly
-          />
-          <input
-            type="text"
-            value={userData.last_name}
-            className="border text-[#043755] p-2 rounded w-full"
-            readOnly
-          />
+          <div>
+            <label className="text-[#043755]">{t("firstName")}</label>
+            <input
+              type="text"
+              value={userData.first_name}
+              className="border text-[#043755] p-2 rounded w-full"
+            />
+          </div>
+          <div>
+            <label className="text-[#043755]">{t("lastName")}</label>
+            <input
+              type="text"
+              value={userData.last_name}
+              className="border text-[#043755] p-2 rounded w-full"
+            />
+          </div>
         </div>
       </div>
 
@@ -67,7 +70,6 @@ export default function ProfilePage() {
             type="text"
             value={userData.username}
             className="border text-[#043755] p-2 rounded w-full mt-1"
-            readOnly
           />
         </div>
         <div>
@@ -78,7 +80,6 @@ export default function ProfilePage() {
               type="email"
               value={userData.email}
               className="w-full text-[#043755]"
-              readOnly
             />
           </div>
         </div>
@@ -91,7 +92,6 @@ export default function ProfilePage() {
             type="text"
             value={userData.phone_number}
             className="border text-[#043755] p-2 rounded w-full mt-1"
-            readOnly
           />
         </div>
         <div>
@@ -99,8 +99,9 @@ export default function ProfilePage() {
           <input
             type="text"
             value={userData.department}
-            className="border text-[#043755] p-2 rounded w-full mt-1"
+            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
+            disabled
           />
         </div>
       </div>
@@ -111,17 +112,20 @@ export default function ProfilePage() {
           <input
             type="text"
             value={userData.role}
-            className="border text-[#043755] p-2 rounded w-full mt-1"
+            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
+            disabled
           />
         </div>
+
         <div>
           <label className="text-[#043755]">{t("status")}</label>
           <input
             type="text"
             value={userData.is_active ? t("active") : t("inactive")}
-            className="border text-[#043755] p-2 rounded w-full mt-1"
+            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
+            disabled
           />
         </div>
       </div>

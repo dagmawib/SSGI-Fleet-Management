@@ -122,16 +122,16 @@ export default function Navbar() {
               >
                 Profile
               </Link> */}
-              {/* <Link
-                href="/user/contact"
+              <Link
+                href="/admin/car"
                 className={
-                  isActive("/user/contact")
+                  isActive("/admin/car")
                     ? "text-[#FFAE02] font-medium"
                     : "text-[#043755] hover:text-afPrimary"
                 }
               >
-                Contact Us
-              </Link> */}
+                {t("car")}
+              </Link>
               <Link
                 href="/admin/history"
                 className={
@@ -228,17 +228,17 @@ export default function Navbar() {
                     >
                       Profile
                     </Link> */}
-                    {/* <Link
-                      href="/user/contact"
+                    <Link
+                      href="/admin/car"
                       className={
-                        isActive("/user/contact")
+                        isActive("/admin/car")
                           ? "text-afPrimary underline underline-offset-4"
                           : "text-afPrimary/80 hover:text-afPrimary"
                       }
                       onClick={closeSidebar}
                     >
-                      Contact Us
-                    </Link> */}
+                      {t("car")}
+                    </Link>
                     <Link
                       href="/admin/history"
                       className={
