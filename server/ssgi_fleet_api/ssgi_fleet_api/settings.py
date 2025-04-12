@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',    # Custom user app
+    'vehicles', # Vehicle management app
     'rest_framework',##for JWT authentication
     'rest_framework_simplejwt',#for JWT authentication
     'rest_framework_simplejwt.token_blacklist', #for JWT authentication
@@ -73,6 +74,10 @@ SPECTACULAR_SETTINGS = {
 }
 
 ROOT_URLCONF = 'ssgi_fleet_api.urls'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 TEMPLATES = [
     {
