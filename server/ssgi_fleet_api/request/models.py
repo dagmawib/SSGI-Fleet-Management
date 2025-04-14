@@ -12,6 +12,7 @@ class Vehicle_Request(models.Model):
         REJECTED = 'Rejected', 'Rejected by Department'
         CANCELLED = 'Cancelled', 'Cancelled by Requester'
         COMPLETED = 'Completed', 'Fulfilled Successfully'
+        ASSIGNED = 'Assigned', 'Assigned to Driver'
     
     
     class Urgency(models.TextChoices):
@@ -19,19 +20,19 @@ class Vehicle_Request(models.Model):
         EMERGENCY = 'Emergency'
         PRIORITY = 'Priority'
 
-    request_id = models.AutoField(primary_key=True)
+    request_id = models.AutoField(primary_key=True , null=False , blank=False)
     requester = models.ForeignKey(User,
             on_delete=models.CASCADE ,
             related_name='requested_by',
             limit_choices_to={'role': User.Role.EMPLOYEE
                               })
 
-    pickup_location = models.CharField(max_length=255)
-    destination = models.CharField(max_length=255)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    pickup_location = models.CharField(max_length=255 , null=False , blank=False)
+    destination = models.CharField(max_length=255 , null=False , blank=False)
+    start_time = models.DateTimeField(null=False , blank=False)
+    end_time = models.DateTimeField(null=False , blank=False)
 
-    purpose = models.CharField(max_length=255)
+    purpose = models.CharField(max_length=255 , null=False , blank=False)
     urgency = models.CharField(max_length=255,
                               choices=Urgency.choices,  
                               default=Urgency.REGULAR)
