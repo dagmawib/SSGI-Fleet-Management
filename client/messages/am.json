@@ -27,7 +27,8 @@
     "description": "የመለያ መረጃዎን ያስተካክሉ።",
     "upload": "አዲስ ፎቶ ያስገቡ",
     "delete": "ያጥፉ",
-    "fullName": "ሙሉ ስም",
+    "firstName": "ስም",
+    "lastName": "የአባት ስም",
     "username": "የተጠቃሚ ስም",
     "email": "ኢሜይል",
     "phone": "ስልክ ቁጥር",
@@ -59,6 +60,7 @@
       "requestId": "የጥያቄ መለያ",
       "date": "ቀን",
       "requester": "ጠያቂ",
+      "approver": "አጽዳቂ",
       "vehicle": "ተሽከርካሪ",
       "driver": "አሽከርካሪ",
       "pickup": "የመነሻ ቦታ",
@@ -145,6 +147,7 @@
   "AdminNavbar": {
     "request": "ጥያቄዎች",
     "history": "ታሪክ",
+    "car": "ተሽከርካሪዎች",
     "changeLanguage": "ቋንቋ ይለውጡ"
   },
   "driverDashboard": {
@@ -224,5 +227,33 @@
     "confirmMessage": "ይህን ተጠቃሚ መሰረዝ እንደሚፈልጉ እርግጠኛ ነኝ?",
     "cancel": "ሰርዝ",
     "delete": "አስወግድ"
+  },
+  "car": {
+    "title": "አዲስ ተሽከርካሪ ጨምር",
+    "licensePlate": "የማሽከርካሪ ፖላት",
+    "make": "ምርት",
+    "model": "ሞዴል",
+    "year": "ዓመት",
+    "color": "ቀለም",
+    "type": "አይነት",
+    "capacity": "እቃ ችሎታ",
+    "currentMileage": "አሁን የሚነሱት ኪሎሜትር",
+    "lastMaintenance": "መጨረሻ እንቅስቃሴ ቀን",
+    "nextMaintenanceMileage": "ለሚቀጥለው እንቅስቃሴ ኪሎሜትር",
+    "fuelType": "የማሽከርካሪ ነዳጅ አይነት",
+    "fuelEfficiency": "የነዳጅ ተመን (ኪሜ/ል)",
+    "status": "ሁኔታ",
+    "statusOptions": {
+      "available": "እባክህ ያገኙ",
+      "inMaintenance": "በእንቅስቃሴ ላይ",
+      "outOfService": "ከአገልግሎት ተከላ"
+    },
+    "fuelOptions": {
+      "gasoline": "ጋዝሊን",
+      "diesel": "ዲዝል",
+      "electric": "ኤሌክትሪክ",
+      "hybrid": "ሃይብሪድ"
+    },
+    "submitButton": "ተሽከርካሪ ጨምር"
   }
 }

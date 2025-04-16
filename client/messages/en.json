@@ -27,7 +27,8 @@
     "description": "Manage your profile information.",
     "upload": "Upload new picture",
     "delete": "Delete",
-    "fullName": "Full Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
     "username": "Username",
     "email": "Email",
     "phone": "Phone Number",
@@ -59,6 +60,7 @@
       "requestId": "Request ID",
       "date": "Date",
       "requester": "Requester",
+      "approver": "Approver",
       "vehicle": "Vehicle",
       "driver": "Driver",
       "pickup": "Pickup",
@@ -145,6 +147,7 @@
   "AdminNavbar": {
     "request": "Requests",
     "history": "History",
+    "car": "Vehicles",
     "changeLanguage": "Change Language"
   },
   "driverDashboard": {
@@ -224,5 +227,33 @@
     "confirmMessage": "Are you sure you want to remove this user?",
     "cancel": "Cancel",
     "delete": "Delete"
+  },
+  "car": {
+    "title": "Add New Car",
+    "licensePlate": "License Plate",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "color": "Color",
+    "type": "Type",
+    "capacity": "Capacity",
+    "currentMileage": "Current Mileage",
+    "lastMaintenance": "Last Maintenance Date",
+    "nextMaintenanceMileage": "Next Maintenance Mileage",
+    "fuelType": "Fuel Type",
+    "fuelEfficiency": "Fuel Efficiency (km/l)",
+    "status": "Status",
+    "statusOptions": {
+      "available": "Available",
+      "inMaintenance": "In Maintenance",
+      "outOfService": "Out of Service"
+    },
+    "fuelOptions": {
+      "gasoline": "Gasoline",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    },
+    "submitButton": "Add Car"
   }
 }
