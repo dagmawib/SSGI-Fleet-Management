@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
+from django.utils.crypto import get_random_string
 
 from .permissions import IsSuperAdmin
 from users.models import User
@@ -22,11 +24,20 @@ from .docs import (
     user_list_docs,
     user_detail_docs,
     token_obtain_docs,
-    user_login_docs
+    user_login_docs,
 )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
+def generate_temp_password(request):
+    password = get_random_string(8)  # 8-character random password
+    return Response({'temporary_password': password})
+
 
 class SuperAdminRegistrationView(generics.CreateAPIView):
     """Endpoint exclusively for SuperAdmins to register any type of user."""
+
     serializer_class = SuperAdminRegistrationSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
 
@@ -36,19 +47,18 @@ class SuperAdminRegistrationView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        if hasattr(user, 'temporary_password'):
-            print(f"Created user {user.email} with temp password: {user.temporary_password}")
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
+        if hasattr(user, "temporary_password"):
+            print(
+                f"Created user {user.email} with temp password: {user.temporary_password}"
+            )
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """Allows authenticated users to view and modify their own profile."""
+
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -69,12 +79,14 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         instance = serializer.save()
-        if 'password' in serializer.validated_data:
-            instance.set_password(serializer.validated_data['password'])
+        if "password" in serializer.validated_data:
+            instance.set_password(serializer.validated_data["password"])
             instance.save()
+
 
 class LogoutView(APIView):
     """Invalidates the provided refresh token to log out the user."""
+
     permission_classes = [permissions.IsAuthenticated]
 
     @logout_docs
@@ -83,7 +95,7 @@ class LogoutView(APIView):
         if not refresh_token:
             return Response(
                 {"error": "refresh token is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
@@ -91,15 +103,20 @@ class LogoutView(APIView):
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserListView(generics.ListCreateAPIView):
-    """Provides list and create operations for user accounts."""
-    queryset = User.objects.select_related('department').order_by('-date_joined')
+    """
+    Provides list and create operations for user accounts.
+    - List: Returns paginated users with filtering by department and role
+    - Create: Allows admin user creation
+    """
+    serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
+    queryset = User.objects.select_related('department').order_by('-date_joined')
+    filterset_fields = ['department', 'role']
+    search_fields = ['email', 'first_name', 'last_name']
 
     @user_list_docs
     def get(self, request, *args, **kwargs):
@@ -107,27 +124,37 @@ class UserListView(generics.ListCreateAPIView):
 
     @user_list_docs
     def post(self, request, *args, **kwargs):
+        self.serializer_class = UserCreateSerializer
         return super().post(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        return UserCreateSerializer if self.request.method == 'POST' else UserSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        params = self.request.query_params
+        department_id = self.request.query_params.get('department_id')
+        role = self.request.query_params.get('role')
         
-        if 'department_id' in params:
-            queryset = queryset.filter(department_id=params['department_id'])
-        if 'role' in params:
-            queryset = queryset.filter(role=params['role'])
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        if role:
+            queryset = queryset.filter(role=role)
             
         return queryset
 
+
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """Provides detailed view and modification of user accounts."""
+    """
+    Provides detailed view and modification of user accounts.
+    - GET: Retrieve user details
+    - PUT/PATCH: Update user details
+    - DELETE: Deactivate user (consider soft delete)
+    """
     queryset = User.objects.select_related('department')
     permission_classes = [permissions.IsAdminUser]
     lookup_field = 'pk'
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserUpdateSerializer
+        return UserSerializer
 
     @user_detail_docs
     def get(self, request, *args, **kwargs):
@@ -143,22 +170,26 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     @user_detail_docs
     def delete(self, request, *args, **kwargs):
-        return super().delete(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        return UserUpdateSerializer if self.request.method in ['PUT', 'PATCH'] else UserSerializer
+        instance = self.get_object()
+        if instance == request.user:
+            return Response(
+                {"error": "You cannot delete your own account"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        instance.is_active = False 
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_destroy(self, instance):
         if instance == self.request.user:
             return Response(
                 {"error": "You cannot delete your own account"},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
         instance.delete()
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Customized JWT token obtain view with enhanced documentation."""
-    
-    @token_obtain_docs
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+
+    serializer_class = CustomTokenObtainPairSerializer

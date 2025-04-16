@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import CustomTokenObtainPairView, SuperAdminRegistrationView,  UserProfileView, LogoutView, UserListView, UserDetailView
+from .views import CustomTokenObtainPairView, SuperAdminRegistrationView,  UserProfileView, LogoutView, UserListView, UserDetailView, generate_temp_password
 
 urlpatterns = [
     path('users/', UserListView.as_view(), name='user-list'),
@@ -14,4 +14,5 @@ urlpatterns = [
     path('profile/', UserProfileView.as_view(), name='user_profile'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('superadmin/register/', SuperAdminRegistrationView.as_view(), name='superadmin-register'),
+    path('auth/generate-password/', generate_temp_password, name='generate-password'),
 ]

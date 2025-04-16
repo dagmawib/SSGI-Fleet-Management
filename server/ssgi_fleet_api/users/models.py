@@ -23,7 +23,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
 
         if password:
-            user.set_password(password)
+            user.set_password(password) 
         else:
             user.set_unusable_password()
 
@@ -85,9 +85,8 @@ class User(AbstractUser):
         ADMIN = "admin", _("Administrator")
         DIRECTOR = "director", _("Director")
 
-    username = models.CharField(
-        _("username"), max_length=150, unique=True, default=uuid.uuid4
-    )
+    username = models.CharField(_("username"), max_length=150, unique=True, blank=True)
+
     email = models.EmailField(_("email address"), unique=True)
     phone_number = models.CharField(_("phone number"), max_length=20, blank=True)
     department = models.ForeignKey(
@@ -154,19 +153,11 @@ class User(AbstractUser):
             raise ValidationError(_("Department directors must have the director role"))
 
     def save(self, *args, **kwargs):
-        """Custom save logic with automatic username generation"""
+        """Custom save logic - removed username generation"""
         self.email = self.__class__.objects.normalize_email(self.email)
-
-        if not self.pk:  # New user
-            if not self.username or self.username == str(uuid.uuid4()):
-                self.username = self._generate_username()
-
         super().save(*args, **kwargs)
 
-    def _generate_username(self):
-        """Generate a unique username from name components"""
-        base = f"{slugify(self.first_name)}_{slugify(self.last_name)}".lower()
-        return f"{base}_{uuid.uuid4().hex[:4]}"
+
 
     def send_welcome_email(self, temporary_password=None):
         """Send welcome email with login credentials"""
