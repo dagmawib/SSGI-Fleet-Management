@@ -2,22 +2,13 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
-
-// const userData = {
-//   user_id: 1,
-//   username: "johndoe",
-//   email: "johndoe@example.com",
-//   first_name: "John",
-//   last_name: "Doe",
-//   phone_number: "+1234567890",
-//   department: "IT",
-//   role: "admin",
-//   is_active: true,
-//   password: "johndoe123",
-// };
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function ProfilePage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
   const t = useTranslations("profile");
   const [userData, setUserData] = useState({
     first_name: "",
@@ -40,10 +31,36 @@ export default function ProfilePage() {
     fetchUserData();
   }, []);
 
+  const updateProfile = async (updatedData) => {
+    try {
+      const res = await fetch("/api/updateProfile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update profile");
+        setErrorMessage(data.error || "Failed to update profile");
+      }
+      setSuccessMessage("Profile updated successfully!");
+      return data;
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    }
+  };
+
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto p-6 bg-white shadow-md rounded-lg my-4">
       <h2 className="text-2xl font-semibold text-[#043755]">{t("title")}</h2>
       <p className="text-[#043755]">{t("description")}</p>
+
+      {errorMessage && <div className="mt-4 text-red-500">{errorMessage}</div>}
+      {successMessage && (
+        <div className="mt-4 text-green-500">{successMessage}</div>
+      )}
 
       {/* <div className="mt-4 flex items-center space-x-4">
         <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
@@ -178,9 +195,17 @@ export default function ProfilePage() {
       <div className="mt-6 flex justify-end space-x-4">
         <button
           type="submit"
+          disabled={loading}
+          onClick={() => updateProfile(userData)}
           className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
         >
-          {t("update")}
+          {loading ? (
+            <span className="flex justify-center items-center">
+              <CircularProgress size={24} color="inherit" />
+            </span>
+          ) : (
+            t("update")
+          )}
         </button>
       </div>
     </div>
