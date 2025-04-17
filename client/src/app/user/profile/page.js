@@ -1,25 +1,44 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-const userData = {
-  user_id: 1,
-  username: "johndoe",
-  email: "johndoe@example.com",
-  first_name: "John",
-  last_name: "Doe",
-  phone_number: "+1234567890",
-  department: "IT",
-  role: "admin",
-  is_active: true,
-  password: "johndoe123",
-};
+// const userData = {
+//   user_id: 1,
+//   username: "johndoe",
+//   email: "johndoe@example.com",
+//   first_name: "John",
+//   last_name: "Doe",
+//   phone_number: "+1234567890",
+//   department: "IT",
+//   role: "admin",
+//   is_active: true,
+//   password: "johndoe123",
+// };
 
 export default function ProfilePage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const t = useTranslations("profile");
+  const [userData, setUserData] = useState({
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const res = await fetch("/api/getProfile", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      setUserData(data);
+    };
+    fetchUserData();
+  }, []);
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto p-6 bg-white shadow-md rounded-lg my-4">
@@ -48,38 +67,22 @@ export default function ProfilePage() {
             <label className="text-[#043755]">{t("firstName")}</label>
             <input
               type="text"
-              value={userData.first_name}
+              value={userData.first_name || ""}
               className="border text-[#043755] p-2 rounded w-full"
+              onChange={(e) =>
+                setUserData((prev) => ({ ...prev, first_name: e.target.value }))
+              }
             />
           </div>
           <div>
             <label className="text-[#043755]">{t("lastName")}</label>
             <input
               type="text"
-              value={userData.last_name}
+              value={userData.last_name || ""}
               className="border text-[#043755] p-2 rounded w-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-[#043755]">{t("username")}</label>
-          <input
-            type="text"
-            value={userData.username}
-            className="border text-[#043755] p-2 rounded w-full mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-[#043755]">{t("email")}</label>
-          <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
-            <Icon icon="mdi:email-outline" className="text-[#043755] mr-2" />
-            <input
-              type="email"
-              value={userData.email}
-              className="w-full text-[#043755]"
+              onChange={(e) =>
+                setUserData((prev) => ({ ...prev, last_name: e.target.value }))
+              }
             />
           </div>
         </div>
@@ -90,15 +93,48 @@ export default function ProfilePage() {
           <label className="text-[#043755]">{t("phone")}</label>
           <input
             type="text"
-            value={userData.phone_number}
+            value={userData.phone_number || ""}
             className="border text-[#043755] p-2 rounded w-full mt-1"
+            onChange={(e) =>
+              setUserData((prev) => ({
+                ...prev,
+                phone_number: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <div>
+          <label className="text-[#043755]">{t("email")}</label>
+          <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
+            <Icon icon="mdi:email-outline" className="text-[#043755] mr-2" />
+            <input
+              type="email"
+              value={userData.email || ""}
+              className="w-full text-[#043755]"
+              onChange={(e) =>
+                setUserData((prev) => ({ ...prev, email: e.target.value }))
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-[#043755]">{t("role")}</label>
+          <input
+            type="text"
+            value={userData.role || ""}
+            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
+            readOnly
+            disabled
           />
         </div>
         <div>
           <label className="text-[#043755]">{t("department")}</label>
           <input
             type="text"
-            value={userData.department}
+            value={userData.department || ""}
             className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
             disabled
@@ -108,43 +144,34 @@ export default function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[#043755]">{t("role")}</label>
-          <input
-            type="text"
-            value={userData.role}
-            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
-            readOnly
-            disabled
-          />
+          <label className="text-[#043755]">{t("password")}</label>
+          <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
+            <input
+              type={passwordVisible ? "text" : "password"}
+              value={userData.password || ""}
+              className="w-full text-[#043755]"
+              readOnly
+            />
+            <button onClick={() => setPasswordVisible(!passwordVisible)}>
+              <Icon
+                icon={
+                  passwordVisible ? "mdi:eye-off-outline" : "mdi:eye-outline"
+                }
+                className="text-[#043755] ml-2"
+              />
+            </button>
+          </div>
         </div>
 
         <div>
           <label className="text-[#043755]">{t("status")}</label>
           <input
             type="text"
-            value={userData.is_active ? t("active") : t("inactive")}
+            value={userData.is_active ? t("active") : t("inactive") || ""}
             className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
             disabled
           />
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <label className="text-[#043755]">{t("password")}</label>
-        <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
-          <input
-            type={passwordVisible ? "text" : "password"}
-            value={userData.password}
-            className="w-full text-[#043755]"
-            readOnly
-          />
-          <button onClick={() => setPasswordVisible(!passwordVisible)}>
-            <Icon
-              icon={passwordVisible ? "mdi:eye-off-outline" : "mdi:eye-outline"}
-              className="text-[#043755] ml-2"
-            />
-          </button>
         </div>
       </div>
 

@@ -84,7 +84,8 @@
     "forgotPassword": "Forgot Password?",
     "loginButton": "Login",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "successfulVerification": "Successfully logged in!"
   },
   "forgotPassword": {
     "title": "Forgot Password",

@@ -84,7 +84,8 @@
     "forgotPassword": "የይለፍ ቃልን ረስተዋል?",
     "loginButton": "ግባ",
     "showPassword": "የይለፍ ቃል አሳይ",
-    "hidePassword": "የይለፍ ቃል ደብቅ"
+    "hidePassword": "የይለፍ ቃል ደብቅ",
+    "successfulVerification": "በተሳካ ሁኔታ ገብቷል!"
   },
   "forgotPassword": {
     "title": "የይለፍ ቃል መርማሪያ",
