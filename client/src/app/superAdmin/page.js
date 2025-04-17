@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { useTranslations } from "next-intl";
 
 export default function Page() {
   const t = useTranslations("register"); // For localization
+  const [temporaryPassword, setTemporaryPassword] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -23,12 +24,23 @@ export default function Page() {
     // Add more or fetch from backend
   ];
 
+  const fetchTempPassword = async () => {
+    const res = await fetch("/api/generatePassword", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    setTemporaryPassword(data);
+  };
+
   const roles = ["employee", "driver", "admin", "director"];
 
-  const generateTempPassword = () => {
-    const tempPassword = Math.random().toString(36).slice(-10);
-    setFormData({ ...formData, password: tempPassword });
-  };
+  // const generateTempPassword = () => {
+  //   const tempPassword = Math.random().toString(36).slice(-10);
+  //   setFormData({ ...formData, password: tempPassword });
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -179,7 +191,7 @@ export default function Page() {
               />
               <button
                 type="button"
-                onClick={generateTempPassword}
+                onClick={fetchTempPassword}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
               >
                 {t("generate")}

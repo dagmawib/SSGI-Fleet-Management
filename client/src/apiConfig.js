@@ -6,5 +6,7 @@ export const API_ENDPOINTS = {
 
 
     PROFILE: "/auth/profile/",
+
+    GENERATE_PASSWORD: "/auth/auth/generate-password/",
 }
 

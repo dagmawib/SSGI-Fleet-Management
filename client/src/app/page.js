@@ -116,19 +116,18 @@ function Home() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
+      {/* Background Image for mobile view */}
+      <div className="absolute inset-0  md:relative w-full md:w-1/2 h-screen md:h-auto">
+        <Image
+          src="/images/LoginImage2.png"
+          alt="Login Illustration"
+          fill
+          className="object-cover md:static md:object-cover"
+          priority
+        />
+      </div>
       {!isLoginSuccessful ? (
         <>
-          {/* Background Image for mobile view */}
-          <div className="absolute inset-0  md:relative w-full md:w-1/2 h-screen md:h-auto">
-            <Image
-              src="/images/LoginImage2.png"
-              alt="Login Illustration"
-              fill
-              className="object-cover md:static md:object-cover"
-              priority
-            />
-          </div>
-
           {/* Login Form */}
           <div className="relative z-10 w-full md:w-1/2 flex items-center justify-center px-4 py-10 min-h-screen">
             <form
@@ -257,12 +256,14 @@ function Home() {
         </>
       ) : (
         <div className="relative z-10 w-full md:w-1/2 flex items-center justify-center px-4 py-10 min-h-screen">
-          <div className="flex flex-col">
-            <div className="flex gap-x-5 items-center">
-              <CircleCheckBig size={30} className="text-[#043755]" />
-              <p className="md:text-2xl text-lg font-semibold text-[#043755]">
-                {t("successfulVerification")}
-              </p>
+          <div className="border bg-white/90 md:bg-afWhite shadow rounded-2xl max-w-[382px] md:max-w-[500px] w-full flex items-center justify-center px-4 py-10">
+            <div className="flex flex-col">
+              <div className="flex gap-x-5 items-center">
+                <CircleCheckBig size={30} className="text-[#043755]" />
+                <p className="md:text-2xl text-lg font-semibold text-[#043755]">
+                  {t("successfulVerification")}
+                </p>
+              </div>
             </div>
           </div>
         </div>
