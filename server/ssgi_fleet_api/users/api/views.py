@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from django.utils.crypto import get_random_string
+from drf_spectacular.utils import extend_schema
+
 
 from .permissions import IsSuperAdmin
 from users.models import User
@@ -16,6 +18,7 @@ from .serializers import (
     UserSerializer,
     UserCreateSerializer,
     UserUpdateSerializer,
+    TemporaryPasswordSerializer,
 )
 from .docs import (
     super_admin_register_docs,
@@ -28,12 +31,14 @@ from .docs import (
 )
 
 
+@extend_schema(
+    responses=TemporaryPasswordSerializer
+)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
 def generate_temp_password(request):
-    password = get_random_string(8)  # 8-character random password
+    password = get_random_string(8)
     return Response({'temporary_password': password})
-
 
 class SuperAdminRegistrationView(generics.CreateAPIView):
     """Endpoint exclusively for SuperAdmins to register any type of user."""
@@ -77,11 +82,11 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        if "password" in serializer.validated_data:
-            instance.set_password(serializer.validated_data["password"])
-            instance.save()
+    # def perform_update(self, serializer):
+    #     instance = serializer.save()
+    #     if "password" in serializer.validated_data:
+    #         instance.set_password(serializer.validated_data["password"])
+    #         instance.save()
 
 
 class LogoutView(APIView):
