@@ -188,6 +188,27 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, min_length=8)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "password"
+        ]
+        
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.set_password(password)
+            instance.save()
+        return instance
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile viewing/updating"""
@@ -200,7 +221,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
     )
 
-    password = serializers.CharField(write_only=True, required=False, min_length=8)
 
     class Meta:
         model = User
@@ -212,20 +232,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "role",
             "department",
             "department_id",
-            "password",
             "is_active",
             "date_joined",
             "last_login",
         ]
         read_only_fields = ["email", "role", "date_joined", "last_login"]
 
-    def update(self, instance, validated_data):
-        password = validated_data.pop("password", None)
-        instance = super().update(instance, validated_data)
-        if password:
-            instance.set_password(password)
-            instance.save()
-        return instance
 
 class UserSerializer(serializers.ModelSerializer):
     """Default serializer for user listing"""
