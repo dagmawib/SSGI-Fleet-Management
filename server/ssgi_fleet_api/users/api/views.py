@@ -149,7 +149,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     - DELETE: Deactivate user (consider soft delete)
     """
     queryset = User.objects.select_related('department')
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
     lookup_field = 'pk'
 
     def get_serializer_class(self):
