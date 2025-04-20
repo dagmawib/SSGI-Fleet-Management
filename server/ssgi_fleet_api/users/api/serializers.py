@@ -86,6 +86,7 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
             "department_name",
             "generate_credentials",
             "temporary_password",
+            "password",
         ]
         extra_kwargs = {"password": {"write_only": True, "required": False}}
 
