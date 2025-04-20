@@ -213,6 +213,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "department",
             "department_id",
             "password",
+            "is_active",
             "date_joined",
             "last_login",
         ]
