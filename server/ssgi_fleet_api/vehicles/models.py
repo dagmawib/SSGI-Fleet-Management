@@ -24,7 +24,7 @@ class Vehicle(models.Model):
             MaxValueValidator(2100)
         ]
     )
-    color = models.CharField(max_length=30)
+    color = models.CharField(max_length=30, blank=True,null=True)
     fuel_type = models.CharField(max_length=10, choices=FuelType.choices)
     fuel_efficiency = models.FloatField(
         validators=[MinValueValidator(0.0)],
