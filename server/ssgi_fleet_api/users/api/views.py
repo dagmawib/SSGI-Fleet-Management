@@ -82,11 +82,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    # def perform_update(self, serializer):
-    #     instance = serializer.save()
-    #     if "password" in serializer.validated_data:
-    #         instance.set_password(serializer.validated_data["password"])
-    #         instance.save()
+
 
 
 class LogoutView(APIView):
@@ -118,7 +114,7 @@ class UserListView(generics.ListCreateAPIView):
     - Create: Allows admin user creation
     """
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
     queryset = User.objects.select_related('department').order_by('-date_joined')
     filterset_fields = ['department', 'role']
     search_fields = ['email', 'first_name', 'last_name']
