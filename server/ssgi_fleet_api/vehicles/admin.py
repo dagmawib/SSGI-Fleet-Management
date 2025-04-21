@@ -9,7 +9,8 @@ class VehicleAdmin(admin.ModelAdmin):
         'make_model', 
         'status_badge',
         'assigned_driver',
-        'last_service'
+        'last_service',
+        'status',
     )
     list_filter = ('status', 'make', 'fuel_type', 'department')
     search_fields = ('license_plate', 'make', 'model')

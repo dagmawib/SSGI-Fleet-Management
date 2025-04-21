@@ -237,7 +237,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
                 "user_id": user.pk,
                 "email": user.email,
                 "password_reset_required": True,
-                "reset_link": f"/password-reset/{uid}/{token}/"  # Frontend URL
+                "reset_link": f"/password-reset/{uid}/{token}/"  
             },
             status=status.HTTP_200_OK
         )

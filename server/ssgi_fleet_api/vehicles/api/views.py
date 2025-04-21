@@ -1,7 +1,9 @@
-from rest_framework import generics, status
+from typing import Generic
+from rest_framework import viewsets, status, generics
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema_view
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
@@ -48,28 +50,44 @@ class ListVehiclesView(generics.ListAPIView):
             queryset = queryset.filter(
                 Q(license_plate__icontains=search) |
                 Q(make__icontains=search) |
-                Q(model__icontains=search)
-            )
-        
+                Q(model__icontains=search))
         return queryset.order_by('make', 'model')
 
-@extend_schema_view(
-    get=vehicle_retrieve_docs,
-    put=vehicle_update_docs,
-    patch=vehicle_update_docs
-)
-class UpdateVehicleView(generics.RetrieveUpdateAPIView):
+class VehicleViewSet(viewsets.ModelViewSet):
     """
-    Vehicle detail management endpoint
+    Complete vehicle management endpoint
     """
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     lookup_field = 'id'
 
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.action in ['list', 'retrieve']:
             return [IsAuthenticated()]
         return [IsAuthenticated(), IsAdminOrSuperAdmin()]
+
+    # @extend_schema(**vehicle_retrieve_docs)
+    @vehicle_retrieve_docs
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    # @extend_schema(**vehicle_update_docs)
+    @vehicle_update_docs
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    # @extend_schema(**vehicle_update_docs)
+    @vehicle_update_docs
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'])
+    def maintenance(self, request, pk=None):
+        """Mark vehicle as needing maintenance"""
+        vehicle = self.get_object()
+        vehicle.status = Vehicle.Status.MAINTENANCE
+        vehicle.save()
+        return Response({'status': 'maintenance scheduled'})
 
     def perform_update(self, serializer):
         instance = serializer.save()

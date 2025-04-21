@@ -14,29 +14,34 @@ common_responses = {
     404: OpenApiResponse(description="Vehicle not found")
 }
 
-# Add Vehicle Documentation
+# Vehicle Create Endpoint
 vehicle_create_docs = extend_schema(
     tags=["Vehicle Management"],
-    summary="Register new vehicle",
-    description="""Create a new vehicle in the fleet management system.
-    **Permissions:** Admin or Superadmin only.
+    operation_id="vehicle_create",
+    summary="Register a new vehicle",
+    description="""
+    Register a new vehicle in the system.
+
+    **Permissions Required:** Admin or Superadmin.
+
+    **Request URL:** `/api/vehicles/`
+    **Method:** POST
+
+    **Example Request Body:**
+    ```json
+    {
+        "license_plate": "ABC-1234",
+        "make": "Toyota",
+        "model": "Land Cruiser",
+        "year": 2023,
+        "color": "White",
+        "fuel_type": "diesel",
+        "capacity": 7,
+        "status": "available"
+    }
+    ```
     """,
-    examples=[
-        OpenApiExample(
-            "Valid Vehicle Creation",
-            value={
-                "license_plate": "ABC-1234",
-                "make": "Toyota",
-                "model": "Land Cruiser",
-                "year": 2023,
-                "color": "White",
-                "fuel_type": "diesel",
-                "capacity": 7,
-                "status": "available"
-            },
-            request_only=True
-        )
-    ],
+    request=VehicleSerializer,
     responses={
         201: OpenApiResponse(
             response=VehicleSerializer,
@@ -59,12 +64,24 @@ vehicle_create_docs = extend_schema(
     }
 )
 
-# List Vehicles Documentation
+# Vehicle List Endpoint
 vehicle_list_docs = extend_schema(
     tags=["Vehicle Management"],
+    operation_id="vehicle_list",
     summary="List all vehicles",
-    description="""Retrieve paginated list of vehicles with filtering capabilities.
-    **Permissions:** All authenticated users.
+    description="""
+    Retrieve a paginated list of all vehicles.
+
+    **Permissions Required:** Authenticated users.
+
+    **Request URL:** `/api/vehicles/list/`
+    **Method:** GET
+
+    **Query Parameters (Optional):**
+      - `status`: Filter by status (available, in_use, maintenance, out_of_service)
+      - `make`: Filter by manufacturer (e.g., Toyota)
+      - `capacity_min`: Minimum capacity (e.g., 4)
+      - `search`: Keyword to search in license plate, make, or model
     """,
     parameters=[
         OpenApiParameter(
@@ -72,31 +89,34 @@ vehicle_list_docs = extend_schema(
             type=OpenApiTypes.STR,
             location=OpenApiParameter.QUERY,
             description="Filter by vehicle status",
-            enum=["available", "in_use", "maintenance", "out_of_service"],
-            required=False
+            enum=["available", "in_use", "maintenance", "out_of_service"]
         ),
         OpenApiParameter(
             name="make",
             type=OpenApiTypes.STR,
             location=OpenApiParameter.QUERY,
-            description="Filter by vehicle manufacturer",
-            required=False
+            description="Filter by manufacturer"
         ),
         OpenApiParameter(
             name="capacity_min",
             type=OpenApiTypes.INT,
             location=OpenApiParameter.QUERY,
-            description="Minimum passenger capacity",
-            required=False
+            description="Minimum passenger capacity"
+        ),
+        OpenApiParameter(
+            name="search",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="Search by license plate, make, or model"
         )
     ],
     responses={
         200: OpenApiResponse(
             response=VehicleSerializer(many=True),
-            description="Paginated list of vehicles",
+            description="List of vehicles",
             examples=[
                 OpenApiExample(
-                    "Filtered Response",
+                    "Vehicle List Response",
                     value=[{
                         "id": 1,
                         "license_plate": "ABC-1234",
@@ -110,12 +130,18 @@ vehicle_list_docs = extend_schema(
     }
 )
 
-# Vehicle Detail Documentation
+# Vehicle Retrieve Endpoint
 vehicle_retrieve_docs = extend_schema(
     tags=["Vehicle Management"],
-    summary="Get vehicle details",
-    description="""Retrieve complete details for a specific vehicle.
-    **Permissions:** All authenticated users.
+    operation_id="vehicle_retrieve",
+    summary="Retrieve details of a vehicle",
+    description="""
+    Retrieve detailed information about a specific vehicle.
+
+    **Permissions Required:** Authenticated users.
+
+    **Request URL:** `/api/vehicles/{id}/`
+    **Method:** GET
     """,
     responses={
         200: OpenApiResponse(
@@ -123,16 +149,16 @@ vehicle_retrieve_docs = extend_schema(
             description="Vehicle details",
             examples=[
                 OpenApiExample(
-                    "Success Response",
+                    "Vehicle Detail",
                     value={
                         "id": 1,
                         "license_plate": "ABC-1234",
                         "make": "Toyota",
                         "model": "Land Cruiser",
                         "year": 2023,
+                        "status": "available",
                         "current_mileage": 15000,
-                        "last_service_date": "2023-06-15",
-                        "status": "available"
+                        "last_service_date": "2023-06-15"
                     }
                 )
             ]
@@ -141,38 +167,59 @@ vehicle_retrieve_docs = extend_schema(
     }
 )
 
-# Update Vehicle Documentation
+# Vehicle Update Endpoint
 vehicle_update_docs = extend_schema(
     tags=["Vehicle Management"],
-    summary="Update vehicle details",
-    description="""Update vehicle information or status.
-    **Permissions:** Admin or Superadmin only.
+    operation_id="vehicle_update",
+    summary="Update vehicle information",
+    description="""
+    Update specific fields of a vehicle (e.g., status or notes).
+
+    **Permissions Required:** Admin or Superadmin.
+
+    **Request URL:** `/api/vehicles/{id}/`
+    **Method:** PUT/PATCH
     """,
-    examples=[
-        OpenApiExample(
-            "Status Update",
-            value={"status": "maintenance", "notes": "Engine check required"},
-            request_only=True
-        ),
-        OpenApiParameter(
-            name="id",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.PATH,
-            description="Vehicle ID"
-        )
-    ],
+    request=VehicleSerializer,
     responses={
         200: OpenApiResponse(
             response=VehicleSerializer,
-            description="Vehicle updated successfully",
+            description="Updated vehicle info",
             examples=[
                 OpenApiExample(
-                    "Update Response",
+                    "Vehicle Updated",
                     value={
                         "id": 1,
                         "status": "maintenance",
                         "notes": "Engine check required"
                     }
+                )
+            ]
+        ),
+        **common_responses
+    }
+)
+
+# Vehicle Maintenance Custom Action
+vehicle_maintenance_docs = extend_schema(
+    tags=["Vehicle Management"],
+    operation_id="vehicle_set_maintenance",
+    summary="Mark vehicle as needing maintenance",
+    description="""
+    Set a vehicle's status to 'maintenance'.
+
+    **Permissions Required:** Admin or Superadmin.
+
+    **Request URL:** `/api/vehicles/{id}/maintenance/`
+    **Method:** POST
+    """,
+    responses={
+        200: OpenApiResponse(
+            description="Vehicle marked for maintenance",
+            examples=[
+                OpenApiExample(
+                    "Maintenance Set",
+                    value={"status": "maintenance scheduled"}
                 )
             ]
         ),
