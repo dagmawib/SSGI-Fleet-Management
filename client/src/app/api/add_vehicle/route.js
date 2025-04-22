@@ -21,7 +21,6 @@ export const POST = async (req) => {
       model,
       year,
       color,
-      type,
       capacity,
       current_mileage,
       last_service_date,
@@ -38,12 +37,10 @@ export const POST = async (req) => {
       !model ||
       !year ||
       !color ||
-      !type ||
       !capacity ||
       !current_mileage ||
       !fuel_type ||
-      !status ||
-      !department
+      !status 
     ) {
       return new Response(JSON.stringify({ error: "There are missed data" }), {
         status: 400,
@@ -57,7 +54,6 @@ export const POST = async (req) => {
         model,
         year,
         color,
-        type,
         capacity,
         current_mileage,
         last_service_date,
@@ -67,6 +63,8 @@ export const POST = async (req) => {
         status,
         department,
     };
+
+    console.log("Request Body:", requestBody);
 
     // Make the POST request to the token API
     const response = await axios.post(

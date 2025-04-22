@@ -133,7 +133,18 @@
     "nextMaintenanceMileage": "Next Maintenance Mileage",
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
-    "status": "Status"
+    "status": "Status",
+    "statuses": {
+      "available": "Available",
+      "maintenance": "On Maintenance",
+      "out_of_service": "Out of Service"
+    },
+    "fuelTypes": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    }
   },
   "assignModal": {
     "title": "Assign Vehicle to Request",
@@ -256,7 +267,7 @@
       "outOfService": "Out of Service"
     },
     "fuelOptions": {
-      "gasoline": "Gasoline",
+      "Petrol": "Petrol",
       "diesel": "Diesel",
       "electric": "Electric",
       "hybrid": "Hybrid"

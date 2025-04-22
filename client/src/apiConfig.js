@@ -1,3 +1,5 @@
+import { GET } from "./app/api/generatePassword/route";
+
 export const API_BASE_URL = "http://127.0.0.1:8000/api"; 
 
 export const API_ENDPOINTS = {
@@ -11,5 +13,6 @@ export const API_ENDPOINTS = {
     REGEISTER_USER: "/auth/superadmin/register/",
 
     ADD_VEHICLE:"/vehicles/vehicles/add/",
+    GET_VEHICLE:"/vehicles/vehicles/list/",
 }
 

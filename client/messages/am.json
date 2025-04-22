@@ -133,7 +133,18 @@
     "nextMaintenanceMileage": "የሚቀጥለው የጥገና ማይሌጅ",
     "fuelType": "የነዳጅ አይነት",
     "fuelEfficiency": "የነዳጅ ብቃት (ኪ.ሜ/ሊትር)",
-    "status": "ሁኔታ"
+    "status": "ሁኔታ",
+    "statuses": {
+      "available": "ዝግጁ",
+      "maintenance": "በጥገና ላይ",
+      "out_of_service": "ከአገልግሎት ውጭ"
+    },
+    "fuelTypes": {
+      "petrol": "ፔትሮል",
+      "diesel": "ዲዘል",
+      "electric": "ኤሌክትሪክ",
+      "hybrid": "ሃይብሪድ"
+    }
   },
   "assignModal": {
     "title": "መኪናን ለጥያቄ መመደብ",
