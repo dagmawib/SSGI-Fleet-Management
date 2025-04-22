@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "../../ui/button";
-import { ChevronDown, Globe, MoreVertical, Bell } from "lucide-react";
+import {  Globe, MoreVertical} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -17,35 +16,24 @@ import {
 } from "../../ui/dropdown-menu";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { setCookie } from "cookies-next";
-// import { isAuthenticated } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import WorldFlag from "react-world-flags";
 import { usePathname } from "next/navigation";
-// import useUser from "@/hooks/dashboard/useUser";
-// import { deleteCookie,getCookie } from "cookies-next";
+import { deleteCookie,getCookie } from "cookies-next";
 
 export default function Navbar() {
   const t = useTranslations("Navbar");
   const pathname = usePathname();
-
-  //   const access_token = getCookie("access_token");
-  //   const { data: user } = useUser();
-  //   const userAvatar = user?.avatar || "/images/profile/profileAvater.png";
-  //   const firstName = user?.firstName || "";
-  //   const lastName = user?.lastName || "";
   const [isOpen, setIsOpen] = useState(false);
-
+  const router = useRouter();
+  const dropdownRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const refresh = getCookie("refresh") || null;
   // Function to close the sidebar
   const closeSidebar = () => setIsOpen(false);
-  //   useEffect(() => {
-  //     // Check authentication on client side
-  //     if (isAuthenticated()) {
-  //       setIsLoggedIn(true);
-  //     }
-  //   }, [router]);
 
   const isActive = (path) => pathname === path;
 
@@ -54,32 +42,40 @@ export default function Navbar() {
     window.location.reload();
   };
 
-  //   const handleLogout = async () => {
-  //       try {
-  //         const res = await fetch("/api/auth/logout", {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify({ access_token }),
-  //         });
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  //         if (res.status) {
-  //           router.push("/login");
-  //           deleteCookie("access_token");
-  //           deleteCookie("accessTokenExpiration");
-  //           deleteCookie("refresh_token");
-  //           deleteCookie("rememberMe");
-  //           deleteCookie("userId");
-  //           deleteCookie("username");
-  //         } else {
-  //           const errorData = await res.json();
-  //           console.error("Logout failed:", errorData.error || "Unknown error");
-  //         }
-  //       } catch (error) {
-  //         console.error("Logout error:", error.message);
-  //       }
-  //     };
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh }),
+      });
+
+      if (res.status === 205) {
+        router.push("/");
+        deleteCookie("access_token");
+        deleteCookie("refresh");
+        deleteCookie("user_ID");
+      } else {
+        const errorData = await res.json();
+        console.error("Logout failed:", errorData.error || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Logout error:", error.message);
+    }
+  };
 
   return (
     <header className="px-4 sm:px-16 py-4 bg-white w-full">
@@ -147,8 +143,12 @@ export default function Navbar() {
 
         {/* Action Buttons */}
         <div className="relative flex items-center space-x-3">
-          <div className=" flex items-center">
-            <div className="relative h-10 w-10 rounded-full overflow-hidden cursor-pointer">
+          <div className="relative flex items-center" ref={dropdownRef}>
+            {/* Profile Image */}
+            <div
+              className="relative h-10 w-10 rounded-full overflow-hidden cursor-pointer"
+              onClick={() => setOpen(!open)}
+            >
               <Image
                 src="/images/profile2.jpg"
                 alt="User profile"
@@ -157,6 +157,18 @@ export default function Navbar() {
                 className="object-cover"
               />
             </div>
+
+            {/* Dropdown Menu */}
+            {open && (
+              <div className="absolute right-0 top-12 w-40 bg-white border border-gray-200 rounded-md shadow-md z-50">
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                >
+                  {t("logout")}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Globe Icon with Language Dropdown */}
@@ -259,9 +271,7 @@ export default function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center p-2 rounded hover:bg-gray-100 w-full">
                         <Globe className="w-5 h-5" />
-                        <span className="ml-2">
-                          { t("changeLanguage") }
-                        </span>
+                        <span className="ml-2">{t("changeLanguage")}</span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-36">

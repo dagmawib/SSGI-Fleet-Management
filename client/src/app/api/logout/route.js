@@ -1,14 +1,23 @@
 import axios from "axios";
 import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
-
+import { cookies } from "next/headers";
 
 export const POST = async (req) => {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access_token")?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized: Missing credentials" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
     const body = await req.json();
-    const { Refresh } = body;
+    const { refresh } = body;
     // Prepare URL-encoded request body
     const requestBody = {
-      Refresh
+      refresh,
     };
 
     // Make the POST request to the token API
@@ -17,14 +26,16 @@ export const POST = async (req) => {
       requestBody,
       {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
           Accept: "application/json",
         },
       }
     );
+
     return new Response(JSON.stringify(response.data), {
-        status: response.status,
-      });
+      status: response.status,
+    });
   } catch (error) {
     const errorMessage =
       error.response?.data?.detail ||

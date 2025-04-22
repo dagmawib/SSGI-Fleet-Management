@@ -4,7 +4,8 @@
     "Profile": "Profile",
     "Contact": "Contact Us",
     "History": "History",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "vehicleRequest": {
     "title": "Vehicle Request",
@@ -149,7 +150,8 @@
     "request": "Requests",
     "history": "History",
     "car": "Vehicles",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "driverDashboard": {
     "title": "Driver Dashboard",
@@ -174,7 +176,8 @@
   "superAdminNavbar": {
     "register": "Register User",
     "Users": "Users",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "register": {
     "title": "Register New User",

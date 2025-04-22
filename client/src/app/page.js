@@ -83,7 +83,7 @@ function Home() {
         setIsLoginSuccessful(true);
         setMessage("Login successful!");
         setCookie("access_token", responseData.token);
-        setCookie("refresh_token", responseData.refresh_token);
+        setCookie("refresh", responseData.refresh);
         setCookie("user_ID", responseData.user_id);
 
         const role = responseData.role;
