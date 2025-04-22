@@ -151,7 +151,7 @@ export default function ProfilePage() {
           <label className="text-[#043755]">{t("department")}</label>
           <input
             type="text"
-            value={userData.department || ""}
+            value={userData.department?.name || ""}
             className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
             readOnly
             disabled
@@ -161,7 +161,21 @@ export default function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-[#043755]">{t("password")}</label>
+          <label className="text-[#043755]">{t("status")}</label>
+          <input
+            type="text"
+            value={userData.is_active ? t("active") : t("inactive") || ""}
+            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
+            readOnly
+            disabled
+          />
+        </div>
+      </div>
+
+      <h4 className="text-2xl font-semibold text-[#043755] mt-8">{t("updatePassword")}</h4>
+      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-[#043755]">{t("oldPassword")}</label>
           <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
             <input
               type={passwordVisible ? "text" : "password"}
@@ -181,14 +195,23 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <label className="text-[#043755]">{t("status")}</label>
-          <input
-            type="text"
-            value={userData.is_active ? t("active") : t("inactive") || ""}
-            className="border text-[#043755] p-2 rounded w-full mt-1 bg-gray-100 cursor-not-allowed"
-            readOnly
-            disabled
-          />
+          <label className="text-[#043755]">{t("password")}</label>
+          <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
+            <input
+              type={passwordVisible ? "text" : "password"}
+              value={userData.password || ""}
+              className="w-full text-[#043755]"
+              readOnly
+            />
+            <button onClick={() => setPasswordVisible(!passwordVisible)}>
+              <Icon
+                icon={
+                  passwordVisible ? "mdi:eye-off-outline" : "mdi:eye-outline"
+                }
+                className="text-[#043755] ml-2"
+              />
+            </button>
+          </div>
         </div>
       </div>
 

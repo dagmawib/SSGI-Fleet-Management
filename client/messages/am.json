@@ -38,7 +38,9 @@
     "status": "የመለያ ሁኔታ",
     "active": "ንቁ",
     "inactive": "ዝምተኛ",
-    "password": "የይለፍ ቃል",
+    "updatePassword":"የይለፍ ቃል አዘምን",
+    "password": "አዲስ የይለፍ ቃል",
+    "oldPassword":"የድሮ የይለፍ ቃል",
     "update": "መለያን ያዘምኑ"
   },
   "contact": {

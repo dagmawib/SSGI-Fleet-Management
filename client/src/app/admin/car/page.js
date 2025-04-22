@@ -3,21 +3,22 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 export default function AddCarForm() {
-    const t = useTranslations("car");
+  const t = useTranslations("car");
   const [formData, setFormData] = useState({
-    licensePlate: "",
+    license_plate: "",
     make: "",
     model: "",
     year: "",
     color: "",
     type: "",
     capacity: "",
-    currentMileage: "",
-    lastMaintenance: "",
-    nextMaintenanceMileage: "",
-    fuelType: "",
-    fuelEfficiency: "",
+    current_mileage: "",
+    last_service_date: "",
+    next_service_mileage: "",
+    fuel_type: "",
+    fuel_efficiency: "",
     status: "",
+    department: "",
   });
 
   const handleChange = (e) => {
@@ -25,11 +26,50 @@ export default function AddCarForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Car submitted:", formData);
-    // Send formData to API here
+  
+    try {
+      const res = await fetch("/api/add_vehicle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        console.error("Error:", data.error);
+        alert("Error: " + data.error);
+      } else {
+        console.log("Success:", data);
+        alert("Vehicle added successfully!");
+        // Optionally reset the form
+        setFormData({
+          license_plate: "",
+          make: "",
+          model: "",
+          year: "",
+          color: "",
+          type: "",
+          capacity: "",
+          current_mileage: "",
+          last_service_date: "",
+          next_service_mileage: "",
+          fuel_type: "",
+          fuel_efficiency: "",
+          status: "",
+          department: "",
+        });
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert("Something went wrong!");
+    }
   };
+  
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
@@ -43,12 +83,12 @@ export default function AddCarForm() {
         {/* License Plate */}
         <div>
           <label className="block text-sm font-medium text-[#043755]">
-          {t("licensePlate")}
+            {t("licensePlate")}
           </label>
           <input
             type="text"
-            name="licensePlate"
-            value={formData.licensePlate}
+            name="license_plate"
+            value={formData.license_plate}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
             required
@@ -149,8 +189,8 @@ export default function AddCarForm() {
           </label>
           <input
             type="number"
-            name="currentMileage"
-            value={formData.currentMileage}
+            name="current_mileage"
+            value={formData.current_mileage}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           />
@@ -163,8 +203,8 @@ export default function AddCarForm() {
           </label>
           <input
             type="date"
-            name="lastMaintenance"
-            value={formData.lastMaintenance}
+            name="last_service_date"
+            value={formData.last_service_date}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           />
@@ -177,8 +217,8 @@ export default function AddCarForm() {
           </label>
           <input
             type="number"
-            name="nextMaintenanceMileage"
-            value={formData.nextMaintenanceMileage}
+            name="next_service_mileage"
+            value={formData.next_service_mileage}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           />
@@ -190,24 +230,16 @@ export default function AddCarForm() {
             {t("fuelType")}
           </label>
           <select
-            name="fuelType"
-            value={formData.fuelType}
+            name="fuel_type"
+            value={formData.fuel_type}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           >
             <option value="">Select</option>
-            <option value="Gasoline">
-                {t("fuelOptions.gasoline")}
-            </option>
-            <option value="Diesel">
-                {t("fuelOptions.diesel")}
-            </option>
-            <option value="Electric">
-                {t("fuelOptions.electric")}
-            </option>
-            <option value="Hybrid">
-                {t("fuelOptions.hybrid")}
-            </option>
+            <option value="Gasoline">{t("fuelOptions.gasoline")}</option>
+            <option value="Diesel">{t("fuelOptions.diesel")}</option>
+            <option value="Electric">{t("fuelOptions.electric")}</option>
+            <option value="Hybrid">{t("fuelOptions.hybrid")}</option>
           </select>
         </div>
 
@@ -219,8 +251,8 @@ export default function AddCarForm() {
           <input
             type="number"
             step="0.1"
-            name="fuelEfficiency"
-            value={formData.fuelEfficiency}
+            name="fuel_efficiency"
+            value={formData.fuel_efficiency}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           />
@@ -238,14 +270,34 @@ export default function AddCarForm() {
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           >
             <option value="">Select</option>
-            <option value="Available">
-                {t("statusOptions.available")}
-            </option>
+            <option value="Available">{t("statusOptions.available")}</option>
             <option value="In Maintenance">
-                {t("statusOptions.inMaintenance")}
+              {t("statusOptions.inMaintenance")}
             </option>
-            <option value="Out of Service"> 
-                {t("statusOptions.outOfService")}
+            <option value="Out of Service">
+              {t("statusOptions.outOfService")}
+            </option>
+          </select>
+        </div>
+
+         {/* Department */}
+         <div>
+          <label className="block text-sm font-medium text-[#043755]">
+            {t("department")}
+          </label>
+          <select
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
+          >
+            <option value="">Select</option>
+            <option value="hr">HR</option>
+            <option value="engineering">
+              Engineering
+            </option>
+            <option value="finance">
+              Finance
             </option>
           </select>
         </div>

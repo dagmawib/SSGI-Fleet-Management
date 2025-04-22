@@ -9,5 +9,7 @@ export const API_ENDPOINTS = {
 
     GENERATE_PASSWORD: "/auth/auth/generate-password/",
     REGEISTER_USER: "/auth/superadmin/register/",
+
+    ADD_VEHICLE:"/vehicles/vehicles/add/",
 }
 

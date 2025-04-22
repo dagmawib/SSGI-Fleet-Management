@@ -38,7 +38,9 @@
     "status": "Account Status",
     "active": "Active",
     "inactive": "Inactive",
-    "password": "Password",
+    "updatePassword":"Update Password",
+    "password": "New Password",
+    "oldPassword":"Old Password",
     "update": "Update profile"
   },
   "contact": {
@@ -247,6 +249,7 @@
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
     "status": "Status",
+    "department":"Department",
     "statusOptions": {
       "available": "Available",
       "inMaintenance": "In Maintenance",
