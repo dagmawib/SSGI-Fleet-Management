@@ -130,6 +130,8 @@ class User(AbstractUser):
         """Validate model fields before saving"""
         super().clean()
 
+        # needs to be edit 
+
         # SuperAdmin can optionally have department
 
         if self.role == self.Role.SUPERADMIN:
@@ -137,8 +139,8 @@ class User(AbstractUser):
                 raise ValidationError(_("SuperAdmin cannot be a department director"))
 
         # Admin must have department (except superadmin)
-        elif self.role == self.Role.ADMIN and not self.department:
-            raise ValidationError(_("Admins must be assigned to a department"))
+        # elif self.role == self.Role.ADMIN and not self.department:
+            # raise ValidationError(_("Admins must be assigned to a department"))
 
         # Directors must be assigned to a department
         if self.role == self.Role.DIRECTOR and not self.department:

@@ -52,7 +52,7 @@ super_admin_register_docs = extend_schema(
                 "first_name": "Admin",
                 "last_name": "User",
                 "role": "admin",
-                "department_id": 1,
+                "department_name": "IT",
                 "generate_credentials": True
             },
             request_only=True,
@@ -121,21 +121,77 @@ user_login_docs =extend_schema(
     )
 
 user_profile_docs = extend_schema(
-    tags=["User"],
-    description="""Retrieve or update authenticated user's profile.
-    For password changes, include both old_password and new_password fields.""",
+    tags=["Profile"],
+    description="""User profile management endpoint.
+    GET: Retrieve complete profile information
+    PUT/PATCH: Update allowed fields (name, phone, password)""",
     responses={
-        200: UserProfileSerializer,
-        400: OpenApiResponse(
-            description="Invalid update data",
+        200: OpenApiResponse(
+            response=UserProfileSerializer,
+            description="Successful operation",
             examples=[
                 OpenApiExample(
-                    "Password Change Error",
-                    value={"old_password": ["Incorrect current password"]}
+                    "GET Response Example",
+                    value={
+                        "email": "user@example.com",
+                        "first_name": "Michael",
+                        "last_name": "Birhanu",
+                        "phone_number": "+251912345678",
+                        "role": "admin",
+                        "department": None,
+                        "is_active": True,
+                        "date_joined": "2025-04-17T13:00:26.202175Z",
+                        "last_login": None
+                    }
+                ),
+                OpenApiExample(
+                    "PUT Success Response",
+                    value={
+                        "first_name": "UpdatedFirstName",
+                        "last_name": "UpdatedLastName",
+                        "phone_number": "+251987654321"
+                    }
                 )
             ]
         ),
-        401: OpenApiResponse(description="Unauthorized - Authentication credentials were not provided"),
+        400: OpenApiResponse(
+            description="Invalid input data",
+            examples=[
+                OpenApiExample(
+                    "Password Error",
+                    value={"password": ["This password is too common."]}
+                ),
+                OpenApiExample(
+                    "Validation Error",
+                    value={"phone_number": ["Enter a valid phone number."]}
+                )
+            ]
+        ),
+        401: OpenApiResponse(
+            description="Unauthorized",
+            examples=[
+                OpenApiExample(
+                    "Authentication Error",
+                    value={"detail": "Authentication credentials were not provided."}
+                )
+            ]
+        )
+    },
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "first_name": {"type": "string", "example": "Michael"},
+                "last_name": {"type": "string", "example": "Birhanu"},
+                "phone_number": {"type": "string", "example": "+251912345678"},
+                "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 8,
+                    "example": "newSecurePassword123!"
+                }
+            }
+        }
     }
 )
 
@@ -196,18 +252,105 @@ user_list_docs = extend_schema(
     }
 )
 
-user_detail_docs = extend_schema(
+user_detail_docs = {
+    'get': extend_schema(
+        tags=["User Management"],
+        description="Retrieve complete user details (Admin only)",
+        responses={
+            200: UserSerializer,
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="User not found")
+        }
+    ),
+    'put': extend_schema(
+        tags=["User Management"],
+        description="Update user details (Admin only, restricted fields)",
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="Invalid input data"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="User not found")
+        }
+    ),
+    'patch': extend_schema(
+        tags=["User Management"],
+        description="Partially update user details (Admin only, restricted fields)",
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="Invalid input data"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="User not found")
+        }
+    )
+}
+
+# For DELETE operation (now properly defined as a variable, not function)
+user_delete_docs = extend_schema(
     tags=["User Management"],
-    description="""Retrieve, update or delete specific user (Admin only).
-    Different serializers are used for retrieval vs updates.""",
+    description="""Soft deletes a user account:
+    - Sets is_active=False
+    - Anonymizes email
+    - Invalidates password""",
     responses={
-        200: UserSerializer,
-        400: OpenApiResponse(description="Invalid input data"),
-        403: OpenApiResponse(description="Forbidden - Admin access required"),
+        200: OpenApiResponse(
+            description="User deactivated with confirmation",
+            examples=[OpenApiExample(
+                "Success Response",
+                value={
+                    "status": "success",
+                    "message": "User account deactivated",
+                    "user_id": 123,
+                    "can_be_restored": True
+                }
+            )]
+        ),
+        403: OpenApiResponse(
+            description="Cannot delete own account",
+            examples=[OpenApiExample(
+                "Error Response",
+                value={"error": "You cannot delete your own account"}
+            )]
+        ),
         404: OpenApiResponse(description="User not found")
     }
 )
-
+user_restore_docs = extend_schema(
+    tags=["User Management"],
+    description="""Restore a deactivated user account.
+    - Reactivates the account
+    - Restores original email (removes 'deleted_' prefix)
+    - Generates a temporary password
+    - Returns credentials for admin to provide to user""",
+    responses={
+        200: OpenApiResponse(
+            description="User restored successfully",
+            examples=[OpenApiExample(
+                "Success Response",
+                value={
+                    "status": "success",
+                    "message": "User account restored",
+                    "user_id": 123,
+                    "new_email": "restored_user@example.com",
+                    "password_reset_required": True
+                }
+            )]
+        ),
+        400: OpenApiResponse(
+            description="Bad Request",
+            examples=[OpenApiExample(
+                "Already Active",
+                value={"error": "User is already active"}
+            )]
+        ),
+        404: OpenApiResponse(
+            description="Not Found",
+            examples=[OpenApiExample(
+                "Not Found",
+                value={"error": "No inactive user found with this ID"}
+            )]
+        )
+    }
+)
 # ---------------------- AUTH TOKEN DOCS ---------------------- #
 token_obtain_docs = extend_schema(
     tags=["Authentication"],

@@ -6,6 +6,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from django.utils.crypto import get_random_string
+from drf_spectacular.utils import extend_schema
+from rest_framework.decorators import action
+# from .docs import get_user_detail_docs
+from django.db import transaction
+
 
 from .permissions import IsSuperAdmin
 from users.models import User
@@ -13,9 +18,11 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
     UserProfileSerializer,
+    UserProfileUpdateSerializer,
     UserSerializer,
     UserCreateSerializer,
     UserUpdateSerializer,
+    TemporaryPasswordSerializer,
 )
 from .docs import (
     super_admin_register_docs,
@@ -23,17 +30,19 @@ from .docs import (
     logout_docs,
     user_list_docs,
     user_detail_docs,
-    token_obtain_docs,
-    user_login_docs,
+    user_delete_docs,
+    user_restore_docs
 )
 
 
+@extend_schema(
+    responses=TemporaryPasswordSerializer
+)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
 def generate_temp_password(request):
-    password = get_random_string(8)  # 8-character random password
+    password = get_random_string(8)
     return Response({'temporary_password': password})
-
 
 class SuperAdminRegistrationView(generics.CreateAPIView):
     """Endpoint exclusively for SuperAdmins to register any type of user."""
@@ -58,30 +67,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """Allows authenticated users to view and modify their own profile."""
-
-    serializer_class = UserProfileSerializer
+    
     permission_classes = [permissions.IsAuthenticated]
 
-    @user_profile_docs
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @user_profile_docs
-    def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)
-
-    @user_profile_docs
-    def patch(self, request, *args, **kwargs):
-        return super().patch(request, *args, **kwargs)
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserProfileUpdateSerializer
+        return UserProfileSerializer
 
     def get_object(self):
         return self.request.user
 
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        if "password" in serializer.validated_data:
-            instance.set_password(serializer.validated_data["password"])
-            instance.save()
+
 
 
 class LogoutView(APIView):
@@ -113,7 +110,7 @@ class UserListView(generics.ListCreateAPIView):
     - Create: Allows admin user creation
     """
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
     queryset = User.objects.select_related('department').order_by('-date_joined')
     filterset_fields = ['department', 'role']
     search_fields = ['email', 'first_name', 'last_name']
@@ -142,13 +139,10 @@ class UserListView(generics.ListCreateAPIView):
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Provides detailed view and modification of user accounts.
-    - GET: Retrieve user details
-    - PUT/PATCH: Update user details
-    - DELETE: Deactivate user (consider soft delete)
+    Admin-only endpoint for comprehensive user management
     """
     queryset = User.objects.select_related('department')
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
     lookup_field = 'pk'
 
     def get_serializer_class(self):
@@ -156,37 +150,98 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
             return UserUpdateSerializer
         return UserSerializer
 
-    @user_detail_docs
+    # @extend_schema(**user_detail_docs['get'])
+    @user_detail_docs['get']
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    @user_detail_docs
+    # @extend_schema(**user_detail_docs['put'])
+    @user_detail_docs['put']
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
 
-    @user_detail_docs
+    # @extend_schema(**user_detail_docs['patch'])
+    @user_detail_docs['patch']
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
 
-    @user_detail_docs
+    # @extend_schema(**user_delete_docs)  # Now correctly using a dictionary
+    @user_delete_docs
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
+        
         if instance == request.user:
             return Response(
                 {"error": "You cannot delete your own account"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        instance.is_active = False 
-        instance.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def perform_destroy(self, instance):
-        if instance == self.request.user:
+            
+        with transaction.atomic():
+            user_id = instance.pk
+            instance.is_active = False
+            instance.email = f"deleted_{instance.pk}_{instance.email}"
+            instance.set_unusable_password()
+            instance.save(update_fields=['is_active', 'email', 'password'])
+        
+        return Response(
+            {
+                "status": "success",
+                "message": "User account deactivated",
+                "user_id": user_id,
+                "can_be_restored": True
+            },
+            status=status.HTTP_200_OK
+        )
+    
+    @user_restore_docs
+    @action(detail=True, methods=['post'], url_path='restore')
+    def restore(self, request, pk=None):
+        try:
+            user = User.objects.get(pk=pk, is_active=False)
+        except User.DoesNotExist:
             return Response(
-                {"error": "You cannot delete your own account"},
-                status=status.HTTP_403_FORBIDDEN,
+                {"error": "No inactive user found with this ID"},
+                status=status.HTTP_404_NOT_FOUND
             )
-        instance.delete()
+
+        if user.is_active:
+            return Response(
+                {"error": "User is already active"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        with transaction.atomic():
+            # Restore original email format
+            if user.email.startswith('deleted_'):
+                original_email = user.email.split('_', 2)[-1]
+                user.email = original_email
+            
+            user.is_active = True
+            user.save()
+
+            # Create password reset token instead of temporary password
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+            from django.utils.encoding import force_bytes
+            
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Send password reset email
+            self._send_restoration_email(user, uid, token)
+
+        return Response(
+            {
+                "status": "success",
+                "message": "User account restored",
+                "user_id": user.pk,
+                "email": user.email,
+                "password_reset_required": True,
+                "reset_link": f"/password-reset/{uid}/{token}/"  
+            },
+            status=status.HTTP_200_OK
+        )
+
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

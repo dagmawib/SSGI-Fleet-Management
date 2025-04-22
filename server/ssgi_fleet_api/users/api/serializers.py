@@ -92,13 +92,13 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
 
     def generate_unique_username(self, first_name, last_name):
         """Generate a username like 'john_doe_a1b2'"""
-        base = f"{slugify(first_name)}_{slugify(last_name)}".lower()
-        suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+        base = f"{slugify(first_name)}".lower()
+        suffix = ''.join(random.choices(string.digits, k=4))
         username = f"{base}_{suffix}"
         
         # Ensure uniqueness
         while User.objects.filter(username=username).exists():
-            suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+            suffix = ''.join(random.choices(string.digits, k=4))
             username = f"{base}_{suffix}"
             
         return username
@@ -136,8 +136,8 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
             data["department"] = None
 
         # Regular admins must have a department
-        if requested_role == User.Role.ADMIN and not data.get("department"):
-            raise serializers.ValidationError("Admins must be assigned to a department")
+        # if requested_role == User.Role.ADMIN and not data.get("department"):
+            # raise serializers.ValidationError("Admins must be assigned to a department")
 
         return data
 
@@ -188,6 +188,27 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, min_length=8)
+
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "password"
+        ]
+        
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.set_password(password)
+            instance.save()
+        return instance
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile viewing/updating"""
@@ -200,6 +221,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
     )
 
+
     class Meta:
         model = User
         fields = [
@@ -210,6 +232,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "role",
             "department",
             "department_id",
+            "is_active",
             "date_joined",
             "last_login",
         ]
@@ -272,10 +295,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         generate_creds = validated_data.pop('generate_credentials', True)
         
-        # Generate username
-        first_name = validated_data.get('first_name', '')
-        last_name = validated_data.get('last_name', '')
-        validated_data['username'] = self.generate_unique_username(first_name, last_name)
         
         # Handle password
         if generate_creds:
@@ -325,3 +344,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 "Role cannot be changed through this endpoint"
             )
         return value
+
+class TemporaryPasswordSerializer(serializers.Serializer):
+    temporary_password = serializers.CharField()

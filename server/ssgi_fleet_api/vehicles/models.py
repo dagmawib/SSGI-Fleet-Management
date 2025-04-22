@@ -24,8 +24,18 @@ class Vehicle(models.Model):
             MaxValueValidator(2100)
         ]
     )
-    color = models.CharField(max_length=30)
+    color = models.CharField(max_length=30, blank=True,null=True)
     fuel_type = models.CharField(max_length=10, choices=FuelType.choices)
+    fuel_efficiency = models.FloatField(
+        validators=[MinValueValidator(0.0)],
+        default=0.0,
+        help_text="Fuel efficiency in km/l"
+    )
+    capacity = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        default=5,
+        help_text="Passenger capacity of the vehicle"
+    )
     current_mileage = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.AVAILABLE)
     assigned_driver = models.ForeignKey(
