@@ -235,6 +235,9 @@
     "email": "Email",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "department": "Department",
+    "is_active": "Is Active",
     "role": "Role",
     "cancel": "Cancel",
     "save": "Save"

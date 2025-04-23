@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 const statusColors = {
-  available: "text-green-600 bg-green-100",
-  on_work: "text-blue-600 bg-blue-100",
-  maintenance: "text-yellow-600 bg-yellow-100",
-  out_of_service: "text-red-600 bg-red-100",
+  available: "text-green-600 font-semibold text-xl",
+  on_work: "text-blue-600 font-semibold text-xl",
+  maintenance: "text-yellow-600 font-semibold text-xl",
+  out_of_service: "text-red-600 font-semibold text-xl",
 };
 
 export default function CarsTable() {

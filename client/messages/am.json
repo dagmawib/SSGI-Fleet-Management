@@ -236,6 +236,9 @@
     "firstName": "የመጀመሪያ ስም",
     "lastName": "የአያት ስም",
     "role": "ኃላፊነት",
+    "phoneNumber": "ስልክ ቁጥር",
+    "department": "የሥራ ክፍል",
+    "is_active": "ንቁ ነው?",
     "cancel": "ሰርዝ",
     "save": "አስቀምጥ"
   },
