@@ -57,8 +57,8 @@ export default function ContactUsPage() {
 
     try {
       await emailjs.send(
-        process.env.EMIAL_JS_SERVICE_ID,
-        process.env.EMIAL_JS_TEMPLATE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
         {
           first_name: formData.firstName,
           last_name: formData.lastName,
@@ -67,9 +67,9 @@ export default function ContactUsPage() {
           message: formData.message,
           services: formData.services.join(", "),
         },
-        process.env.EMIAL_JS_PUBLICK_KEY
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
       );
-
+      
       setSuccess(true);
       setFormData({
         firstName: "",
