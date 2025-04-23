@@ -4,32 +4,39 @@ import { useTranslations } from "next-intl";
 
 export default function EditUserModal({ isOpen, onClose, user, onSave }) {
   const t = useTranslations("editModal");
+
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    firstName: "",
-    lastName: "",
-    role: "",
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    department: "",
+    is_active: false,
   });
 
-  // Sync state with selected user
   useEffect(() => {
     if (user) {
-      setFormData(user);
+      setFormData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        phone_number: user.phone_number || "",
+        department: user.department?.name || "",
+        is_active: user.is_active || false,
+      });
     }
   }, [user]);
 
   if (!isOpen || !user) return null;
 
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleSave = () => {
-    onSave(formData);
+    onSave(formData); // This will call the parent function with updated data
     onClose();
   };
 
@@ -45,90 +52,40 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
         <h2 className="text-xl font-semibold mb-4 text-[#043755]">
           {t("editUser")}
         </h2>
+
         <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-[#043755] mb-1"
-            >
-              {t("username")}
-            </label>
+          <Field
+            id="first_name"
+            label={t("firstName")}
+            value={formData.first_name}
+            onChange={handleChange}
+          />
+          <Field
+            id="last_name"
+            label={t("lastName")}
+            value={formData.last_name}
+            onChange={handleChange}
+          />
+          <Field
+            id="phone_number"
+            label={t("phoneNumber")}
+            value={formData.phone_number}
+            onChange={handleChange}
+          />
+          <Field
+            id="department"
+            label={t("department")}
+            value={formData.department}
+            onChange={handleChange}
+          />
+          <div className="flex items-center space-x-2">
             <input
-              id="username"
-              name="username"
-              value={formData.username}
+              type="checkbox"
+              name="is_active"
+              checked={formData.is_active}
               onChange={handleChange}
-              className="text-[#043755] w-full border px-3 py-2 rounded"
-              placeholder={t("username")}
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-[#043755] mb-1"
-            >
-              {t("email")}
-            </label>
-            <input
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="text-[#043755] w-full border px-3 py-2 rounded"
-              placeholder={t("email")}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="firstName"
-              className="block text-sm font-medium text-[#043755] mb-1"
-            >
-              {t("firstName")}
-            </label>
-            <input
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="text-[#043755] w-full border px-3 py-2 rounded"
-              placeholder={t("firstName")}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="lastName"
-              className="block text-sm font-medium text-[#043755] mb-1"
-            >
-              {t("lastName")}
-            </label>
-            <input
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="text-[#043755] w-full border px-3 py-2 rounded"
-              placeholder={t("lastName")}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-[#043755] mb-1"
-            >
-              {t("role")}
-            </label>
-            <input
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="text-[#043755] w-full border px-3 py-2 rounded"
-              placeholder={t("role")}
-            />
+            <label className="text-sm text-[#043755]">{t("is_active")}</label>
           </div>
         </div>
 
@@ -147,6 +104,28 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Reusable input field component
+function Field({ id, label, value, onChange }) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-[#043755] mb-1"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        value={value}
+        onChange={onChange}
+        className="text-[#043755] w-full border px-3 py-2 rounded"
+        placeholder={label}
+      />
     </div>
   );
 }

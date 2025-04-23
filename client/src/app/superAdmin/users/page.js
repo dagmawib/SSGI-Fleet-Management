@@ -1,98 +1,16 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { useTranslations } from "next-intl";
 import EditUserModal from "@/components/superAdmin/editModal";
 import DeleteConfirmModal from "@/components/superAdmin/removeUserModal";
+import CircularProgress from "@mui/material/CircularProgress";
 import { Icon } from "@iconify/react";
-
-// Static users data defined directly inside the component
-const usersData = [
-  {
-    id: 1,
-    username: "user1",
-    email: "user1@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin",
-  },
-  {
-    id: 2,
-    username: "user2",
-    email: "user2@example.com",
-    firstName: "Jane",
-    lastName: "Smith",
-    role: "user",
-  },
-  {
-    id: 3,
-    username: "user3",
-    email: "user3@example.com",
-    firstName: "Tom",
-    lastName: "Johnson",
-    role: "driver",
-  },
-  {
-    id: 4,
-    username: "user4",
-    email: "user4@example.com",
-    firstName: "Alice",
-    lastName: "Williams",
-    role: "employee",
-  },
-  {
-    id: 5,
-    username: "user5",
-    email: "user5@example.com",
-    firstName: "Bob",
-    lastName: "Brown",
-    role: "admin",
-  },
-  {
-    id: 6,
-    username: "user6",
-    email: "user6@example.com",
-    firstName: "Charlie",
-    lastName: "Davis",
-    role: "user",
-  },
-  {
-    id: 7,
-    username: "user7",
-    email: "user7@example.com",
-    firstName: "David",
-    lastName: "Miller",
-    role: "employee",
-  },
-  {
-    id: 8,
-    username: "user8",
-    email: "user8@example.com",
-    firstName: "Eve",
-    lastName: "Wilson",
-    role: "driver",
-  },
-  {
-    id: 9,
-    username: "user9",
-    email: "user9@example.com",
-    firstName: "Frank",
-    lastName: "Moore",
-    role: "admin",
-  },
-  {
-    id: 10,
-    username: "user10",
-    email: "user10@example.com",
-    firstName: "Grace",
-    lastName: "Taylor",
-    role: "user",
-  },
-];
 
 export default function SuperAdminUsersPage() {
   const t = useTranslations("regeisteredUsers");
-  const [users, setUsers] = useState(usersData);
   const [currentPage, setCurrentPage] = useState(1);
+  const [usersData, setUsersData] = useState([]); // full user list
+  const [paginatedUsers, setPaginatedUsers] = useState([]); // current page users
   const [totalPages, setTotalPages] = useState(
     Math.ceil(usersData.length / 10)
   );
@@ -121,10 +39,29 @@ export default function SuperAdminUsersPage() {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    // Call delete function here
-    console.log("Deleting user with ID:", selectedUser);
-    setDeleteModalOpen(false);
+  const confirmDelete = async () => {
+    try {
+      const res = await fetch("/api/removeUser", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: selectedUser }),
+      });
+
+      if (res.ok) {
+        // Optionally, remove the user from state without refetching:
+        setUsersData((prev) => prev.filter((u) => u.id !== selectedUser));
+        setDeleteModalOpen(false);
+      } else {
+        const error = await res.json();
+        console.error("Delete failed:", error);
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      setDeleteModalOpen(false);
+    }
   };
 
   const saveUser = (updatedUser) => {
@@ -134,14 +71,30 @@ export default function SuperAdminUsersPage() {
 
   const usersPerPage = 10; // Number of users per page
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/get_all_users");
+        if (!response.ok) throw new Error("Failed to fetch users");
+        const data = await response.json();
+        setUsersData(data);
+        setTotalPages(Math.ceil(data.length / usersPerPage));
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   // Paginate the users
   useEffect(() => {
-    setLoading(true);
     const offset = (currentPage - 1) * usersPerPage;
-    const paginatedUsers = usersData.slice(offset, offset + usersPerPage);
-    setUsers(paginatedUsers);
-    setLoading(false);
-  }, [currentPage]);
+    const paginated = usersData.slice(offset, offset + usersPerPage);
+    setPaginatedUsers(paginated);
+  }, [currentPage, usersData]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -153,48 +106,53 @@ export default function SuperAdminUsersPage() {
     <div className="max-w-7xl mx-auto px-2">
       <h1 className="text-2xl font-bold text-[#043755] mt-6">{t("title")}</h1>
       <div className="bg-white rounded-lg shadow mt-4">
-        {loading ? (
-          <div className="text-center text-gray-500">{t("loading")}</div>
-        ) : (
-          <div className="overflow-x-auto rounded-lg">
-            <table className="w-full table-auto border-collapse rounded-lg">
-              <thead className="bg-[#043755] text-white">
-                <tr>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("username")}
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("email")}
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("firstName")}
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("lastName")}
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("role")}
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold border-b">
-                    {t("action")}
-                  </th>
-                </tr>
-              </thead>
+        <div className="overflow-x-auto rounded-lg">
+          <table className="w-full table-auto border-collapse rounded-lg">
+            <thead className="bg-[#043755] text-white">
+              <tr>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  {t("email")}
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  {t("firstName")}
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  {t("lastName")}
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  Departemtn
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  {t("role")}
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
+                  {t("action")}
+                </th>
+              </tr>
+            </thead>
+            {loading ? (
               <tbody>
-                {users.map((user) => (
+                <tr>
+                  <td colSpan="6" className="text-center py-4">
+                    <CircularProgress size={24} color="inherit" />
+                  </td>
+                </tr>
+              </tbody>
+            ) : (
+              <tbody>
+                {paginatedUsers.map((user) => (
                   <tr key={user.id} className="border-b">
-                    <td className="px-4 py-2 text-[#043755]">
-                      {user.username}
-                    </td>
                     <td className="px-4 py-2 text-[#043755]">{user.email}</td>
                     <td className="px-4 py-2 text-[#043755]">
-                      {user.firstName}
+                      {user.first_name}
                     </td>
                     <td className="px-4 py-2 text-[#043755]">
-                      {user.lastName}
+                      {user.last_name}
+                    </td>
+                    <td className="px-4 py-2 text-[#043755]">
+                      {user.department?.name || ""}
                     </td>
                     <td className="px-4 py-2 text-[#043755]">{user.role}</td>
-
                     {/* Action Dropdown */}
                     <td className="px-4 py-2 text-[#043755]">
                       <div className="relative inline-block text-left">
@@ -205,7 +163,11 @@ export default function SuperAdminUsersPage() {
                           className="inline-flex justify-center w-full bg-white text-sm font-medium text-black cursor-pointer focus:outline-none"
                         >
                           <span className="sr-only">Open options</span>
-                          <Icon icon="ph:dots-three-vertical-bold" width={24} height={24} />
+                          <Icon
+                            icon="ph:dots-three-vertical-bold"
+                            width={24}
+                            height={24}
+                          />
                         </button>
 
                         {/* Dropdown Menu (conditionally rendered) */}
@@ -221,7 +183,7 @@ export default function SuperAdminUsersPage() {
                               <button
                                 onClick={() =>
                                   handleEdit(
-                                    users.find((u) => u.id === openMenu)
+                                    usersData.find((u) => u.id === openMenu)
                                   )
                                 }
                                 className="text-gray-700 block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 cursor-pointer"
@@ -242,9 +204,10 @@ export default function SuperAdminUsersPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-        )}
+            )}
+          </table>
+        </div>
+
         {/* Pagination Controls */}
         <div className="my-4 flex flex-row items-center text-[#043755] justify-center space-x-4">
           <button
@@ -269,10 +232,40 @@ export default function SuperAdminUsersPage() {
         </div>
       </div>
       <EditUserModal
+        user={selectedUser}
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        user={selectedUser}
-        onSave={saveUser}
+        onSave={async (updatedUser) => {
+          try {
+            const res = await fetch(`/api/updateUserData`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                ...updatedUser,
+                id: selectedUser.id,
+                department:
+                  updatedUser.department?.id || updatedUser.department,
+              }),
+            });
+
+            if (res.ok) {
+              const updated = await res.json();
+              setUsersData((prev) =>
+                prev.map((user) =>
+                  user.id === selectedUser.id ? { ...user, ...updated } : user
+                )
+              );
+              setEditModalOpen(false);
+            } else {
+              const error = await res.json();
+              console.error("Update failed:", error);
+            }
+          } catch (err) {
+            console.error("Error updating user:", err);
+          }
+        }}
       />
 
       <DeleteConfirmModal
