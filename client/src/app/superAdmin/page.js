@@ -1,10 +1,13 @@
 "use client";
-
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Page() {
   const t = useTranslations("register"); // For localization
+  const [temporaryPassword, setTemporaryPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -23,28 +26,67 @@ export default function Page() {
     // Add more or fetch from backend
   ];
 
-  const roles = ["employee", "driver", "admin", "director"];
-
-  const generateTempPassword = () => {
-    const tempPassword = Math.random().toString(36).slice(-10);
-    setFormData({ ...formData, password: tempPassword });
+  const fetchTempPassword = async () => {
+    const res = await fetch("/api/generatePassword", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    setTemporaryPassword(data.temporary_password);
   };
+
+  const roles = ["employee", "driver", "admin", "director"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Connect to backend API here
-    console.log("Submitting user:", formData);
+
+    try {
+      setLoading(true)
+      const res = await fetch("/api/register_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          role: formData.role,
+          department_id: formData.departmentId,
+          generate_credentials: false, // Always send false as you mentioned
+          password: temporaryPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      setLoading(false)
+      setMessage("User registered successfully!");
+      // Optionally reset form here
+    } catch (error) {
+      console.error("Registration failed:", error.message);
+      alert("Registration failed: " + error.message);
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow mt-8">
       <h1 className="text-2xl font-bold text-[#043755] mb-6">{t("title")}</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
+      {message && (
+        <div className="mt-4 text-green-500">{message}</div>
+      )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 font-medium text-[#043755]">
@@ -173,13 +215,13 @@ export default function Page() {
                 type="text"
                 name="password"
                 className="w-full border border-gray-300 rounded px-3 py-2 text-black"
-                value={formData.password}
+                value={temporaryPassword}
                 readOnly
                 placeholder={t("passwordPlaceholder")}
               />
               <button
                 type="button"
-                onClick={generateTempPassword}
+                onClick={fetchTempPassword}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
               >
                 {t("generate")}
@@ -191,9 +233,18 @@ export default function Page() {
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
+            disabled={loading} // Disable button when loading
+            className={`w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded cursor-pointer ${
+              loading ? "" : ""
+            }`}
           >
-            {t("submit")}
+            {loading ? (
+              <span className="flex justify-center items-center">
+                <CircularProgress size={24} color="inherit" />
+              </span>
+            ) : (
+              t("submit")
+            )}
           </button>
         </div>
       </form>

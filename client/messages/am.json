@@ -4,7 +4,8 @@
     "Profile": "መገለጫ",
     "Contact": "ያግኙን",
     "History": "ታሪክ",
-    "changeLanguage": "ቋንቋ ይለውጡ"
+    "changeLanguage": "ቋንቋ ይለውጡ",
+    "logout": "ውጣ"
   },
   "vehicleRequest": {
     "title": "የተሽከርካሪ ጥያቄ",
@@ -37,7 +38,9 @@
     "status": "የመለያ ሁኔታ",
     "active": "ንቁ",
     "inactive": "ዝምተኛ",
-    "password": "የይለፍ ቃል",
+    "updatePassword":"የይለፍ ቃል አዘምን",
+    "password": "አዲስ የይለፍ ቃል",
+    "oldPassword":"የድሮ የይለፍ ቃል",
     "update": "መለያን ያዘምኑ"
   },
   "contact": {
@@ -84,7 +87,8 @@
     "forgotPassword": "የይለፍ ቃልን ረስተዋል?",
     "loginButton": "ግባ",
     "showPassword": "የይለፍ ቃል አሳይ",
-    "hidePassword": "የይለፍ ቃል ደብቅ"
+    "hidePassword": "የይለፍ ቃል ደብቅ",
+    "successfulVerification": "በተሳካ ሁኔታ ገብቷል!"
   },
   "forgotPassword": {
     "title": "የይለፍ ቃል መርማሪያ",
@@ -129,7 +133,18 @@
     "nextMaintenanceMileage": "የሚቀጥለው የጥገና ማይሌጅ",
     "fuelType": "የነዳጅ አይነት",
     "fuelEfficiency": "የነዳጅ ብቃት (ኪ.ሜ/ሊትር)",
-    "status": "ሁኔታ"
+    "status": "ሁኔታ",
+    "statuses": {
+      "available": "ዝግጁ",
+      "maintenance": "በጥገና ላይ",
+      "out_of_service": "ከአገልግሎት ውጭ"
+    },
+    "fuelTypes": {
+      "petrol": "ፔትሮል",
+      "diesel": "ዲዘል",
+      "electric": "ኤሌክትሪክ",
+      "hybrid": "ሃይብሪድ"
+    }
   },
   "assignModal": {
     "title": "መኪናን ለጥያቄ መመደብ",
@@ -148,7 +163,8 @@
     "request": "ጥያቄዎች",
     "history": "ታሪክ",
     "car": "ተሽከርካሪዎች",
-    "changeLanguage": "ቋንቋ ይለውጡ"
+    "changeLanguage": "ቋንቋ ይለውጡ",
+    "logout": "ውጣ"
   },
   "driverDashboard": {
     "title": "የነጋሪ ዳሽቦርድ",
@@ -173,7 +189,8 @@
   "superAdminNavbar": {
     "register": "የተጠቃሚ መዝግብ",
     "Users": "ተጠቃሚዎች",
-    "changeLanguage": "ቋንቋ ይለውጡ"
+    "changeLanguage": "ቋንቋ ይለውጡ",
+    "logout": "ውጣ"
   },
   "register": {
     "title": "አዲስ ተጠቃሚ መመዝገብ",
@@ -219,6 +236,9 @@
     "firstName": "የመጀመሪያ ስም",
     "lastName": "የአያት ስም",
     "role": "ኃላፊነት",
+    "phoneNumber": "ስልክ ቁጥር",
+    "department": "የሥራ ክፍል",
+    "is_active": "ንቁ ነው?",
     "cancel": "ሰርዝ",
     "save": "አስቀምጥ"
   },

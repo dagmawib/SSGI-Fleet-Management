@@ -4,7 +4,8 @@
     "Profile": "Profile",
     "Contact": "Contact Us",
     "History": "History",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "vehicleRequest": {
     "title": "Vehicle Request",
@@ -37,7 +38,9 @@
     "status": "Account Status",
     "active": "Active",
     "inactive": "Inactive",
-    "password": "Password",
+    "updatePassword":"Update Password",
+    "password": "New Password",
+    "oldPassword":"Old Password",
     "update": "Update profile"
   },
   "contact": {
@@ -84,7 +87,8 @@
     "forgotPassword": "Forgot Password?",
     "loginButton": "Login",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "successfulVerification": "Successfully logged in!"
   },
   "forgotPassword": {
     "title": "Forgot Password",
@@ -129,7 +133,18 @@
     "nextMaintenanceMileage": "Next Maintenance Mileage",
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
-    "status": "Status"
+    "status": "Status",
+    "statuses": {
+      "available": "Available",
+      "maintenance": "On Maintenance",
+      "out_of_service": "Out of Service"
+    },
+    "fuelTypes": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    }
   },
   "assignModal": {
     "title": "Assign Vehicle to Request",
@@ -148,7 +163,8 @@
     "request": "Requests",
     "history": "History",
     "car": "Vehicles",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "driverDashboard": {
     "title": "Driver Dashboard",
@@ -173,7 +189,8 @@
   "superAdminNavbar": {
     "register": "Register User",
     "Users": "Users",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
   },
   "register": {
     "title": "Register New User",
@@ -218,6 +235,9 @@
     "email": "Email",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "department": "Department",
+    "is_active": "Is Active",
     "role": "Role",
     "cancel": "Cancel",
     "save": "Save"
@@ -243,13 +263,14 @@
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
     "status": "Status",
+    "department":"Department",
     "statusOptions": {
       "available": "Available",
       "inMaintenance": "In Maintenance",
       "outOfService": "Out of Service"
     },
     "fuelOptions": {
-      "gasoline": "Gasoline",
+      "Petrol": "Petrol",
       "diesel": "Diesel",
       "electric": "Electric",
       "hybrid": "Hybrid"

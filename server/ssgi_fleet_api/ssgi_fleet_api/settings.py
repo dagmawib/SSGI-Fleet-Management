@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist', #for JWT authentication
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'django_filters', # For advanced filtering in API views
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
