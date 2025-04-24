@@ -49,7 +49,7 @@ class Vehicle_Assignment(models.Model):
     driver_response_time = models.DateTimeField(null=True, blank=True)
     decline_reason = models.TextField(blank=True)
     estimated_distance = models.DecimalField(max_digits=10, decimal_places=2 , null=True, blank=True)
-    estimated_duration = models.DurationField(null=True, blank=True ,minutes=True)
+    estimated_duration = models.DurationField(null=True, blank=True)
     note = models.TextField(blank=True)
     
     
