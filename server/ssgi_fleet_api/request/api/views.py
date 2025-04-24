@@ -11,7 +11,8 @@ from .docs import (
     request_create_docs,
     pending_requests_docs,
     approve_request_docs,
-    cancel_request_docs
+    cancel_request_docs,
+    reject_request_docs
 )
 
 
@@ -86,13 +87,36 @@ class RequestApproveAPI(APIView):
                 status=400
             )
 
-        req.status = 'Approved'
+        req.department_approval = True
         req.approved_by = request.user
         req.save()
         
         return Response(
             {"id": req.request_id, "new_status": "Approved"}
         )
+
+class RequestRejectAPI(APIView):
+    permission_classes = [IsAuthenticated , IsDirector]
+    @reject_request_docs
+    def patch(self, request, request_id):
+        
+        req = get_object_or_404(Vehicle_Request, pk=request_id)
+        
+        if req.status != 'Pending':
+            return Response(
+                {"error": "Only pending requests can be approved"},
+                status=400
+            )
+
+        req.department_approval = False
+        req.approved_by = request.user
+        req.save()
+        
+        return Response(
+            {"id": req.request_id, "new_status": "Rejected"}
+        )
+
+
 
 class RequestCancelAPI(APIView):
     permission_classes = [IsAuthenticated , IsEmployee]

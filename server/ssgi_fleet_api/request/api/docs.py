@@ -120,6 +120,50 @@ approve_request_docs = extend_schema(
         )
     ]
 )
+# Reject Request Documentation
+reject_request_docs = extend_schema(
+    tags=["Director Endpoints"],
+    summary="Reject Request",
+    description="""**Director-only endpoint**  
+    Rejects a pending vehicle request.  
+    **Changes status to Rejected**  
+    **Records rejecting director**""",
+    responses={
+        200: OpenApiResponse(
+            description="Request rejected successfully",
+            examples=[
+                OpenApiExample(
+                    "Success Response",
+                    summary="Successful rejection",
+                    value={
+                        "id": 42,
+                        "new_status": "Rejected"
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            description="Request not in Pending status",
+            examples=[
+                OpenApiExample(
+                    "Already Approved or Rejected",
+                    summary="Validation error",
+                    value={"error": "Only pending requests can be approved"}
+                )
+            ]
+        ),
+        **COMMON_RESPONSES
+    },
+    parameters=[
+        OpenApiParameter(
+            name="request_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="ID of the request to reject"
+        )
+    ]
+)
+
 
 # Cancellation Documentation
 cancel_request_docs = extend_schema(
