@@ -46,15 +46,16 @@ request_create_docs = extend_schema(
     },
     examples=[
         OpenApiExample(
-            "Example Request",
+            "Example Request with Passengers",
             value={
-                "pickup_location": "Headquarters",
-                "destination": "Client Office",
+                "pickup_location": "HQ",
+                "destination": "Airport",
                 "start_time": "2023-06-20T09:00:00Z",
-                "end_time": "2023-06-20T17:00:00Z",
-                "purpose": "Client meeting",
-                "passenger_count": 3,
-                "urgency": "Regular"
+                "end_time": "2023-06-20T11:00:00Z",
+                "purpose": "VIP Transport",
+                "passenger_count": 2,
+                "passenger_names": ["John Doe", "Jane Smith"],
+                "urgency": "Priority"
             }
         )
     ]

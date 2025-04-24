@@ -1,6 +1,7 @@
-from time import timezone
+from django.utils import timezone
 from rest_framework import serializers
 from ..models import Vehicle_Request
+from django.utils.dateparse import parse_datetime
 
 
 class RequesterCreateSerializer(serializers.ModelSerializer):
@@ -9,14 +10,13 @@ class RequesterCreateSerializer(serializers.ModelSerializer):
         fields = [
             'pickup_location',
             'destination',
-            'start_time',
-            'end_time',
+            'duration',
             'purpose',
             'passenger_count',
             'urgency'
         ]
         extra_kwargs = {
-            'passenger_count': {'min_value': 1, 'max_value': 10}
+            'passenger_count': {'min_value': 1, 'max_value': 15}
         }
 
 class RequesterViewSerializer(serializers.ModelSerializer):
@@ -28,8 +28,7 @@ class RequesterViewSerializer(serializers.ModelSerializer):
             'request_id',
             'pickup_location',
             'destination',
-            'start_time',
-            'end_time',
+            'duration',
             'status',
             'status_display',
             'department_approval',
@@ -43,16 +42,21 @@ class RequestSerializer(serializers.ModelSerializer):
     # can_cancel = serializers.SerializerMethodField()
     # is_expired = serializers.SerializerMethodField()
 
+    passenger_names = serializers.JSONField(
+        required=False,
+        help_text="List of passenger names as JSON array"
+    )
+
     class Meta:
         model = Vehicle_Request
         fields = [
             'request_id',
             'pickup_location',
             'destination',
-            'start_time',
-            'end_time',
+            'duration',
             'purpose',
             'passenger_count',
+            'passenger_names',
             'urgency',
             'status',
             'cancellation_reason',
@@ -65,9 +69,8 @@ class RequestSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         extra_kwargs = {
-            'passenger_count': {'min_value': 1, 'max_value': 10},
-            'start_time': {'required': True},
-            'end_time': {'required': True}
+            'passenger_count': {'min_value': 1, 'max_value': 15},
+            'duration' : {'required' : True}
         }
 
     def get_can_cancel(self, obj):
@@ -79,24 +82,51 @@ class RequestSerializer(serializers.ModelSerializer):
         if obj.status == Vehicle_Request.Status.PENDING and obj.expiry_time:
             return timezone.now() > obj.expiry_time
         return False
+    
+    def validate_passenger_names(self, value):
+        """Validate passenger names format"""
+
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Must be a list of names")
+        if len(value) > 15:  
+            raise serializers.ValidationError("Maximum 15 passengers allowed")
+        return value
 
     def validate(self, data):
+
+        duration  = data['duration']
+
+        start_time = parse_datetime(duration[0])
+        end_time = parse_datetime(duration[1])
+
+        if not start_time or not end_time:
+            raise serializers.ValidationError("Invalid datetime format in duration.")
+
+        # Ensure both datetimes are timezone-aware
+        if timezone.is_naive(start_time):
+            start_time = timezone.make_aware(start_time)
+        if timezone.is_naive(end_time):
+            end_time = timezone.make_aware(end_time)
+
         # Validate time ranges
-        if data['start_time'] >= data['end_time']:
+        if start_time >= end_time:
             raise serializers.ValidationError("End time must be after start time")
         
         # Validate request isn't being made for past time
-        if data['start_time'] < timezone.now():
+        if start_time < timezone.now():
             raise serializers.ValidationError("Cannot create request for past time")
         
         # Validate passenger count vs vehicle capacity
-        if 'passenger_count' in data and data['passenger_count'] > 10:
-            raise serializers.ValidationError("Maximum 10 passengers allowed")
+        if 'passenger_count' in data and data['passenger_count'] > 15:
+            raise serializers.ValidationError("Maximum 15 passengers allowed")
         
         return data
 
     def create(self, validated_data):
+
         """Auto-set requester and status when creating"""
+
         validated_data['requester'] = self.context['request'].user
         validated_data['status'] = Vehicle_Request.Status.PENDING
+
         return super().create(validated_data)

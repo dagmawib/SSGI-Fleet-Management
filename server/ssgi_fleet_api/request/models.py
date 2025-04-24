@@ -29,8 +29,10 @@ class Vehicle_Request(models.Model):
 
     pickup_location = models.CharField(max_length=255 , null=False , blank=False)
     destination = models.CharField(max_length=255 , null=False , blank=False)
-    start_time = models.DateTimeField(null=False , blank=False)
-    end_time = models.DateTimeField(null=False , blank=False)
+    duration  = models.JSONField(default=list,
+        help_text="List of start and end time names in JSON format",
+        blank=True
+    )
 
     purpose = models.CharField(max_length=255 , null=False , blank=False)
     urgency = models.CharField(max_length=255,
@@ -43,7 +45,13 @@ class Vehicle_Request(models.Model):
     
     passenger_count = models.IntegerField(
         validators=[MinValueValidator(1),
-        MaxValueValidator(10)])
+        MaxValueValidator(15)])
+    
+    passenger_names = models.JSONField(
+        default=list,
+        help_text="List of passenger names in JSON format",
+        blank=True
+    )
     
     department_approval = models.BooleanField(default=False)
     department_approver = models.ForeignKey(

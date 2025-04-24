@@ -16,13 +16,23 @@ from .docs import (
 
 
 class RequestCreateAPIView(APIView):
-
+    "it creates request when employee requestes for cars"
     permission_classes = [IsAuthenticated , IsEmployee]
     @request_create_docs
     def post(self, request):
 
-        serializer = RequestSerializer(data=request.data)
+        serializer = RequestSerializer(data=request.data , context ={'request' : request})
         serializer.is_valid(raise_exception=True)
+        
+        # Validate passenger count matches names
+        passenger_count = serializer.validated_data.get('passenger_count', 0)
+        passenger_names = serializer.validated_data.get('passenger_names', [])
+        
+        if passenger_names and len(passenger_names) != passenger_count:
+            return Response(
+                {"error": "Passenger names count must match passenger_count"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         request = serializer.save(
             requester=request.user,
@@ -30,11 +40,19 @@ class RequestCreateAPIView(APIView):
         )
 
         return Response(
-            {"id": request.request_id, "status": "Pending"},
+            {
+                "id": request.request_id,
+                "status": "Pending",
+                "passenger_count": passenger_count,
+                "passenger_names": passenger_names
+            },
             status=201
         )
 
 class PendingRequestsAPI(APIView):
+    """
+        Retrives the pending requests for the director to approve 
+    """
     permission_classes = [IsAuthenticated , IsDirector]
     @pending_requests_docs
     def get(self, request):
@@ -43,15 +61,19 @@ class PendingRequestsAPI(APIView):
         ).select_related('requester')
         data = [{
             "id": r.request_id,
+            "status" : r.status,
             "requester": r.requester.email,
             "pickup": r.pickup_location,
             "destination": r.destination,
-            "start_time": r.start_time
+            "duration": r.duration
         } for r in requests]
         
         return Response(data)
     
 class RequestApproveAPI(APIView):
+    """
+        Aprroves the request if only director is there
+    """
     permission_classes = [IsAuthenticated , IsDirector]
     @approve_request_docs
     def patch(self, request, request_id):
@@ -71,7 +93,6 @@ class RequestApproveAPI(APIView):
         return Response(
             {"id": req.request_id, "new_status": "Approved"}
         )
-
 
 class RequestCancelAPI(APIView):
     permission_classes = [IsAuthenticated , IsEmployee]
