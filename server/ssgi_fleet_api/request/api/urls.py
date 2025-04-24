@@ -5,7 +5,8 @@ from .views import (
     RequestApproveAPI,
     RequestCancelAPI,
     RequestRejectAPI,
-    RequestsListAPIView
+    RequestsListAPIView,
+    EmployeeRequestStatusView
 )
 
 urlpatterns = [
@@ -15,5 +16,6 @@ urlpatterns = [
     path('requests/<int:request_id>/approve/', RequestApproveAPI.as_view(), name='approve-request'),
     path('requests/<int:request_id>/reject/', RequestRejectAPI.as_view(), name='reject-request'),
     path('requests/<int:request_id>/cancel/', RequestCancelAPI.as_view(), name='cancel-request'),
-    path('requests/list/',RequestsListAPIView.as_view(), name='request-list')
+    path('requests/list/',RequestsListAPIView.as_view(), name='request-list'),
+    path('requests/status/',EmployeeRequestStatusView.as_view(), name= 'employee-pr-requests')
 ]

@@ -7,12 +7,13 @@ from django.utils import timezone
 class Vehicle_Request(models.Model):
 
     class Status(models.TextChoices):
-        PENDING = 'Pending', 'Pending Approval'
-        APPROVED = 'Approved', 'Approved by Department'
-        REJECTED = 'Rejected', 'Rejected by Department'
-        CANCELLED = 'Cancelled', 'Cancelled by Requester'
-        COMPLETED = 'Completed', 'Fulfilled Successfully'
-        ASSIGNED = 'Assigned', 'Assigned to Driver'
+        PENDING = 'Pending'
+        PROCESSING= 'Processing' 
+        APPROVED = 'Approved' 
+        REJECTED = 'Rejected'
+        CANCELLED = 'Cancelled'
+        COMPLETED = 'Completed'
+        ASSIGNED = 'Assigned'
     
     
     class Urgency(models.TextChoices):
@@ -64,6 +65,7 @@ class Vehicle_Request(models.Model):
         )
 
     department_approval_time = models.DateTimeField(null=True, blank=True)
+    rejection_reason =models.CharField(max_length=500 , null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cancellation_reason = models.TextField(blank=True)

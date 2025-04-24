@@ -23,10 +23,18 @@ COMMON_RESPONSES = {
 request_create_docs = extend_schema(
     tags=["Requester Endpoints"],
     summary="Create Vehicle Request",
-    description="""**Employee-only endpoint**  
+    description="""**Endpoint for Employees and Directors**  
     Submit a new vehicle request.  
-    **Status automatically set to Pending**  
-    **Auto-expires after 24h if not approved**""",
+    
+    **Status Behavior:**  
+    - Employees: Automatically set to *Pending*  
+    - Directors: Automatically *Approved* (self-approved)  
+    
+    **Auto-expires after 24h if not approved**  
+    
+    **Special Director Privileges:**  
+    - Requests are immediately approved  
+    - Director becomes the approver automatically""",
     request=RequestSerializer,
     responses={
         201: OpenApiResponse(
@@ -34,10 +42,21 @@ request_create_docs = extend_schema(
             description="Request created successfully",
             examples=[
                 OpenApiExample(
-                    "Success Response",
+                    "Employee Response",
                     value={
                         "id": 1,
-                        "status": "Pending"
+                        "status": "Pending",
+                        "message": "Pending approval"
+                    }
+                ),
+                OpenApiExample(
+                    "Director Response",
+                    value={
+                        "id": 2,
+                        "status": "Approved",
+                        "auto_approved": True,
+                        "approver": "Dr. Smith (Director)",
+                        "message": "Auto-approved by director"
                     }
                 )
             ]
@@ -46,17 +65,25 @@ request_create_docs = extend_schema(
     },
     examples=[
         OpenApiExample(
-            "Example Request with Passengers",
+            "Employee Request Example",
+            value={
+                "pickup_location": "HQ",
+                "destination": "Client Office",
+                "start_time": "2023-06-20T09:00:00Z",
+                "passenger_count": 3,
+                "purpose": "Team meeting transport"
+            }
+        ),
+        OpenApiExample(
+            "Director Request Example",
             value={
                 "pickup_location": "HQ",
                 "destination": "Airport",
-                "start_time": "2023-06-20T09:00:00Z",
-                "end_time": "2023-06-20T11:00:00Z",
-                "purpose": "VIP Transport",
-                "passenger_count": 2,
-                "passenger_names": ["John Doe", "Jane Smith"],
-                "urgency": "Priority"
-            }
+                "start_time": "2023-06-20T14:00:00Z",
+                "urgency": "High",
+                "special_requirements": "VIP handling"
+            },
+            description="Note: Director requests skip approval queue"
         )
     ]
 )

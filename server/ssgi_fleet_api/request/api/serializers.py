@@ -39,10 +39,7 @@ class RequesterViewSerializer(serializers.ModelSerializer):
         read_only_fields = fields  
 
 class RequestSerializer(serializers.ModelSerializer):
-    # requester_email = serializers.EmailField(source='requester.email', read_only=True)
-    # status_display = serializers.CharField(source='get_status_display', read_only=True)
-    # can_cancel = serializers.SerializerMethodField()
-    # is_expired = serializers.SerializerMethodField()
+   
 
     passenger_names = serializers.JSONField(
         required=False,
@@ -150,4 +147,43 @@ class RequestListSerializer(serializers.ModelSerializer):
             'created_at',
             'status'
         ]
+
+class EmployeeRequestStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle_Request
+        fields = [
+            'request_id',
+            'created_at',
+            'status',
+            'purpose'  # Corrected spelling from 'purpouse'
+        ]
+        read_only_fields = fields 
+
+class RequestRejectSerializer(serializers.Serializer):
+    reason = serializers.CharField(
+        required=True,
+        max_length=500,
+        help_text="Detailed explanation for rejection"
+    )
+
+    def validate_reason(self, value):
+        """Ensure reason is meaningful"""
+        if len(value.strip()) < 10:
+            raise serializers.ValidationError("Please provide a detailed reason (minimum 10 characters)")
+        return value
     
+
+from users.models import Department
+class EmployeeAndDirectorDepartemntSerilizer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'director']
+
+
+from users.models import User
+class UserMatchSerializer(serializers.ModelSerializer):
+    department = EmployeeAndDirectorDepartemntSerilizer()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name', 'department', 'role']
