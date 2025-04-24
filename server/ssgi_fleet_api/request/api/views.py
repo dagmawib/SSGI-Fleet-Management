@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from ..models import Vehicle_Request
-from .serializers import RequestSerializer
+from .serializers import RequestSerializer , RequestListSerializer
+from users.api.permissions import IsRegularAdmin
 
 from .permissions import IsEmployee , IsDirector 
 from .docs import (
@@ -88,7 +89,7 @@ class RequestApproveAPI(APIView):
             )
 
         req.department_approval = True
-        req.approved_by = request.user
+        req.department_approver = request.user
         req.save()
         
         return Response(
@@ -144,3 +145,10 @@ class RequestCancelAPI(APIView):
         return Response(
             {"id": req.request_id, "new_status": "Cancelled"}
         )
+    
+class RequestsListAPIView(APIView):
+    permission_classes = [IsAuthenticated , IsRegularAdmin ]
+    def get(self, request):
+        queryset = Vehicle_Request.objects.all()
+        serializer = RequestListSerializer(queryset, many=True)
+        return Response(serializer.data)

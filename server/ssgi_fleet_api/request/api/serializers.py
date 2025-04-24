@@ -2,6 +2,8 @@ from django.utils import timezone
 from rest_framework import serializers
 from ..models import Vehicle_Request
 from django.utils.dateparse import parse_datetime
+from users.api.serializers import UserSerializer
+
 
 
 class RequesterCreateSerializer(serializers.ModelSerializer):
@@ -130,3 +132,22 @@ class RequestSerializer(serializers.ModelSerializer):
         validated_data['status'] = Vehicle_Request.Status.PENDING
 
         return super().create(validated_data)
+
+
+class RequestListSerializer(serializers.ModelSerializer):
+    requester_name = serializers.CharField(source='requester.get_full_name', read_only=True)
+    approver_name = serializers.CharField(source='department_approver.get_full_name', read_only=True)
+    
+    class Meta:
+        model = Vehicle_Request
+        fields = [
+            'requester',
+            'requester_name',
+            'department_approver',
+            'approver_name',
+            'pickup_location',
+            'destination',
+            'created_at',
+            'status'
+        ]
+    
