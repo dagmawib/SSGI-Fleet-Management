@@ -169,7 +169,7 @@ class EmployeeRequestStatusSerializer(serializers.ModelSerializer):
             'request_id',
             'created_at',
             'status',
-            'purpose'  # Corrected spelling from 'purpouse'
+            'purpose'  
         ]
         read_only_fields = fields 
 
