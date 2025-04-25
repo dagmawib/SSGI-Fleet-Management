@@ -15,9 +15,11 @@ from .permissions import IsEmployee , IsDirector ,IsEmployeeOrDirector
 from .docs import (
     request_create_docs,
     pending_requests_docs,
-    approve_request_docs,
     cancel_request_docs,
-    reject_request_docs
+    reject_request_docs,
+    request_status_docs,
+    admin_requests_docs,
+    approve_request_docs
 )
 
 
@@ -100,7 +102,8 @@ class PendingRequestsAPI(APIView):
                 },
                 "pickup_location": req.pickup_location,
                 "destination": req.destination,
-                "duration": req.duration,
+                "start_dateTime" : req.start_dateTime,
+                "end_dateTiem" : req.end_dateTime,
                 "purpose": req.purpose,
                 "passenger_count": req.passenger_count,
                 "created_at": req.created_at,
@@ -121,7 +124,7 @@ class RequestApproveAPI(APIView):
     3. Director is the assigned director of the requester's department
     """
     permission_classes = [IsAuthenticated, IsDirector]
-    
+    @approve_request_docs
     def patch(self, request, request_id):
         req = get_object_or_404(Vehicle_Request, pk=request_id)
         
@@ -246,7 +249,6 @@ class RequestRejectAPI(APIView):
         )
 
 
-
 class RequestCancelAPI(APIView):
     permission_classes = [IsAuthenticated , IsEmployee]
     @cancel_request_docs
@@ -283,7 +285,7 @@ class RequestsListAPIView(APIView):
     
 class EmployeeRequestStatusView(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    
+    @request_status_docs
     def get(self, request):
         # Get only the current employee's requests, ordered newest first
         requests = Vehicle_Request.objects.filter(

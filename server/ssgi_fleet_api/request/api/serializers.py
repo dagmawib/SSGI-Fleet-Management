@@ -39,8 +39,6 @@ class RequesterViewSerializer(serializers.ModelSerializer):
         read_only_fields = fields  
 
 class RequestSerializer(serializers.ModelSerializer):
-   
-
     passenger_names = serializers.JSONField(
         required=False,
         help_text="List of passenger names as JSON array"

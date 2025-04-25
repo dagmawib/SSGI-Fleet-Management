@@ -1,4 +1,3 @@
-# api/docs.py
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
@@ -8,7 +7,9 @@ from drf_spectacular.utils import (
 )
 from .serializers import (
     RequestSerializer,
-    RequesterViewSerializer
+    RequestRejectSerializer,
+    EmployeeRequestStatusSerializer,
+    RequestListSerializer
 )
 
 # Common responses
@@ -30,7 +31,8 @@ request_create_docs = extend_schema(
     - Employees: Automatically set to *Pending*  
     - Directors: Automatically *Approved* (self-approved)  
     
-    **Auto-expires after 24h if not approved**  
+    **Department Validation:**  
+    - Directors can only approve requests from their department  
     
     **Special Director Privileges:**  
     - Requests are immediately approved  
@@ -46,7 +48,9 @@ request_create_docs = extend_schema(
                     value={
                         "id": 1,
                         "status": "Pending",
-                        "message": "Pending approval"
+                        "message": "Pending approval",
+                        "passenger_count": 2,
+                        "passenger_names": ["John Doe", "Jane Smith"]
                     }
                 ),
                 OpenApiExample(
@@ -56,6 +60,8 @@ request_create_docs = extend_schema(
                         "status": "Approved",
                         "auto_approved": True,
                         "approver": "Dr. Smith (Director)",
+                        "passenger_count": 1,
+                        "passenger_names": ["VIP Client"],
                         "message": "Auto-approved by director"
                     }
                 )
@@ -69,9 +75,11 @@ request_create_docs = extend_schema(
             value={
                 "pickup_location": "HQ",
                 "destination": "Client Office",
-                "start_time": "2023-06-20T09:00:00Z",
+                "start_dateTime": "2025-06-20T09:00:00Z",
+                "end_dateTime": "2025-06-20T11:00:00Z",
                 "passenger_count": 3,
-                "purpose": "Team meeting transport"
+                "purpose": "Team meeting transport",
+                "urgency": "Regular"
             }
         ),
         OpenApiExample(
@@ -79,9 +87,11 @@ request_create_docs = extend_schema(
             value={
                 "pickup_location": "HQ",
                 "destination": "Airport",
-                "start_time": "2023-06-20T14:00:00Z",
-                "urgency": "High",
-                "special_requirements": "VIP handling"
+                "start_dateTime": "2025-06-20T14:00:00Z",
+                "end_dateTime": "2025-06-20T16:00:00Z",
+                "passenger_count": 2,
+                "purpose": "VIP Transport",
+                "urgency": "Priority"
             },
             description="Note: Director requests skip approval queue"
         )
@@ -93,21 +103,43 @@ pending_requests_docs = extend_schema(
     tags=["Director Endpoints"],
     summary="List Pending Requests",
     description="""**Director-only endpoint**  
-    Returns all requests awaiting approval.  
+    Returns all pending requests from director's department(s).  
+    
+    **Filters:**  
+    - Only shows requests from director's departments  
+    - Only shows PENDING status requests  
+    
     **Auto-rejects requests older than 24h**""",
     responses={
         200: OpenApiResponse(
             description="List of pending requests",
+            response=RequestListSerializer,
             examples=[
                 OpenApiExample(
                     "Example Response",
-                    value=[{
-                        "id": 1,
-                        "requester": "employee@company.com",
-                        "pickup": "Headquarters",
-                        "destination": "Client Site",
-                        "start_time": "2023-06-20T09:00:00Z"
-                    }]
+                    value={
+                        "count": 2,
+                        "department": ["Operations"],
+                        "requests": [
+                            {
+                                "request_id": 42,
+                                "status": "Pending",
+                                "requester": {
+                                    "email": "employee@company.com",
+                                    "full_name": "John Employee",
+                                    "department": "Operations"
+                                },
+                                "pickup_location": "HQ",
+                                "destination": "Client Site",
+                                "start_dateTime": "2025-06-20T09:00:00Z",
+                                "end_dateTime": "2025-06-20T11:00:00Z",
+                                "purpose": "Client meeting",
+                                "passenger_count": 2,
+                                "created_at": "2025-06-19T14:30:00Z",
+                                "urgency": "Priority"
+                            }
+                        ]
+                    }
                 )
             ]
         ),
@@ -121,8 +153,14 @@ approve_request_docs = extend_schema(
     summary="Approve Request",
     description="""**Director-only endpoint**  
     Approves a pending vehicle request.  
-    **Changes status to Approved**  
-    **Records approving director**""",
+    
+    **Requirements:**  
+    - Request must be PENDING  
+    - Director must be assigned to requester's department  
+    
+    **Effects:**  
+    - Changes status to PROCESSING  
+    - Records approving director and timestamp""",
     responses={
         200: OpenApiResponse(
             description="Request approved",
@@ -130,8 +168,19 @@ approve_request_docs = extend_schema(
                 OpenApiExample(
                     "Success Response",
                     value={
-                        "id": 1,
-                        "new_status": "Approved"
+                        "id": 42,
+                        "new_status": "Processing",
+                        "approved_at": "2025-06-20T10:15:30Z",
+                        "requester": {
+                            "id": 101,
+                            "name": "John Employee",
+                            "department": "Operations"
+                        },
+                        "approved_by": {
+                            "id": 201,
+                            "name": "Jane Director",
+                            "department": "Operations"
+                        }
                     }
                 )
             ]
@@ -147,35 +196,37 @@ approve_request_docs = extend_schema(
         )
     ]
 )
+
 # Reject Request Documentation
 reject_request_docs = extend_schema(
     tags=["Director Endpoints"],
     summary="Reject Request",
     description="""**Director-only endpoint**  
     Rejects a pending vehicle request.  
-    **Changes status to Rejected**  
-    **Records rejecting director**""",
+    
+    **Requirements:**  
+    - Request must be PENDING  
+    - Director must be assigned to requester's department  
+    - Must provide rejection reason  
+    
+    **Effects:**  
+    - Changes status to REJECTED  
+    - Records rejecting director, reason, and timestamp""",
+    request=RequestRejectSerializer,
     responses={
         200: OpenApiResponse(
             description="Request rejected successfully",
             examples=[
                 OpenApiExample(
                     "Success Response",
-                    summary="Successful rejection",
                     value={
                         "id": 42,
-                        "new_status": "Rejected"
+                        "new_status": "Rejected",
+                        "rejected_by": "Jane Director",
+                        "rejection_reason": "No vehicles available",
+                        "rejected_at": "2025-06-20T10:15:30Z",
+                        "department": "Operations"
                     }
-                )
-            ]
-        ),
-        400: OpenApiResponse(
-            description="Request not in Pending status",
-            examples=[
-                OpenApiExample(
-                    "Already Approved or Rejected",
-                    summary="Validation error",
-                    value={"error": "Only pending requests can be approved"}
                 )
             ]
         ),
@@ -188,9 +239,16 @@ reject_request_docs = extend_schema(
             location=OpenApiParameter.PATH,
             description="ID of the request to reject"
         )
+    ],
+    examples=[
+        OpenApiExample(
+            "Rejection Reason Example",
+            value={
+                "reason": "No vehicles available for the requested time"
+            }
+        )
     ]
 )
-
 
 # Cancellation Documentation
 cancel_request_docs = extend_schema(
@@ -198,8 +256,15 @@ cancel_request_docs = extend_schema(
     summary="Cancel Request",
     description="""**Employee-only endpoint**  
     Cancels a pending request.  
-    **Requires ownership verification**  
-    **Must provide cancellation reason**""",
+    
+    **Requirements:**  
+    - Request must be PENDING  
+    - Must be the original requester  
+    - Must provide cancellation reason  
+    
+    **Effects:**  
+    - Changes status to CANCELLED  
+    - Records cancellation reason and timestamp""",
     responses={
         200: OpenApiResponse(
             description="Request cancelled",
@@ -208,7 +273,8 @@ cancel_request_docs = extend_schema(
                     "Success Response",
                     value={
                         "id": 1,
-                        "new_status": "Cancelled"
+                        "new_status": "Cancelled",
+                        "cancellation_reason": "Meeting was postponed"
                     }
                 )
             ]
@@ -232,14 +298,82 @@ cancel_request_docs = extend_schema(
     }
 )
 
-# Request Status Transitions (For Schema)
-STATUS_TRANSITIONS = OpenApiExample(
+# Request Status Documentation
+request_status_docs = extend_schema(
+    tags=["Employee Endpoints"],
+    summary="Get Request Status",
+    description="""**Employee-only endpoint**  
+    Returns all requests for the current employee.  
+    
+    **Features:**  
+    - Ordered by creation date (newest first)  
+    - Shows all statuses (Pending, Approved, Rejected, etc.)  
+    - Includes full request details""",
+    responses={
+        200: OpenApiResponse(
+            response=EmployeeRequestStatusSerializer,
+            description="List of employee's requests",
+            examples=[
+                OpenApiExample(
+                    "Example Response",
+                    value=[
+                        {
+                            "request_id": 42,
+                            "created_at": "2025-06-19T14:30:00Z",
+                            "status": "Approved",
+                            "purpose": "Client meeting"
+                        }
+                    ]
+                )
+            ]
+        ),
+        **COMMON_RESPONSES
+    }
+)
+
+# Admin List Documentation
+admin_requests_docs = extend_schema(
+    tags=["Admin Endpoints"],
+    summary="List Approved Requests",
+    description="""**Admin-only endpoint**  
+    Returns all approved requests for vehicle assignment.  
+    
+    **Filters:**  
+    - Only shows APPROVED status requests  
+    - Only shows requests with department approval""",
+    responses={
+        200: OpenApiResponse(
+            response=RequestListSerializer,
+            description="List of approved requests",
+            examples=[
+                OpenApiExample(
+                    "Example Response",
+                    value=[
+                        {
+                            "requester": "employee@company.com",
+                            "department_approver": "director@company.com",
+                            "pickup_location": "HQ",
+                            "destination": "Airport",
+                            "created_at": "2025-06-19T14:30:00Z",
+                            "status": "Approved"
+                        }
+                    ]
+                )
+            ]
+        ),
+        **COMMON_RESPONSES
+    }
+)
+
+# Status Transitions Documentation
+status_transitions_docs = OpenApiExample(
     "Status Flow",
     description="""
     Pending → Approved (by Director)
     Pending → Cancelled (by Requester)
     Pending → Rejected (by Director)
     Approved → Assigned (by Admin)
+    Approved → Completed (by Driver)
     """,
     value=None
 )
