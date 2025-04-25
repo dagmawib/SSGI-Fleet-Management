@@ -52,7 +52,8 @@ class RequestSerializer(serializers.ModelSerializer):
             'request_id',
             'pickup_location',
             'destination',
-            'duration',
+            "start_dateTime",
+            "end_dateTime",
             'purpose',
             'passenger_count',
             'passenger_names',
@@ -92,14 +93,17 @@ class RequestSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
+        validated_data = super().validate(data)
+        
+        # Get datetime values
+        start_time = validated_data.get('start_dateTime')
+        end_time = validated_data.get('end_dateTime')
 
-        duration  = data['duration']
-
-        start_time = parse_datetime(duration[0])
-        end_time = parse_datetime(duration[1])
-
+        # Check if both datetimes are provided
         if not start_time or not end_time:
-            raise serializers.ValidationError("Invalid datetime format in duration.")
+            raise serializers.ValidationError(
+                {"datetime": "Both start_dateTime and end_dateTime must be provided"}
+            )
 
         # Ensure both datetimes are timezone-aware
         if timezone.is_naive(start_time):
@@ -109,17 +113,27 @@ class RequestSerializer(serializers.ModelSerializer):
 
         # Validate time ranges
         if start_time >= end_time:
-            raise serializers.ValidationError("End time must be after start time")
+            raise serializers.ValidationError(
+                {"end_dateTime": "Must be after start_dateTime"}
+            )
         
         # Validate request isn't being made for past time
         if start_time < timezone.now():
-            raise serializers.ValidationError("Cannot create request for past time")
+            raise serializers.ValidationError(
+                {"start_dateTime": "Cannot create request for past time"}
+            )
         
-        # Validate passenger count vs vehicle capacity
-        if 'passenger_count' in data and data['passenger_count'] > 15:
-            raise serializers.ValidationError("Maximum 15 passengers allowed")
+        # Validate passenger count
+        if 'passenger_count' in validated_data and validated_data['passenger_count'] > 15:
+            raise serializers.ValidationError(
+                {"passenger_count": "Maximum 15 passengers allowed"}
+            )
         
-        return data
+        # Update with timezone-aware datetimes
+        validated_data['start_dateTime'] = start_time
+        validated_data['end_dateTime'] = end_time
+        
+        return validated_data
 
     def create(self, validated_data):
 

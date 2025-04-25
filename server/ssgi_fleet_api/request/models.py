@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from users.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
@@ -30,10 +31,8 @@ class Vehicle_Request(models.Model):
 
     pickup_location = models.CharField(max_length=255 , null=False , blank=False)
     destination = models.CharField(max_length=255 , null=False , blank=False)
-    duration  = models.JSONField(default=list,
-        help_text="List of start and end time names in JSON format",
-        blank=True
-    )
+    start_dateTime = models.DateTimeField(blank=True , null=True)
+    end_dateTime = models.DateTimeField(blank=True , null=True)
 
     purpose = models.CharField(max_length=255 , null=False , blank=False)
     urgency = models.CharField(max_length=255,
@@ -77,6 +76,14 @@ class Vehicle_Request(models.Model):
         ordering = ['-created_at' , '-updated_at']
         verbose_name = 'Vehicle Request'
         verbose_name_plural = 'Vehicle Requests'
+
+    def clean(self):
+        """Validate datetime ranges"""
+        if self.start_datetime and self.end_datetime:
+            if self.start_datetime >= self.end_datetime:
+                raise ValidationError("End datetime must be after start datetime")
+            if self.start_datetime < timezone.now():
+                raise ValidationError("Cannot create request for past datetime")
 
     def save(self, *args, **kwargs):
         if self.status == self.Status.APPROVED:
