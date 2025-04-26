@@ -75,3 +75,51 @@ class AssignCarSerializer(serializers.ModelSerializer):
                 {"request_id": "This request already has a vehicle assigned"}
             )
         return data
+    
+class RejectCarAssignmentSerializer(serializers.ModelSerializer):
+    request_id = serializers.IntegerField(write_only=True)
+    class Meta:
+        model = Vehicle_Assignment
+        fields = [
+            'request_id',
+            'estimated_duration',
+            'note'
+        ]
+        extra_kwargs = {
+            'note': {'required': True}
+        }
+
+    def validate_request_id(self, value):
+        try:
+            request = Vehicle_Request.objects.get(pk=value)
+            if request.status != Vehicle_Request.Status.APPROVED:
+                raise serializers.ValidationError(
+                    "Only approved requests can be assigned vehicles"
+                )
+            return value
+        except Vehicle_Request.DoesNotExist:
+            raise serializers.ValidationError(
+                f"No vehicle request found with ID {value}"
+            )
+        self._validated_request = request
+        return value
+
+
+    def validate(self, data):
+
+        request = getattr(self, '_validated_request', None)
+        if not request:
+             request = Vehicle_Request.objects.get(pk=data['request_id'])
+
+        if Vehicle_Assignment.objects.filter(request=request).exists():
+            raise serializers.ValidationError(
+                {"request_id": "This request already has a vehicle assigned"}
+            )
+        
+        if not data.get('note'):
+            raise serializers.ValidationError({
+                "note": "Note field is required."
+            })
+        
+        return data
+    

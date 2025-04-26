@@ -1,4 +1,4 @@
-from .serializers import AssignCarSerializer
+from .serializers import AssignCarSerializer , RejectCarAssignmentSerializer
 from rest_framework.views import APIView
 from request.models import Vehicle_Request
 from ..models import Vehicle_Assignment
@@ -80,6 +80,38 @@ class AssignCarAPIView(APIView):
                 status=status.HTTP_201_CREATED
             )
             
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+class CarRejectAPIView(APIView):
+    def post(self, request):
+        serializer = RejectCarAssignmentSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            vheicle_request = Vehicle_Request.objects.get(
+                id = serializer.validated_data['request_id']
+            )
+
+            vheicle_request.status = vheicle_request.Status.REJECTED
+            vheicle_request.save()
+            
+
+            return Response({
+                "request_id": vheicle_request.id,
+                "note": serializer.validated_data.get('note', '')
+            }, status=status.HTTP_200_OK)
+
+
+        except Vehicle_Request.DoesNotExist:
+            raise('the resource does not eist.')
         except Exception as e:
             return Response(
                 {"error": str(e)},
