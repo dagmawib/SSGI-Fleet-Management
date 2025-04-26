@@ -101,3 +101,47 @@ Assigns a specific vehicle and driver to an approved request.
         )
     ]
 )
+
+
+
+from .serializers import RejectCarAssignmentSerializer
+
+reject_car_assignment_docs = extend_schema(
+    tags=["Assignment Endpoints"],
+    summary="Reject a Vehicle Request",
+    description="""
+**Admin/Superadmin-only endpoint**
+
+This endpoint allows an Admin or Superadmin to reject a vehicle request that was previously approved.  
+The admin must provide a rejection note explaining the reason.
+
+Once rejected, the request cannot be assigned a vehicle unless it is re-approved.
+""",
+    request=RejectCarAssignmentSerializer,   # 👈 correct way!
+    responses={
+        200: OpenApiResponse(
+            description="Vehicle request successfully rejected by Admin",
+            examples=[
+                OpenApiExample(
+                    "Success Response",
+                    value={
+                        "request_id": 11,
+                        "note": "Admin rejected due to scheduling conflict"
+                    }
+                )
+            ]
+        ),
+        **COMMON_RESPONSES
+    },
+    examples=[
+        OpenApiExample(
+            name="Admin Reject Request Example",
+            value={
+                "request_id": 11,
+                "note": "Admin rejected due to scheduling conflict"
+            },
+            request_only=True
+        )
+    ]
+)
+

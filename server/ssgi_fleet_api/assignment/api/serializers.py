@@ -123,3 +123,14 @@ class RejectCarAssignmentSerializer(serializers.ModelSerializer):
         
         return data
     
+class GetRequestsForDriverSerializer(serializers.Serializer):
+    driver_id = serializers.IntegerField()
+
+    def validate_driver_id(self, value):
+        try:
+            driver = User.objects.get(pk=value)
+            if driver.role != User.Role.DRIVER:
+                raise serializers.ValidationError("Selected user is not a driver.")
+            return value
+        except User.DoesNotExist:
+            raise serializers.ValidationError(f"No user found with ID {value}")

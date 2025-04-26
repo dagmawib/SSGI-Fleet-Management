@@ -1,14 +1,14 @@
-from .serializers import AssignCarSerializer , RejectCarAssignmentSerializer
+from .serializers import AssignCarSerializer, GetRequestsForDriverSerializer , RejectCarAssignmentSerializer
 from rest_framework.views import APIView
 from request.models import Vehicle_Request
 from ..models import Vehicle_Assignment
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrSuperAdmin
+from .permissions import IsAdminOrSuperAdmin , IsDriver
 from rest_framework.response import Response
 from rest_framework import status
 from vehicles.models import Vehicle
 from users.models import User
-from .docs import assign_car_docs
+from .docs import assign_car_docs ,reject_car_assignment_docs
 
 
 class AssignCarAPIView(APIView):
@@ -87,6 +87,8 @@ class AssignCarAPIView(APIView):
             )
         
 class CarRejectAPIView(APIView):
+    permission_classes = [IsAuthenticated , IsAdminOrSuperAdmin]
+    @reject_car_assignment_docs
     def post(self, request):
         serializer = RejectCarAssignmentSerializer(
             data=request.data,
@@ -117,3 +119,41 @@ class CarRejectAPIView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+class DriverAcceptView(APIView):
+    permission_classes = [IsAuthenticated , IsDriver]
+    def post(self, request):
+        pass
+
+
+class DriverRejectView(APIView):
+    permission_classes = [IsAuthenticated , IsDriver]
+    def post(self, request):
+        pass
+
+
+class DriverRequestView(APIView):
+    permission_classes = [IsAuthenticated , IsDriver]
+
+    def get(self, request):
+        driver = request.user 
+
+        assignment = Vehicle_Assignment.objects.filter(driver=driver).first()
+        
+        if not assignment:
+            return Response({"detail": "No assignment found."}, status=status.HTTP_404_NOT_FOUND)
+
+        vc_request = assignment.request
+        if vc_request.status != Vehicle_Request.Status.ASSIGNED:
+            return Response({"detail": "No active assigned request found."}, status=status.HTTP_404_NOT_FOUND)
+
+        requester = vc_request.requester
+
+        return Response({
+            "pickup": vc_request.pickup_location,
+            "destination": vc_request.destination,
+            "requester": requester.get_full_name(),
+            "department": requester.department.name,
+            "phone": requester.phone_number,
+            "passenger": vc_request.passenger_count
+        }, status=status.HTTP_200_OK)
