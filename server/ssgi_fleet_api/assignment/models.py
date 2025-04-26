@@ -12,7 +12,6 @@ class Vehicle_Assignment(models.Model):
         ACCEPTED = 'Accepted'
         DECLINED = 'Declined'
 
-    
     assignment_id = models.AutoField(primary_key=True)
     request = models.ForeignKey(
         Vehicle_Request,

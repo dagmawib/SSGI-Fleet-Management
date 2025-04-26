@@ -169,7 +169,7 @@ class RequestApproveAPI(APIView):
         # Approve the request
         req.department_approval = True
         req.department_approver = request.user
-        req.status = Vehicle_Request.Status.PROCESSING
+        req.status = Vehicle_Request.Status.APPROVED
         req.department_approval_time = timezone.now()
         req.save()
         

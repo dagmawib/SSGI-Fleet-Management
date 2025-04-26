@@ -150,6 +150,7 @@ class RequestListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle_Request
         fields = [
+            'request_id',
             'requester',
             'requester_name',
             'department_approver',
