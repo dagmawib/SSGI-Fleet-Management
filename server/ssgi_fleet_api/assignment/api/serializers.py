@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from ..models import Vehicle_Assignment
+from ..models import Vehicle_Assignment ,Trips
 from request.models import Vehicle_Request
 from users.models import User
 from vehicles.models import Vehicle
-
+from django.utils import timezone
 
 
 class AssignCarSerializer(serializers.ModelSerializer):
@@ -134,3 +134,49 @@ class GetRequestsForDriverSerializer(serializers.Serializer):
             return value
         except User.DoesNotExist:
             raise serializers.ValidationError(f"No user found with ID {value}")
+
+
+class AcceptAssignmentSerializer(serializers.ModelSerializer):
+    start_mileage = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=1,
+        required=True,
+        min_value=0,
+        help_text="Current mileage of the vehicle (in km/miles) before trip starts"
+    )
+    assignment_id = serializers.IntegerField(read_only=True)  # Should come from URL
+
+    class Meta:
+        model = Trips
+        fields = [
+            "trip_id",
+            "start_mileage",
+            "assignment_id"
+        ]
+        read_only_fields = ["trip_id", "assignment_id"]
+
+    def validate(self, data):
+        assignment = self.instance.assignment
+        vehicle = assignment.vehicle
+
+        if data['start_mileage'] < vehicle.current_mileage:
+            raise serializers.ValidationError(
+                f"Mileage must be ≥ vehicle's current mileage ({vehicle.current_mileage} km)"
+            )
+        return data
+    
+    def create(self, validated_data):
+        assignment = Vehicle_Assignment.objects.get(pk=self.context["assignment_id"])
+        assignment.vehicle.current_mileage = validated_data['start_mileage']
+        assignment.vehicle.save()
+
+        assignment.driver_response_time = timezone.now()
+        assignment.driver_status = Vehicle_Assignment.DriverStatus.ACCEPTED
+        assignment.save()
+
+        trip = Trips.objects.create(
+            assignment=assignment,
+            start_mileage=validated_data['start_mileage'],
+            status=Trips.TripStatus.STARTED
+        )
+        return trip

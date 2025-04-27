@@ -1,7 +1,7 @@
-from .serializers import AssignCarSerializer, GetRequestsForDriverSerializer , RejectCarAssignmentSerializer
+from .serializers import AssignCarSerializer, GetRequestsForDriverSerializer , RejectCarAssignmentSerializer , AcceptAssignmentSerializer
 from rest_framework.views import APIView
 from request.models import Vehicle_Request
-from ..models import Vehicle_Assignment
+from ..models import Vehicle_Assignment , Trips
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrSuperAdmin , IsDriver
 from rest_framework.response import Response
@@ -157,3 +157,31 @@ class DriverRequestView(APIView):
             "phone": requester.phone_number,
             "passenger": vc_request.passenger_count
         }, status=status.HTTP_200_OK)
+
+class AcceptAssignmentAPIView(APIView):
+    permission_classes = [IsAuthenticated , IsDriver]
+    def post(self, request, assignment_id):
+        """POST /api/assignments/<id>/accept/"""
+        try:
+            assignment = Vehicle_Assignment.objects.select_related('vehicle').get(
+                pk=assignment_id,
+                driver=request.user  # Ensure requester is the driver
+            )
+        except Vehicle_Assignment.DoesNotExist:
+            return Response({"error": "Invalid assignment"}, status=404)
+
+        if assignment.driver_status != Vehicle_Assignment.DriverStatus.PENDING:
+            return Response({"error": "Assignment already processed"}, status=400)
+
+        serializer = AcceptAssignmentSerializer(
+            data=request.data,
+            context={'assignment_id': assignment_id} 
+        )
+        serializer.is_valid(raise_exception=True)
+        trip = serializer.save()
+
+        return Response({
+            "status": "accepted",
+            "trip_id": trip.trip_id,
+            "start_mileage": trip.start_mileage
+        }, status=201)
