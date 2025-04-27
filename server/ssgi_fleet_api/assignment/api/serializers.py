@@ -150,10 +150,9 @@ class AcceptAssignmentSerializer(serializers.ModelSerializer):
         model = Trips
         fields = [
             "trip_id",
-            "start_mileage",
-            "assignment_id"
+            "start_mileage",  
         ]
-        read_only_fields = ["trip_id", "assignment_id"]
+        read_only_fields = ["trip_id"]
 
     def validate(self, data):
         assignment = self.instance.assignment
@@ -187,10 +186,9 @@ class DeclineAssigmentSerializer(serializers.ModelSerializer):
         model = Trips
         fields = [
             "trip_id",
-            "assignment_id",
             "rejection_reason"
         ]
-        read_only_fields = ["trip_id", "assignment_id"]
+        read_only_fields = ["trip_id"]
         @transaction.atomic
         def create(self, validated_data):
             assignment = Vehicle_Assignment.objects.get(pk=self.context["assignment_id"])
@@ -217,10 +215,9 @@ class CompleteAssignmentSerializer(serializers.ModelSerializer):
         model = Trips
         fields = [
            "trip_id",
-           "assignment_id",
            "end_mileage"
         ]
-        read_only_fields = ["trip_id", "assignment_id"]
+        read_only_fields = ["trip_id"]
 
         def validate(self , data):
             assignment  = self.instance.assignment

@@ -44,6 +44,9 @@ class RequestCreateAPIView(APIView):
             )
         
         is_director = hasattr(request.user, 'role') and request.user.role == User.Role.DIRECTOR
+        requester = User.objects.get(
+            pk =request.user.id
+        )
         
         vehicle_request = serializer.save(
             requester=request.user,
@@ -56,6 +59,7 @@ class RequestCreateAPIView(APIView):
             {
                 "id": vehicle_request.request_id,
                 "status": vehicle_request.status,
+                "requester_dept" : requester.department.name,
                 "passenger_count": passenger_count,
                 "passenger_names": passenger_names,
                 "auto_approved": is_director,
@@ -124,56 +128,58 @@ class RequestApproveAPI(APIView):
     3. Director is the assigned director of the requester's department
     """
     permission_classes = [IsAuthenticated, IsDirector]
+
     @approve_request_docs
     def patch(self, request, request_id):
         req = get_object_or_404(Vehicle_Request, pk=request_id)
-        
-        # Check if request is pending
+
         if req.status != Vehicle_Request.Status.PENDING:
             return Response(
                 {"error": "Only pending requests can be approved"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        # Serialize both users for department comparison
-        requester = UserMatchSerializer(req.requester).data
-        director = UserMatchSerializer(request.user).data
-        
-        # Get department info
-        requester_dept = requester.get('department')
-        director_dept = director.get('department')
-        
-        # Check if requester has a department
+
+        # Get requester's department
+        requester_dept = req.requester.department
+        print(f'requester : {requester_dept}')
+        print(f'requester_id : {requester_dept.id}')
+
+
+        # Get the department where the request.user is the director
+        try:
+            director_dept = Department.objects.get(director=request.user)
+            print(f'director department : {director_dept}')
+            print(f'director department id : {director_dept.id}')
+            print(f'name of director : {director_dept.director}')
+
+        except Department.DoesNotExist:
+            return Response(
+                {"error": "You are not assigned as a director for any department"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Ensure requester has a department
         if not requester_dept:
             return Response(
                 {"error": "Requester is not assigned to any department"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
-        # Check if director is actually the director of requester's department
-        is_valid_director = (
-            requester_dept and 
-            requester_dept.get('director') == request.user.id
-        )
-        
-        if not is_valid_director:
+
+        # Ensure the director is the one who can approve requests from the same department
+        if requester_dept.id != director_dept.id:
             return Response(
-                {
-                    "error": "You can only approve requests from departments you direct",
-                    "requester_department": requester_dept.get('name') if requester_dept else None,
-                    "your_departments": [d['name'] for d in request.user.directed_departments.values('name')]
-                },
+                {"error": "You can only approve requests from your own department"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         # Approve the request
         req.department_approval = True
         req.department_approver = request.user
         req.status = Vehicle_Request.Status.APPROVED
         req.department_approval_time = timezone.now()
         req.save()
-        
-        # Prepare response
+
+        # Prepare response data
         response_data = {
             "id": req.request_id,
             "new_status": req.status,
@@ -181,15 +187,15 @@ class RequestApproveAPI(APIView):
             "requester": {
                 "id": req.requester.id,
                 "name": req.requester.get_full_name(),
-                "department": requester_dept.get('name')
+                "department": requester_dept.name
             },
             "approved_by": {
                 "id": request.user.id,
                 "name": request.user.get_full_name(),
-                "department": director_dept.get('name') if director_dept else None
+                "department": director_dept.name
             }
         }
-        
+
         return Response(response_data, status=status.HTTP_200_OK)
 
 

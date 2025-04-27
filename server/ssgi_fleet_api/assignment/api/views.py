@@ -16,7 +16,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from vehicles.models import Vehicle
 from users.models import User
-from .docs import assign_car_docs ,reject_car_assignment_docs
+from .docs import assign_car_docs ,reject_car_assignment_docs ,DRIVER_REQUEST_GET_DOCS ,ACCEPT_ASSIGNMENT_DOCS, \
+DECLINE_ASSIGNMENT_DOCS ,COMPLETE_ASSIGNMENT_DOCS
 from django.db import transaction
 from django.utils import timezone
 
@@ -130,21 +131,10 @@ class CarRejectAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-class DriverAcceptView(APIView):
-    permission_classes = [IsAuthenticated , IsDriver]
-    def post(self, request):
-        pass
-
-
-class DriverRejectView(APIView):
-    permission_classes = [IsAuthenticated , IsDriver]
-    def post(self, request):
-        pass
-
 
 class DriverRequestView(APIView):
     permission_classes = [IsAuthenticated , IsDriver]
-
+    @DRIVER_REQUEST_GET_DOCS
     def get(self, request):
         driver = request.user 
 
@@ -168,10 +158,12 @@ class DriverRequestView(APIView):
             "passenger": vc_request.passenger_count
         }, status=status.HTTP_200_OK)
 
+
 class AcceptAssignmentAPIView(APIView):
     permission_classes = [IsAuthenticated , IsDriver]
+    @ACCEPT_ASSIGNMENT_DOCS
     def post(self, request, assignment_id):
-        """POST /api/assignments/<id>/accept/"""
+        
         try:
             assignment = Vehicle_Assignment.objects.select_related('vehicle').get(
                 pk=assignment_id,
@@ -199,6 +191,8 @@ class AcceptAssignmentAPIView(APIView):
 
 class DeclineAssignmentAPIView(APIView):
     permission_classes = [IsAuthenticated , IsDriver]
+
+    @DECLINE_ASSIGNMENT_DOCS
     @transaction.atomic  
     def post(self, request, assignment_id):   
         assignment = get_object_or_404(
@@ -229,7 +223,7 @@ class DeclineAssignmentAPIView(APIView):
 
 class CompleteAssignmentAPIView(APIView):
     permission_classes = [IsAuthenticated, IsDriver]
-
+    @COMPLETE_ASSIGNMENT_DOCS
     @transaction.atomic
     def patch(self, request, trip_id):
         trip = get_object_or_404(
