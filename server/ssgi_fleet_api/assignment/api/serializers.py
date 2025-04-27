@@ -5,6 +5,7 @@ from request.models import Vehicle_Request
 from users.models import User
 from vehicles.models import Vehicle
 from django.utils import timezone
+from django.db import transaction
 
 
 class AssignCarSerializer(serializers.ModelSerializer):
@@ -180,3 +181,27 @@ class AcceptAssignmentSerializer(serializers.ModelSerializer):
             status=Trips.TripStatus.STARTED
         )
         return trip
+    
+class DeclineAssigmentSerializer(serializers.ModelSerializer):
+    rejection_reason = serializers.CharField(required=True, write_only=True)
+    class Meta:
+        model = Trips
+        fields = [
+            "trip_id",
+            "assignment_id",
+            "rejection_reason"
+        ]
+        read_only_fields = ["trip_id", "assignment_id"]
+        @transaction.atomic
+        def create(self, validated_data):
+            assignment = Vehicle_Assignment.objects.get(pk=self.context["assignment_id"])
+            assignment.driver_response_time = timezone.now()
+            assignment.driver_status = Vehicle_Assignment.DriverStatus.DECLINED
+            assignment.decline_reason = validated_data['rejection_reason']
+            assignment.save()
+
+            trip = Trips.objects.create(
+                assignment=assignment,
+                status=Trips.TripStatus.DECLINED
+            )
+            return trip

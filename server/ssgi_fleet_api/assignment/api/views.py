@@ -1,4 +1,11 @@
-from .serializers import AssignCarSerializer, GetRequestsForDriverSerializer , RejectCarAssignmentSerializer , AcceptAssignmentSerializer
+from django.shortcuts import get_object_or_404
+from .serializers import(
+     AssignCarSerializer,
+    GetRequestsForDriverSerializer ,
+    RejectCarAssignmentSerializer ,
+    AcceptAssignmentSerializer ,
+    DeclineAssigmentSerializer
+)
 from rest_framework.views import APIView
 from request.models import Vehicle_Request
 from ..models import Vehicle_Assignment , Trips
@@ -9,6 +16,8 @@ from rest_framework import status
 from vehicles.models import Vehicle
 from users.models import User
 from .docs import assign_car_docs ,reject_car_assignment_docs
+from django.db import transaction
+from django.utils import timezone
 
 
 class AssignCarAPIView(APIView):
@@ -185,3 +194,34 @@ class AcceptAssignmentAPIView(APIView):
             "trip_id": trip.trip_id,
             "start_mileage": trip.start_mileage
         }, status=201)
+    
+
+class DeclineAssignmentAPIView(APIView):
+    permission_classes = [IsAuthenticated , IsDriver]
+    @transaction.atomic  
+    def post(self, request, assignment_id):   
+        assignment = get_object_or_404(
+            Vehicle_Assignment.objects.select_related('driver'),
+            pk=assignment_id,
+            driver_status=Vehicle_Assignment.DriverStatus.PENDING
+        )
+
+        serializer = DeclineAssigmentSerializer(
+            data=request.data,
+            context={
+                'assignment_id': assignment_id,
+                'request': request
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {
+                "status": "Declined",
+                "assignment_id": assignment_id,
+                "reason": assignment.decline_reason,
+                "timestamp": timezone.now().isoformat()
+            },
+            status=status.HTTP_200_OK
+        )
