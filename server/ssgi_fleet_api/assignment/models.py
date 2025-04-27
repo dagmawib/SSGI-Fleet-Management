@@ -66,8 +66,8 @@ class Trips(models.Model):
     class TripStatus(models.TextChoices):
         PENDING = "Pending"
         STARTED = 'Started'
-        ONPROGRESS = 'Onprogress'
         DECLINED = 'Declined'
+        COMPLETED = 'Completed'
 
 
     trip_id = models.AutoField(primary_key=True)

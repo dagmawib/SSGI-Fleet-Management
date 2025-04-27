@@ -145,8 +145,7 @@ class AcceptAssignmentSerializer(serializers.ModelSerializer):
         min_value=0,
         help_text="Current mileage of the vehicle (in km/miles) before trip starts"
     )
-    assignment_id = serializers.IntegerField(read_only=True)  # Should come from URL
-
+    
     class Meta:
         model = Trips
         fields = [
@@ -205,3 +204,51 @@ class DeclineAssigmentSerializer(serializers.ModelSerializer):
                 status=Trips.TripStatus.DECLINED
             )
             return trip
+
+class CompleteAssignmentSerializer(serializers.ModelSerializer):
+     end_mileage = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=1,
+        required=True,
+        min_value=0,
+        help_text="Current mileage of the vehicle (in km/miles) before trip starts"
+    )
+     class Meta:
+        model = Trips
+        fields = [
+           "trip_id",
+           "assignment_id",
+           "end_mileage"
+        ]
+        read_only_fields = ["trip_id", "assignment_id"]
+
+        def validate(self , data):
+            assignment  = self.instance.assignment
+            vehicle = assignment.vehicle
+            trip  = Trips.objects.get(assignment= assignment)
+
+            if data['end_mileage'] < trip.start_mileage:
+                 raise serializers.ValidationError(
+                f"Mileage must be ≥ vehicle's current mileage ({vehicle.current_mileage} km)"
+            )
+            return data
+
+        @transaction.atomic
+        def update(self , instance, validated_data):
+
+            vehicle = instance.assignment.vehicle
+            vehicle.current_mileage = validated_data['end_mileage']
+            vehicle.save()
+
+            instance.assignment.driver_status = Vehicle_Assignment.DriverStatus.COMPLETED
+            instance.assignment.save()
+
+           
+            instance.end_mileage = validated_data['end_mileage']
+            instance.status = Trips.TripStatus.COMPLETED
+            instance.completed_at = timezone.now()
+            instance.save()
+
+            return instance
+
+    

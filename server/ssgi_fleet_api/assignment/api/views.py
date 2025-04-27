@@ -4,7 +4,8 @@ from .serializers import(
     GetRequestsForDriverSerializer ,
     RejectCarAssignmentSerializer ,
     AcceptAssignmentSerializer ,
-    DeclineAssigmentSerializer
+    DeclineAssigmentSerializer,
+    CompleteAssignmentSerializer
 )
 from rest_framework.views import APIView
 from request.models import Vehicle_Request
@@ -225,3 +226,29 @@ class DeclineAssignmentAPIView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+class CompleteAssignmentAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsDriver]
+
+    @transaction.atomic
+    def patch(self, request, trip_id):
+        trip = get_object_or_404(
+            Trips.objects.select_related('assignment', 'assignment__vehicle'),
+            pk=trip_id,
+            assignment__driver=request.user,
+            status=Trips.TripStatus.STARTED 
+        )
+
+        serializer = CompleteAssignmentSerializer(
+            instance=trip,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({
+            "status": "completed",
+            "trip_id": trip.trip_id,
+            "distance_km": float(trip.end_mileage) - float(trip.start_mileage)
+        })
