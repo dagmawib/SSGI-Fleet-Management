@@ -17,5 +17,5 @@ urlpatterns = [
     path('<int:trip_id>/complete/',
         CompleteAssignmentAPIView.as_view(),
         name='complete-assignment'
-    ),s
+    )
 ]
