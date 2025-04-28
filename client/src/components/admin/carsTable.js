@@ -13,6 +13,13 @@ const statusColors = {
 export default function CarsTable() {
   const t = useTranslations("vehicleTable");
   const [cars, setCars] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMake, setSelectedMake] = useState("");
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedMake("");
+  };
 
   useEffect(() => {
     const fetchCars = async () => {
@@ -51,57 +58,101 @@ export default function CarsTable() {
     }
   };
 
+  // Get unique makes for the filter dropdown
+  const uniqueMakes = [...new Set(cars.map(car => car.make))].sort();
+
+  // Filter cars based on search term and selected make
+  const filteredCars = cars.filter(car => {
+    const matchesSearch = Object.values(car).some(value => 
+      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const matchesMake = !selectedMake || car.make === selectedMake;
+    return matchesSearch && matchesMake;
+  });
+
   return (
-    <div className="overflow-auto bg-white rounded-lg shadow border mx-2 md:mx-0">
-      <table className="min-w-full table-auto text-sm">
-        <thead className="bg-[#043755] text-white">
-          <tr>
-            <th className="px-4 py-2 text-left">{t("licensePlate")}</th>
-            <th className="px-4 py-2 text-left">{t("make")}</th>
-            <th className="px-4 py-2 text-left">{t("model")}</th>
-            <th className="px-4 py-2 text-left">{t("year")}</th>
-            <th className="px-4 py-2 text-left">{t("color")}</th>
-            <th className="px-4 py-2 text-left">{t("capacity")}</th>
-            <th className="px-4 py-2 text-left">{t("currentMileage")}</th>
-            <th className="px-4 py-2 text-left">{t("lastMaintenance")}</th>
-            <th className="px-4 py-2 text-left">
-              {t("nextMaintenanceMileage")}
-            </th>
-            <th className="px-4 py-2 text-left">{t("fuelType")}</th>
-            <th className="px-4 py-2 text-left">{t("fuelEfficiency")}</th>
-            <th className="px-4 py-2 text-left">{t("status")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cars.map((car) => (
-            <tr
-              key={car.id}
-              className="border-t hover:bg-gray-50 transition text-[#043755]"
-            >
-              <td className="px-4 py-2">{car.license_plate}</td>
-              <td className="px-4 py-2">{car.make}</td>
-              <td className="px-4 py-2">{car.model}</td>
-              <td className="px-4 py-2">{car.year}</td>
-              <td className="px-4 py-2">{car.color}</td>
-              <td className="px-4 py-2">{car.capacity}</td>
-              <td className="px-4 py-2">{car.current_mileage}</td>
-              <td className="px-4 py-2">{car.last_service_date}</td>
-              <td className="px-4 py-2">{car.next_service_mileage}</td>
-              <td className="px-4 py-2">{t(`fuelTypes.${car.fuel_type}`)}</td>
-              <td className="px-4 py-2">{car.fuel_efficiency}</td>
-              <td className="px-4 py-2">
-                <span
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    statusColors[car.status] || "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {t(`statuses.${car.status}`)}
-                </span>
-              </td>
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row gap-4 p-4 md:px-0 md:w-3/5">
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder={t("searchPlaceholder")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full text-[#043755] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#043755]"
+          />
+        </div>
+        <div className="flex gap-2 w-full md:w-1/2">
+          <select
+            value={selectedMake}
+            onChange={(e) => setSelectedMake(e.target.value)}
+            className="w-full text-[#043755] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#043755]"
+          >
+            <option value="">{t("make")}</option>
+            {uniqueMakes.map(make => (
+              <option key={make} value={make}>{make}</option>
+            ))}
+          </select>
+          <button
+            onClick={resetFilters}
+            className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors"
+          >
+            {t("clear")}
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-auto bg-white rounded-lg shadow border mx-2 md:mx-0">
+        <table className="min-w-full table-auto text-sm">
+          <thead className="bg-[#043755] text-white">
+            <tr>
+              <th className="px-4 py-2 text-left">{t("licensePlate")}</th>
+              <th className="px-4 py-2 text-left">{t("make")}</th>
+              <th className="px-4 py-2 text-left">{t("model")}</th>
+              <th className="px-4 py-2 text-left">{t("year")}</th>
+              <th className="px-4 py-2 text-left">{t("color")}</th>
+              <th className="px-4 py-2 text-left">{t("capacity")}</th>
+              <th className="px-4 py-2 text-left">{t("currentMileage")}</th>
+              <th className="px-4 py-2 text-left">{t("lastMaintenance")}</th>
+              <th className="px-4 py-2 text-left">
+                {t("nextMaintenanceMileage")}
+              </th>
+              <th className="px-4 py-2 text-left">{t("fuelType")}</th>
+              <th className="px-4 py-2 text-left">{t("fuelEfficiency")}</th>
+              <th className="px-4 py-2 text-left">{t("status")}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredCars.map((car) => (
+              <tr
+                key={car.id}
+                className="border-t hover:bg-gray-50 transition text-[#043755]"
+              >
+                <td className="px-4 py-2">{car.license_plate}</td>
+                <td className="px-4 py-2">{car.make}</td>
+                <td className="px-4 py-2">{car.model}</td>
+                <td className="px-4 py-2">{car.year}</td>
+                <td className="px-4 py-2">{car.color}</td>
+                <td className="px-4 py-2">{car.capacity}</td>
+                <td className="px-4 py-2">{car.current_mileage}</td>
+                <td className="px-4 py-2">{car.last_service_date}</td>
+                <td className="px-4 py-2">{car.next_service_mileage}</td>
+                <td className="px-4 py-2">{t(`fuelTypes.${car.fuel_type}`)}</td>
+                <td className="px-4 py-2">{car.fuel_efficiency}</td>
+                <td className="px-4 py-2">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      statusColors[car.status] || "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {t(`statuses.${car.status}`)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

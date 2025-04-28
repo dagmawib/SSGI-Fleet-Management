@@ -14,10 +14,18 @@ const L = dynamic(() => import("leaflet"), { ssr: false });
 const formSchema = z.object({
   pickupLocation: z.string().min(1, "Pickup Location is required"),
   destination: z.string().min(1, "Destination is required"),
-  duration: z.string().min(1, "Duration is required"),
+  startDate: z.string().min(1, "Start date and time is required"),
+  endDate: z.string().min(1, "End date and time is required"),
   passengers: z.string().min(1, "Passenger names are required"),
   reason: z.string().min(1, "Reason is required"),
   urgency: z.string().min(1, "Urgency Level is required"),
+}).refine((data) => {
+  const start = new Date(data.startDate);
+  const end = new Date(data.endDate);
+  return end > start;
+}, {
+  message: "End date must be after start date",
+  path: ["endDate"],
 });
 
 export default function Page() {
@@ -178,17 +186,38 @@ export default function Page() {
                 {t("Duration")}
                 <span className="text-red-500">*</span>
               </label>
-              <input
-                {...register("duration")}
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter duration"
-              />
-              {errors.duration && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.duration.message}
-                </p>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-[#043755] mb-1">
+                    {t("startDateTime")}
+                  </label>
+                  <input
+                    {...register("startDate")}
+                    type="datetime-local"
+                    className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                  />
+                  {errors.startDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.startDate.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm text-[#043755] mb-1">
+                    {t("endDateTime")}
+                  </label>
+                  <input
+                    {...register("endDate")}
+                    type="datetime-local"
+                    className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                  />
+                  {errors.endDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.endDate.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Name of Passengers */}

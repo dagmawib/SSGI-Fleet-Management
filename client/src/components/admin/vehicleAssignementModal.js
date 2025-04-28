@@ -12,18 +12,19 @@ const VehicleAssignmentModal = ({
   selectedCarId,
   setSelectedCarId,
 }) => {
-  const handleAssign = () => {
-    if (!selectedCarId) return alert("Please select a car.");
-    onAssign(selectedRequest.id, selectedCarId);
-    onClose();
-  };
-
-  const handleReject = () => {
-    onReject(selectedRequest.id);
-    onClose();
-  };
-
   const t = useTranslations("assignModal");
+
+  const handleAction = () => {
+    if (selectedRequest.action === 'assign') {
+      if (!selectedCarId) return alert("Please select a car.");
+      onAssign(selectedRequest.id, selectedCarId);
+    } else {
+      onReject(selectedRequest.id);
+    }
+    onClose();
+  };
+
+  const isAssignAction = selectedRequest?.action === 'assign';
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
@@ -31,8 +32,14 @@ const VehicleAssignmentModal = ({
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-md bg-white rounded-lg shadow p-6 space-y-4">
           <Dialog.Title className="text-lg font-semibold text-[#043755]">
-            {t("title")}
+            {isAssignAction ? t("assignTitle") : t("rejectTitle")}
           </Dialog.Title>
+
+          <div className="text-sm text-gray-600 mb-4">
+            {isAssignAction 
+              ? t("assignConfirmation")
+              : t("rejectConfirmation")}
+          </div>
 
           {selectedRequest && (
             <div className="text-[#043755] space-y-2 text-sm">
@@ -42,21 +49,36 @@ const VehicleAssignmentModal = ({
               <p><strong>{t("destination")}:</strong> {selectedRequest.destination}</p>
               <p><strong>{t("date")}:</strong> {selectedRequest.date}</p>
 
-              <label className="block mt-4 text-sm font-medium">
-                {t("selectVehicleLabel")}
-              </label>
-              <select
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                value={selectedCarId}
-                onChange={(e) => setSelectedCarId(e.target.value)}
-              >
-                <option value="">{t("selectPlaceholder")}</option>
-                {cars.map((car) => (
-                  <option key={car.vehicle_id} value={car.vehicle_id}>
-                    {car.make} {car.model} - {car.license_plate}
-                  </option>
-                ))}
-              </select>
+              {isAssignAction && (
+                <>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-[#043755] mb-2">
+                      {t("comment")}
+                    </label>
+                    <textarea
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                      rows="3"
+                      placeholder={t("commentPlaceholder")}
+                    />
+                  </div>
+
+                  <label className="block mt-4 text-sm font-medium">
+                    {t("selectVehicleLabel")}
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    value={selectedCarId}
+                    onChange={(e) => setSelectedCarId(e.target.value)}
+                  >
+                    <option value="">{t("selectPlaceholder")}</option>
+                    {cars.map((car) => (
+                      <option key={car.vehicle_id} value={car.vehicle_id}>
+                        {car.make} {car.model} - {car.license_plate}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
             </div>
           )}
 
@@ -68,16 +90,14 @@ const VehicleAssignmentModal = ({
               {t("cancel")}
             </button>
             <button
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              onClick={handleReject}
+              className={`${
+                isAssignAction 
+                  ? "bg-green-600 hover:bg-green-700" 
+                  : "bg-red-600 hover:bg-red-700"
+              } text-white px-4 py-2 rounded`}
+              onClick={handleAction}
             >
-              {t("reject")}
-            </button>
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-              onClick={handleAssign}
-            >
-              {t("assign")}
+              {isAssignAction ? t("assign") : t("reject")}
             </button>
           </div>
         </Dialog.Panel>

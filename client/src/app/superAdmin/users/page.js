@@ -155,50 +155,29 @@ export default function SuperAdminUsersPage() {
                     <td className="px-4 py-2 text-[#043755]">{user.role}</td>
                     {/* Action Dropdown */}
                     <td className="px-4 py-2 text-[#043755]">
-                      <div className="relative inline-block text-left">
+                      <div className="flex gap-2">
                         <button
-                          ref={buttonRef}
-                          type="button"
-                          onClick={(e) => toggleMenu(user.id, e)}
-                          className="inline-flex justify-center w-full bg-white text-sm font-medium text-black cursor-pointer focus:outline-none"
+                          onClick={() => handleEdit(user)}
+                          className="p-1 text-[#043755] hover:bg-gray-100 rounded-full transition-colors"
+                          title={t("edit")}
                         >
-                          <span className="sr-only">Open options</span>
                           <Icon
-                            icon="ph:dots-three-vertical-bold"
-                            width={24}
-                            height={24}
+                            icon="mdi:pencil"
+                            width={20}
+                            height={20}
                           />
                         </button>
-
-                        {/* Dropdown Menu (conditionally rendered) */}
-                        {openMenu && (
-                          <div
-                            className="fixed z-50 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                            style={{
-                              top: menuPosition.top,
-                              left: menuPosition.left,
-                            }}
-                          >
-                            <div className="py-1" role="menu">
-                              <button
-                                onClick={() =>
-                                  handleEdit(
-                                    usersData.find((u) => u.id === openMenu)
-                                  )
-                                }
-                                className="text-gray-700 block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 cursor-pointer"
-                              >
-                                {t("edit")}
-                              </button>
-                              <button
-                                onClick={() => handleRemove(openMenu)}
-                                className="text-gray-700 block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 cursor-pointer"
-                              >
-                                {t("remove")}
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                        <button
+                          onClick={() => handleRemove(user.id)}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                          title={t("remove")}
+                        >
+                          <Icon
+                            icon="mdi:delete"
+                            width={20}
+                            height={20}
+                          />
+                        </button>
                       </div>
                     </td>
                   </tr>
