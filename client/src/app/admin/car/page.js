@@ -22,13 +22,67 @@ export default function AddCarForm() {
     department: "",
   });
 
+  const [dateError, setDateError] = useState("");
+  const [licensePlateError, setLicensePlateError] = useState("");
+
+  const validateLicensePlate = (plate) => {
+    // Remove any spaces and convert to uppercase
+    const cleanPlate = plate.replace(/\s/g, '').toUpperCase();
+    
+    // Check if the plate matches the pattern: 0-1 letter followed by 5 digits
+    const platePattern = /^[A-Z]{0,1}\d{5}$/;
+    
+    if (!platePattern.test(cleanPlate)) {
+      setLicensePlateError(t("licensePlateValidationError"));
+      return false;
+    }
+    
+    setLicensePlateError("");
+    return true;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === "last_service_date") {
+      const selectedDate = new Date(value);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (selectedDate > yesterday) {
+        setDateError(t("dateValidationError"));
+        return;
+      } else {
+        setDateError("");
+      }
+    }
+
+    if (name === "license_plate") {
+      validateLicensePlate(value);
+    }
+    
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate license plate before submission
+    if (!validateLicensePlate(formData.license_plate)) {
+      return;
+    }
+
+    // Validate last service date before submission
+    if (formData.last_service_date) {
+      const selectedDate = new Date(formData.last_service_date);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (selectedDate > yesterday) {
+        setDateError(t("dateValidationError"));
+        return;
+      }
+    }
 
     try {
       const res = await fetch("/api/add_vehicle", {
@@ -97,9 +151,14 @@ export default function AddCarForm() {
             name="license_plate"
             value={formData.license_plate}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
+              licensePlateError ? "border-red-500" : "border-gray-300"
+            }`}
             required
           />
+          {licensePlateError && (
+            <p className="mt-1 text-sm text-red-500">{licensePlateError}</p>
+          )}
         </div>
 
         {/* Make */}
@@ -199,8 +258,14 @@ export default function AddCarForm() {
             name="last_service_date"
             value={formData.last_service_date}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
+            max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]}
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
+              dateError ? "border-red-500" : "border-gray-300"
+            }`}
           />
+          {dateError && (
+            <p className="mt-1 text-sm text-red-500">{dateError}</p>
+          )}
         </div>
 
         {/* Next Maintenance Mileage */}

@@ -13,6 +13,8 @@
     "pickupLocation": "Pickup Location",
     "dropoffLocation": "Drop-off Location",
     "Duration": "Duration",
+    "startDateTime": "Start Date and Time",
+    "endDateTime": "End Date and Time",
     "passangers": "Name of Passengers",
     "Reason": "Reason for Request",
     "urgency": "Urgency Level",
@@ -108,6 +110,10 @@
   },
   "RequestTable": {
     "requester": "Requester",
+    "searchPlaceholder": "Search by requester, vehicle, or status",
+    "clear": "Clear",
+    "comment": "Comment",
+    "commentPlaceholder": "Enter comment",
     "approver": "Approver",
     "pickup": "Pickup",
     "destination": "Destination",
@@ -118,9 +124,13 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "assigned": "Assigned"
-    }
+    },
+    "reject": "Reject",
+    "assign": "Assign"
   },
   "vehicleTable": {
+    "searchPlaceholder": "Search by license plate, make, model, or year",
+    "clear": "Clear",
     "licensePlate": "License Plate",
     "make": "Make",
     "model": "Model",
@@ -152,7 +162,13 @@
     "approver": "Approver",
     "pickup": "Pickup",
     "destination": "Destination",
+    "rejectTitle": "Reject Request",
+    "assignTitle": "Assign Vehicle",
+    "rejectConfirmation": "Are you sure you want to reject this request?",
+    "assignConfirmation": "Are you sure you want to assign this vehicle to this request?",
     "date": "Date",
+    "comment": "Comment",
+    "commentPlaceholder": "Enter comment",
     "selectVehicleLabel": "Select Vehicle",
     "selectPlaceholder": "-- Select --",
     "cancel": "Cancel",
@@ -251,6 +267,7 @@
   "car": {
     "title": "Add New Car",
     "licensePlate": "License Plate",
+    "licensePlateValidationError": "Invalid license plate format. Please enter a valid license plate.",
     "make": "Make",
     "model": "Model",
     "year": "Year",
