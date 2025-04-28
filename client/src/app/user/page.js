@@ -22,7 +22,7 @@ const formSchema = z.object({
 
 export default function Page() {
   const mapRef = useRef(null); // Store map instance
-  const [isDirector, setIsDirector] = useState(false); // State to check if user is a director
+  const [isDirector, setIsDirector] = useState(true); // State to check if user is a director
   const t = useTranslations("vehicleRequest"); // i18n translations
 
   const sampleRequests = [
