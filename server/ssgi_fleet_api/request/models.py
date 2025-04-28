@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from users.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
@@ -7,12 +8,13 @@ from django.utils import timezone
 class Vehicle_Request(models.Model):
 
     class Status(models.TextChoices):
-        PENDING = 'Pending', 'Pending Approval'
-        APPROVED = 'Approved', 'Approved by Department'
-        REJECTED = 'Rejected', 'Rejected by Department'
-        CANCELLED = 'Cancelled', 'Cancelled by Requester'
-        COMPLETED = 'Completed', 'Fulfilled Successfully'
-        ASSIGNED = 'Assigned', 'Assigned to Driver'
+        PENDING = 'Pending'
+        PROCESSING= 'Processing' 
+        APPROVED = 'Approved' 
+        REJECTED = 'Rejected'
+        CANCELLED = 'Cancelled'
+        COMPLETED = 'Completed'
+        ASSIGNED = 'Assigned'
     
     
     class Urgency(models.TextChoices):
@@ -29,8 +31,8 @@ class Vehicle_Request(models.Model):
 
     pickup_location = models.CharField(max_length=255 , null=False , blank=False)
     destination = models.CharField(max_length=255 , null=False , blank=False)
-    start_time = models.DateTimeField(null=False , blank=False)
-    end_time = models.DateTimeField(null=False , blank=False)
+    start_dateTime = models.DateTimeField(blank=True , null=True)
+    end_dateTime = models.DateTimeField(blank=True , null=True)
 
     purpose = models.CharField(max_length=255 , null=False , blank=False)
     urgency = models.CharField(max_length=255,
@@ -43,7 +45,13 @@ class Vehicle_Request(models.Model):
     
     passenger_count = models.IntegerField(
         validators=[MinValueValidator(1),
-        MaxValueValidator(10)])
+        MaxValueValidator(15)])
+    
+    passenger_names = models.JSONField(
+        default=list,
+        help_text="List of passenger names in JSON format",
+        blank=True
+    )
     
     department_approval = models.BooleanField(default=False)
     department_approver = models.ForeignKey(
@@ -56,6 +64,7 @@ class Vehicle_Request(models.Model):
         )
 
     department_approval_time = models.DateTimeField(null=True, blank=True)
+    rejection_reason =models.CharField(max_length=500 , null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cancellation_reason = models.TextField(blank=True)
@@ -67,6 +76,14 @@ class Vehicle_Request(models.Model):
         ordering = ['-created_at' , '-updated_at']
         verbose_name = 'Vehicle Request'
         verbose_name_plural = 'Vehicle Requests'
+
+    def clean(self):
+        """Validate datetime ranges"""
+        if self.start_datetime and self.end_datetime:
+            if self.start_datetime >= self.end_datetime:
+                raise ValidationError("End datetime must be after start datetime")
+            if self.start_datetime < timezone.now():
+                raise ValidationError("Cannot create request for past datetime")
 
     def save(self, *args, **kwargs):
         if self.status == self.Status.APPROVED:
