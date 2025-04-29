@@ -49,10 +49,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
 
 
+class DepartmentDirectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email", "first_name", "last_name"]
+
+
 class DepartmentSerializer(serializers.ModelSerializer):
+    director = DepartmentDirectorSerializer(read_only=True)
+
     class Meta:
         model = Department
-        fields = ["id", "name", "description"]
+        fields = ["id", "name", "description", "director"]
         read_only_fields = ["id"]
 
 
@@ -185,6 +193,11 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
             user.temporary_password = temporary_password
             user.save()
 
+        # Automatically assign as department director if role is director
+        if user.role == User.Role.DIRECTOR and user.department:
+            user.department.director = user
+            user.department.save()
+
         return user
 
 
@@ -315,6 +328,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
             user.temporary_password = temporary_password
             user.save()
             
+        # Automatically assign as department director if role is director
+        if user.role == User.Role.DIRECTOR and user.department:
+            user.department.director = user
+            user.department.save()
+
         return user
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -344,6 +362,20 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 "Role cannot be changed through this endpoint"
             )
         return value
+
+    def update(self, instance, validated_data):
+        old_department = instance.department
+        instance = super().update(instance, validated_data)
+        # Automatically assign as department director if role is director
+        if instance.role == User.Role.DIRECTOR and instance.department:
+            instance.department.director = instance
+            instance.department.save()
+        # If user is no longer a director or changed department, clear old department's director
+        if (instance.role != User.Role.DIRECTOR or (old_department and old_department != instance.department)):
+            if old_department and old_department.director == instance:
+                old_department.director = None
+                old_department.save()
+        return instance
 
 class TemporaryPasswordSerializer(serializers.Serializer):
     temporary_password = serializers.CharField()

@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from ..models import Vehicle_Request
 from .serializers import RequestSerializer , RequestListSerializer , RequestRejectSerializer ,EmployeeRequestStatusSerializer ,UserMatchSerializer
-from users.api.permissions import IsRegularAdmin
+from users.api.permissions import IsRegularAdmin , IsSuperAdmin
 from rest_framework.permissions import OR
 from users.models import User , Department
 from django.utils import timezone
@@ -300,3 +300,23 @@ class EmployeeRequestStatusView(APIView):
         
         serializer = EmployeeRequestStatusSerializer(requests, many=True)
         return Response(serializer.data)
+    
+from .serializers import DepartmentListSerializer
+from django.db.models import Prefetch
+class DepartmentListWithDirectorsView(APIView):
+    permission_classes = [IsAuthenticated, IsSuperAdmin]
+    
+    def get(self, request):
+        # Get all departments with related directors
+        departments = Department.objects.all().prefetch_related(
+            Prefetch(
+                'director',
+                queryset=User.objects.filter(role=User.Role.DIRECTOR),
+                to_attr='directors'
+            )
+        )
+        
+        # Serialize the data
+        serializer = DepartmentListSerializer(departments, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from ..models import Vehicle_Request
 from django.utils.dateparse import parse_datetime
 from users.api.serializers import UserSerializer
+from users.models import Department
 
 
 
@@ -200,3 +201,8 @@ class UserMatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'first_name', 'last_name', 'department', 'role']
+
+class DepartmentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = '__all__'
