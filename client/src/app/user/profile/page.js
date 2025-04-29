@@ -3,12 +3,12 @@ import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useTranslations } from "next-intl";
 import CircularProgress from "@mui/material/CircularProgress";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ProfilePage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(null);
   const t = useTranslations("profile");
   const [userData, setUserData] = useState({
     first_name: "",
@@ -19,19 +19,36 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const res = await fetch("/api/getProfile", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      setUserData(data);
+      try {
+        const res = await fetch("/api/getProfile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+        setUserData(data);
+        toast.success(t("profileLoaded"));
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast.error(t("errorLoadingProfile"));
+      }
     };
     fetchUserData();
   }, []);
 
+  const isValidPhoneNumber = (phone) => {
+    const ethiopianPhoneRegex = /^(?:\+251|251|0)?9\d{8}$/;
+    return ethiopianPhoneRegex.test(phone);
+  };
+
   const updateProfile = async (updatedData) => {
+    if (!isValidPhoneNumber(updatedData.phone_number)) {
+      toast.error(t("invalidPhone")); // Add this key in your translation
+      return;
+    }
+  
+    setLoading(true);
     try {
       const res = await fetch("/api/updateProfile", {
         method: "PUT",
@@ -43,40 +60,34 @@ export default function ProfilePage() {
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Failed to update profile");
-        setErrorMessage(data.error || "Failed to update profile");
       }
-      setSuccessMessage("Profile updated successfully!");
+      toast.success(t("profileUpdated"));
       return data;
     } catch (err) {
       console.error("Update failed:", err.message);
+      toast.error(t("updateFailed"));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto p-6 bg-white shadow-md rounded-lg my-4">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       <h2 className="text-2xl font-semibold text-[#043755]">{t("title")}</h2>
       <p className="text-[#043755]">{t("description")}</p>
-
-      {errorMessage && <div className="mt-4 text-red-500">{errorMessage}</div>}
-      {successMessage && (
-        <div className="mt-4 text-green-500">{successMessage}</div>
-      )}
-
-      {/* <div className="mt-4 flex items-center space-x-4">
-        <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-          <Image
-            src="/images/profile2.jpg"
-            alt="User profile"
-            width={80}
-            height={80}
-            className="object-cover rounded-full"
-          />
-        </div>
-        <div>
-          <button className="text-[#043755]">{t("upload")}</button>
-          <button className="text-red-500 ml-4">{t("delete")}</button>
-        </div>
-      </div> */}
 
       <div className="mt-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">

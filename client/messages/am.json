@@ -21,7 +21,10 @@
     "priority": "ቅድሚያ የሚሰጥ",
     "emergency": "አስቸኳይ",
     "submit": "ጥያቄ ያቅርቡ",
-    "passanger": "ተሳፋሪ"
+    "passanger": "ተሳፋሪ",
+    "submitError": "ጥያቄ ማስገባት ላይ ስህተት",
+    "requestSubmitted": "ጥያቄ በተሳካ ሁኔታ ገብቷል።",
+    "fetchError": "ጥያቄዎች መጫን ላይ ስህተት"
   },
   "profile": {
     "title": "መለያ",
@@ -41,7 +44,12 @@
     "updatePassword":"የይለፍ ቃል አዘምን",
     "password": "አዲስ የይለፍ ቃል",
     "oldPassword":"የድሮ የይለፍ ቃል",
-    "update": "መለያን ያዘምኑ"
+    "update": "መለያን ያዘምኑ",
+    "profileLoaded": "መገለጫ በተሳካ ሁኔታ ተጭኗል",
+    "errorLoadingProfile": "መለያ መጫን ላይ ስህተት",
+    "profileUpdated": "መለያ በተሳካ ሁኔታ ገብቷል።",
+    "updateFailed": "መገለጫን ማዘመን አልተሳካም።",
+    "invalidPhone": "ልክ ያልሆነ የኢትዮጵያ ስልክ ቁጥር። እባክህ የሚሰራ ባለ 10 አሃዝ ቁጥር አስገባ።"
   },
   "contact": {
     "title": "ከኛ ጋር ያግኙ",
@@ -144,7 +152,11 @@
       "diesel": "ዲዘል",
       "electric": "ኤሌክትሪክ",
       "hybrid": "ሃይብሪድ"
-    }
+    },
+    "driver": "ሹፌር",
+    "notAssigned": "ሰራተኛ የሉም",
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ"
   },
   "assignModal": {
     "title": "መኪናን ለጥያቄ መመደብ",
@@ -274,6 +286,15 @@
       "electric": "ኤሌክትሪክ",
       "hybrid": "ሃይብሪድ"
     },
-    "submitButton": "ተሽከርካሪ ጨምር"
+    "submitButton": "ተሽከርካሪ ጨምር",
+    "driver": "ሹፌር",
+    "submitting": "ተጠቃሚዎች በመጫን ላይ...",
+    "vehicleAddedSuccess": "ተሽከርካሪ በተሳካ ሁኔታ ታክሏል።",
+    "submissionFailed": "ማዘመን አልተሳካም",
+    "dateValidationError": "ልክ ያልሆነ የቀን ቅርጸት። እባክዎ የሚሰራ ቀን ያስገቡ።",
+    "fuelEfficiencyValidationError": "ልክ ያልሆነ የነዳጅ ቅልጥፍና ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
+    "currentMileageValidationError": "ልክ ያልሆነ የአሁኑ ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
+    "nextMaintenanceMileageValidationError": "ልክ ያልሆነ ቀጣይ የጥገና ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።"
+
   }
 }

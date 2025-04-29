@@ -1,8 +1,8 @@
+import axios from "axios";
 import { cookies } from "next/headers";
 import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
-import axios from "axios";
 
-export async function GET(req) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token")?.value;
@@ -25,15 +25,27 @@ export async function GET(req) {
       }
     );
 
-    return new Response(JSON.stringify(response.data), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    // Transform the response to include driver information
+    const vehiclesWithDrivers = response.data.map(vehicle => ({
+      ...vehicle,
+      driver: vehicle.driver || { name: "Not Assigned", id: null }
+    }));
+
+    return new Response(JSON.stringify(vehiclesWithDrivers), {
+      status: response.status,
     });
   } catch (error) {
-    console.error("Error fetching profile:", error.message);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    const errorMessage =
+      error.response?.data?.detail ||
+      error.response?.data?.message ||
+      "An unexpected error occurred.";
+
+    return new Response(
+      JSON.stringify({
+        error: errorMessage,
+        details: error.response?.data || "No additional details",
+      }),
+      { status: error.response?.status || 500 }
+    );
   }
 }

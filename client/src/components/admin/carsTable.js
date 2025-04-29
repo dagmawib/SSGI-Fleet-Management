@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const statusColors = {
   available: "text-green-600 font-semibold text-xl",
@@ -15,10 +17,15 @@ export default function CarsTable() {
   const [cars, setCars] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
+  const [loading, setLoading] = useState({});
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const resetFilters = () => {
     setSearchTerm("");
     setSelectedMake("");
+    setCurrentPage(1); // Reset to first page when filters are cleared
   };
 
   useEffect(() => {
@@ -63,12 +70,22 @@ export default function CarsTable() {
 
   // Filter cars based on search term and selected make
   const filteredCars = cars.filter(car => {
-    const matchesSearch = Object.values(car).some(value => 
+    const matchesSearch = Object.values(car).some(value =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
     );
     const matchesMake = !selectedMake || car.make === selectedMake;
     return matchesSearch && matchesMake;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCars = filteredCars.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="space-y-4">
@@ -106,6 +123,7 @@ export default function CarsTable() {
         <table className="min-w-full table-auto text-sm">
           <thead className="bg-[#043755] text-white">
             <tr>
+              <th className="px-4 py-2 text-left w-12">#</th>
               <th className="px-4 py-2 text-left">{t("licensePlate")}</th>
               <th className="px-4 py-2 text-left">{t("make")}</th>
               <th className="px-4 py-2 text-left">{t("model")}</th>
@@ -119,15 +137,17 @@ export default function CarsTable() {
               </th>
               <th className="px-4 py-2 text-left">{t("fuelType")}</th>
               <th className="px-4 py-2 text-left">{t("fuelEfficiency")}</th>
+              <th className="px-4 py-2 text-left">{t("driver")}</th>
               <th className="px-4 py-2 text-left">{t("status")}</th>
             </tr>
           </thead>
           <tbody>
-            {filteredCars.map((car) => (
+            {currentCars.map((car, index) => (
               <tr
                 key={car.id}
                 className="border-t hover:bg-gray-50 transition text-[#043755]"
               >
+                <td className="px-4 py-2">{startIndex + index + 1}</td>
                 <td className="px-4 py-2">{car.license_plate}</td>
                 <td className="px-4 py-2">{car.make}</td>
                 <td className="px-4 py-2">{car.model}</td>
@@ -140,10 +160,14 @@ export default function CarsTable() {
                 <td className="px-4 py-2">{t(`fuelTypes.${car.fuel_type}`)}</td>
                 <td className="px-4 py-2">{car.fuel_efficiency}</td>
                 <td className="px-4 py-2">
+                  <span className={`${!car.driver?.name ? "text-gray-500" : ""}`}>
+                    {car.driver?.name || t("notAssigned")}
+                  </span>
+                </td>
+                <td className="px-4 py-2">
                   <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      statusColors[car.status] || "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${statusColors[car.status] || "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {t(`statuses.${car.status}`)}
                   </span>
@@ -153,6 +177,46 @@ export default function CarsTable() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-4 space-x-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 rounded ${currentPage === 1
+              ? "bg-gray-200 cursor-not-allowed"
+              : "bg-[#043755] text-white hover:bg-blue-700"
+              }`}
+          >
+            {t("previous")}
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-3 py-1 rounded ${currentPage === page
+                ? "bg-[#043755] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+                }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 rounded ${currentPage === totalPages
+              ? "bg-gray-200 cursor-not-allowed"
+              : "bg-[#043755] text-white hover:bg-blue-700"
+              }`}
+          >
+            {t("next")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
