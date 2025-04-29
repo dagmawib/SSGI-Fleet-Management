@@ -37,9 +37,15 @@ vehicle_create_docs = extend_schema(
         "color": "White",
         "fuel_type": "diesel",
         "capacity": 7,
-        "status": "available"
+        "status": "available",
+        "driver_name": "John Smith"
     }
     ```
+
+    **Notes:**
+    - The `driver_name` field must contain the full name of an existing active driver
+    - The system will validate that the named person exists and has the driver role
+    - The driver must be active in the system
     """,
     request=VehicleSerializer,
     responses={
@@ -55,7 +61,21 @@ vehicle_create_docs = extend_schema(
                         "make": "Toyota",
                         "model": "Land Cruiser",
                         "status": "available",
-                        "assigned_driver": None
+                        "assigned_driver": 5,
+                        "driver_name": "John Smith"
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            description="Validation Error",
+            examples=[
+                OpenApiExample(
+                    "Driver Not Found Error",
+                    value={
+                        "driver_name": [
+                            "No active driver found with this name. Please ensure the driver exists and is active."
+                        ]
                     }
                 )
             ]
