@@ -62,7 +62,7 @@ export default function Navbar() {
         body: JSON.stringify({ refresh }),
       });
 
-      if (res.status === 205) {
+      if (res.status) {
         router.push("/");
         deleteCookie("access_token");
         deleteCookie("refresh");

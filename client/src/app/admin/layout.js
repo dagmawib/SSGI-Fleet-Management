@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const router = useRouter();
-  // useEffect(() => {
-  //   if (!isAuthenticated()) {
-  //     router.push("/");
-  //   }
-  // }, [router]);
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push("/");
+    }
+  }, [router]);
 
   return (
     <>

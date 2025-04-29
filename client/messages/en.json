@@ -23,7 +23,10 @@
     "priority": "Priority",
     "emergency": "Emergency",
     "submit": "Submit Request",
-    "passanger": "Passenger"
+    "passanger": "Passenger",
+    "submitError": "Error submitting request",
+    "requestSubmitted": "Request submitted successfully",
+    "fetchError": "Error fetching requests"
   },
   "profile": {
     "title": "Account",
@@ -43,7 +46,12 @@
     "updatePassword":"Update Password",
     "password": "New Password",
     "oldPassword":"Old Password",
-    "update": "Update profile"
+    "update": "Update profile",
+    "profileLoaded": "Profile loaded successfully",
+    "errorLoadingProfile": "Error loading profile",
+    "profileUpdated": "Profile updated successfully",
+    "updateFailed": "Failed to update profile",
+    "invalidPhone": "Invalid Ethiopian phone number. Please enter a valid 10-digit number."
   },
   "contact": {
     "title": "Get in touch with us",
@@ -154,7 +162,11 @@
       "diesel": "Diesel",
       "electric": "Electric",
       "hybrid": "Hybrid"
-    }
+    },
+    "driver": "Driver",
+    "notAssigned": "Not Assigned",
+    "previous": "Previous",
+    "next": "Next"
   },
   "assignModal": {
     "title": "Assign Vehicle to Request",
@@ -292,6 +304,14 @@
       "electric": "Electric",
       "hybrid": "Hybrid"
     },
-    "submitButton": "Add Car"
+    "submitButton": "Add Car",
+    "driver": "Driver",
+    "submitting": "Submitting...",
+    "vehicleAddedSuccess": "Vehicle added successfully",
+    "submissionFailed": "Submission failed",
+    "dateValidationError": "Invalid date format. Please enter a valid date.",
+    "fuelEfficiencyValidationError": "Invalid fuel efficiency format. Please enter a valid number.",
+    "currentMileageValidationError": "Invalid current mileage format. Please enter a valid number.",
+    "nextMaintenanceMileageValidationError": "Invalid next maintenance mileage format. Please enter a valid number."
   }
 }

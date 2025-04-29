@@ -85,9 +85,10 @@ function Home() {
         setCookie("access_token", responseData.token);
         setCookie("refresh", responseData.refresh);
         setCookie("user_ID", responseData.user_id);
+        setCookie("role",responseData.role)
 
         const role = responseData.role;
-        if (role === "employee") {
+        if (role === "employee" || role === "director") {
           router.push("/user");
         } else if (role === "admin") {
           router.push("/admin");

@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddCarForm() {
   const t = useTranslations("car");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     license_plate: "",
     make: "",
@@ -20,6 +21,7 @@ export default function AddCarForm() {
     fuel_efficiency: "",
     status: "",
     department: "",
+    driver_id: "",
   });
 
   const [dateError, setDateError] = useState("");
@@ -28,27 +30,27 @@ export default function AddCarForm() {
   const validateLicensePlate = (plate) => {
     // Remove any spaces and convert to uppercase
     const cleanPlate = plate.replace(/\s/g, '').toUpperCase();
-    
+
     // Check if the plate matches the pattern: 0-1 letter followed by 5 digits
     const platePattern = /^[A-Z]{0,1}\d{5}$/;
-    
+
     if (!platePattern.test(cleanPlate)) {
       setLicensePlateError(t("licensePlateValidationError"));
       return false;
     }
-    
+
     setLicensePlateError("");
     return true;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "last_service_date") {
       const selectedDate = new Date(value);
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       if (selectedDate > yesterday) {
         setDateError(t("dateValidationError"));
         return;
@@ -60,7 +62,7 @@ export default function AddCarForm() {
     if (name === "license_plate") {
       validateLicensePlate(value);
     }
-    
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -69,6 +71,7 @@ export default function AddCarForm() {
 
     // Validate license plate before submission
     if (!validateLicensePlate(formData.license_plate)) {
+      toast.error(t("licensePlateValidationError"));
       return;
     }
 
@@ -77,13 +80,15 @@ export default function AddCarForm() {
       const selectedDate = new Date(formData.last_service_date);
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       if (selectedDate > yesterday) {
         setDateError(t("dateValidationError"));
+        toast.error(t("dateValidationError"));
         return;
       }
     }
 
+    setLoading(true);
     try {
       const res = await fetch("/api/add_vehicle", {
         method: "POST",
@@ -96,34 +101,49 @@ export default function AddCarForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Error:", data.error);
-      } else {
-        setSuccessMessage("Vehicle added successfully!");
-        // Optionally reset the form
-        setFormData({
-          license_plate: "",
-          make: "",
-          model: "",
-          year: "",
-          color: "",
-          capacity: "",
-          current_mileage: "",
-          last_service_date: "",
-          next_service_mileage: "",
-          fuel_type: "",
-          fuel_efficiency: "",
-          status: "",
-          department: "",
-        });
+        throw new Error(data.error || "Failed to add vehicle");
       }
+
+      toast.success(t("vehicleAddedSuccess"));
+      // Reset the form
+      setFormData({
+        license_plate: "",
+        make: "",
+        model: "",
+        year: "",
+        color: "",
+        capacity: "",
+        current_mileage: "",
+        last_service_date: "",
+        next_service_mileage: "",
+        fuel_type: "",
+        fuel_efficiency: "",
+        status: "",
+        department: "",
+      });
     } catch (error) {
       console.error("Submission failed:", error);
-      setErrorMessage("Something went wrong!");
+      toast.error(t("submissionFailed"));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       <h2 className="text-2xl font-bold mb-6 text-center text-[#043755]">
         {t("title")}
       </h2>
@@ -131,16 +151,6 @@ export default function AddCarForm() {
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        {successMessage && (
-          <div className="col-span-2 text-green-500 text-center">
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="col-span-2 text-red-500 text-center">
-            {errorMessage}
-          </div>
-        )}
         {/* License Plate */}
         <div>
           <label className="block text-sm font-medium text-[#043755]">
@@ -151,9 +161,8 @@ export default function AddCarForm() {
             name="license_plate"
             value={formData.license_plate}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
-              licensePlateError ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${licensePlateError ? "border-red-500" : "border-gray-300"
+              }`}
             required
           />
           {licensePlateError && (
@@ -259,9 +268,8 @@ export default function AddCarForm() {
             value={formData.last_service_date}
             onChange={handleChange}
             max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]}
-            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
-              dateError ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${dateError ? "border-red-500" : "border-gray-300"
+              }`}
           />
           {dateError && (
             <p className="mt-1 text-sm text-red-500">{dateError}</p>
@@ -356,13 +364,28 @@ export default function AddCarForm() {
           </select>
         </div>
 
+        {/* Driver */}
+        <div>
+          <label className="block text-sm font-medium text-[#043755]">
+            {t("driver")}
+          </label>
+          <select
+            name="driver_id"
+            value={formData.driver_id}
+            onChange={handleChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
+          >
+          </select>
+        </div>
+
         {/* Submit Button */}
         <div className="md:col-span-2 text-end mt-4">
           <button
             type="submit"
+            disabled={loading}
             className="bg-[#043755] text-white px-6 py-2 rounded hover:bg-blue-700 transition"
           >
-            {t("submitButton")}
+            {loading ? t("submitting") : t("submitButton")}
           </button>
         </div>
       </form>
