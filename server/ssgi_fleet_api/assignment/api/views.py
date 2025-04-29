@@ -246,3 +246,5 @@ class CompleteAssignmentAPIView(APIView):
             "trip_id": trip.trip_id,
             "distance_km": float(trip.end_mileage) - float(trip.start_mileage)
         })
+    
+    #pushing babay
