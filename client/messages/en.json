@@ -26,7 +26,11 @@
     "passanger": "Passenger",
     "submitError": "Error submitting request",
     "requestSubmitted": "Request submitted successfully",
-    "fetchError": "Error fetching requests"
+    "fetchError": "Error fetching requests",
+    "requestApproved": "Request approved successfully",
+    "requestRejected": "Request rejected successfully",
+    "rejectError": "Error rejecting request",
+    "approveError": "Error approving request"
   },
   "profile": {
     "title": "Account",
@@ -185,7 +189,9 @@
     "selectPlaceholder": "-- Select --",
     "cancel": "Cancel",
     "reject": "Reject",
-    "assign": "Assign"
+    "assign": "Assign",
+    "rejectReason": "Reject Reason",
+    "rejectReasonPlaceholder": "Enter reject reason"
   },
   "AdminNavbar": {
     "request": "Requests",

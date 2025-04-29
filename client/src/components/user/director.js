@@ -7,6 +7,19 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return '';
+  const date = new Date(dateTimeString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 const DirectorDashboard = ({
   isDirector,
   requests,
@@ -28,41 +41,38 @@ const DirectorDashboard = ({
                     onClick={() => setSelectedRequest(request)}
                     className="cursor-pointer p-4 bg-white shadow-md rounded-lg border border-[#043755] hover:bg-gray-50 transition"
                   >
-                    <div className="flex justify-between flex-col sm:flex-row gap-2 sm:gap-0">
-                      <div>
-                        <p className="text-[#043755] font-semibold">
-                          Pickup: {request.pickupLocation}
-                        </p>
-                        <p className="text-[#043755] font-semibold">
-                          Destination: {request.destination}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap justify-start sm:justify-end gap-2 my-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleApprove(request);
-                          }}
-                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReject(request);
-                          }}
-                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                        >
-                          Reject
-                        </button>
-                      </div>
+                    <div>
+                      <p className="text-[#043755] font-semibold">
+                        Pickup: {request.pickup_location}
+                      </p>
+                      <p className="text-[#043755] font-semibold">
+                        Destination: {request.destination}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-start sm:justify-end gap-2 my-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApprove(request);
+                        }}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReject(request);
+                        }}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      >
+                        Reject
+                      </button>
                     </div>
                   </div>
                 </DialogTrigger>
 
-                {/* Add horizontal padding ONLY on mobile */}
-                <DialogContent className="max-w-md w-full px-4">
+                <DialogContent>
                   <DialogTitle className="text-[#043755]">
                     Request Details
                   </DialogTitle>
@@ -74,7 +84,7 @@ const DirectorDashboard = ({
                             Pickup
                           </div>
                           <div className="py-2">
-                            {selectedRequest.pickupLocation}
+                            {selectedRequest.pickup_location}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
@@ -85,21 +95,30 @@ const DirectorDashboard = ({
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Duration
-                          </div>
-                          <div className="py-2">{selectedRequest.duration}</div>
-
-                          <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Passengers
+                            Start Time
                           </div>
                           <div className="py-2">
-                            {selectedRequest.passengers}
+                            {formatDateTime(selectedRequest.start_dateTime)}
+                          </div>
+
+                          <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
+                            End Time
+                          </div>
+                          <div className="py-2">
+                            {formatDateTime(selectedRequest.end_dateTiem)}
+                          </div>
+
+                          <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
+                            Requester
+                          </div>
+                          <div className="py-2">
+                            {selectedRequest.requester?.full_name}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
                             Reason
                           </div>
-                          <div className="py-2">{selectedRequest.reason}</div>
+                          <div className="py-2">{selectedRequest.purpose}</div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
                             Urgency
