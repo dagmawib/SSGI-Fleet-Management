@@ -204,76 +204,36 @@ ACCEPT_ASSIGNMENT_DOCS = extend_schema(
     tags=["Driver Endpoints"],
     summary="Accept Vehicle Assignment",
     description="""
-**Driver-only endpoint**  
-Allows drivers to accept a pending vehicle assignment by recording:
-- Starting mileage (must ≥ vehicle's current mileage)
-- Timestamp of acceptance
-
-**Flow:**
-1. Updates vehicle's current mileage
-2. Marks assignment as ACCEPTED
-3. Creates a new TRIP record with STARTED status
-""",
+    **Driver-only endpoint**  
+    Allows drivers to accept a pending vehicle assignment.
+    """,
     request=AcceptAssignmentSerializer,
     responses={
         201: OpenApiResponse(
-            description="Assignment successfully accepted",
-            examples=[
-                OpenApiExample(
-                    "Success Response",
-                    value={
-                        "status": "accepted",
-                        "trip_id": 42,
-                        "start_mileage": 1500.5
-                    }
-                )
-            ]
+            description="Assignment accepted",
+            response=AcceptAssignmentSerializer
         ),
-        400: OpenApiResponse(
-            description="Bad Request",
-            examples=[
-                OpenApiExample(
-                    "Already Processed",
-                    value={"error": "Assignment already processed"}
-                ),
-                OpenApiExample(
-                    "Invalid Mileage",
-                    value={"error": "Mileage must be ≥ vehicle's current mileage (1500 km)"}
-                )
-            ]
-        ),
-        401: OpenApiResponse(description="Unauthorized - Invalid/missing token"),
-        403: OpenApiResponse(description="Forbidden - User is not the assigned driver"),
-        404: OpenApiResponse(
-            description="Not Found",
-            examples=[
-                OpenApiExample(
-                    "Invalid Assignment",
-                    value={"error": "Invalid assignment"}
-                )
-            ]
-        )
+        400: OpenApiResponse(description="Bad request"),
+        404: OpenApiResponse(description="Not found")
     },
-    examples=[
-        OpenApiExample(
-            "Acceptance Request Example",
-            value={"start_mileage": 1500.5},
-            request_only=True
-        )
-    ],
     parameters=[
         OpenApiParameter(
             name="assignment_id",
-            type=OpenApiTypes.INT,
+            type=int,
             location=OpenApiParameter.PATH,
-            description="ID of the assignment to accept"
+            description="ID of the assignment",
+            examples=[
+                OpenApiExample(  # Changed from 'example=' to 'examples=['
+                    "Example Assignment ID",
+                    value=42
+                )
+            ]
         ),
         OpenApiParameter(
             name="Authorization",
-            type=OpenApiTypes.STR,
+            type=str,
             location=OpenApiParameter.HEADER,
-            description="Bearer token",
-            required=True
+            description="Bearer token"
         )
     ]
 )
