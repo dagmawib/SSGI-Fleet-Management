@@ -3,7 +3,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
@@ -100,12 +100,23 @@ class VehicleViewSet(viewsets.ModelViewSet):
         # Implement status change logging here
         pass
 
+@extend_schema(
+    summary="List unassigned drivers",
+    description="Returns a list of all drivers who are not currently assigned to any vehicle. Useful for assigning drivers to vehicles. Each driver includes id, first_name, last_name, and email.",
+    responses={
+        200: OpenApiResponse(
+            response=None,  # You can define a serializer if you want strict schema
+            description="A list of unassigned drivers [{id, first_name, last_name, email}]"
+        )
+    },
+    tags=["Drivers"]
+)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated, IsAdminOrSuperAdmin])
 def unassigned_drivers(request):
     """
     List all drivers not currently assigned to any vehicle.
-    Returns: [{"id": ..., "first_name": ..., "last_name": ...}]
+    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ...}]
     """
     assigned_driver_ids = Vehicle.objects.exclude(assigned_driver=None).values_list("assigned_driver", flat=True)
     drivers = User.objects.filter(role=User.Role.DRIVER, is_active=True).exclude(id__in=assigned_driver_ids)

@@ -6,14 +6,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from django.utils.crypto import get_random_string
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import action
 # from .docs import get_user_detail_docs
 from django.db import transaction
 
 
 from .permissions import IsSuperAdmin
-from users.models import User
+from users.models import User, Department
 from .serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
@@ -23,6 +23,7 @@ from .serializers import (
     UserCreateSerializer,
     UserUpdateSerializer,
     TemporaryPasswordSerializer,
+    DepartmentSerializer,
 )
 from .docs import (
     super_admin_register_docs,
@@ -248,3 +249,24 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """Customized JWT token obtain view with enhanced documentation."""
 
     serializer_class = CustomTokenObtainPairSerializer
+
+@extend_schema(
+    summary="List all departments",
+    description="Returns a list of all departments in the system. Each department includes id, name, description, and director.",
+    responses={
+        200: OpenApiResponse(
+            response=DepartmentSerializer(many=True),
+            description="A list of departments [{id, name, description, director}]"
+        )
+    },
+    tags=["Departments"]
+)
+@api_view(["GET"])
+def list_departments(request):
+    """
+    List all departments in the system.
+    Returns: [{"id": ..., "name": ..., "description": ..., "director": ...}]
+    """
+    departments = Department.objects.all()
+    serializer = DepartmentSerializer(departments, many=True)
+    return Response(serializer.data)
