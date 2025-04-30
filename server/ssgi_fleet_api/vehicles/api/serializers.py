@@ -3,11 +3,14 @@ from vehicles.models import Vehicle
 from users.models import User
 from django.db.models import Q
 
+class DriverNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name"]
+
 class VehicleSerializer(serializers.ModelSerializer):
     driver_id = serializers.IntegerField(write_only=True, required=True, help_text="ID of the driver to assign")
-    assigned_driver = serializers.PrimaryKeyRelatedField(
-        read_only=True
-    )
+    assigned_driver = DriverNameSerializer(read_only=True)
 
     class Meta:
         model = Vehicle
