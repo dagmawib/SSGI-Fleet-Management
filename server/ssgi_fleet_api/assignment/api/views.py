@@ -107,29 +107,22 @@ class CarRejectAPIView(APIView):
         )
 
         serializer.is_valid(raise_exception=True)
-        
         try:
             vheicle_request = Vehicle_Request.objects.get(
-                id = serializer.validated_data['request_id']
+                request_id=serializer.validated_data['request_id']
             )
-
             vheicle_request.status = vheicle_request.Status.REJECTED
             vheicle_request.save()
-            
-
             return Response({
-                "request_id": vheicle_request.id,
+                "status": "rejected",
+                "message": f"Vehicle request {vheicle_request.request_id} has been rejected.",
+                "request_id": vheicle_request.request_id,
                 "note": serializer.validated_data.get('note', '')
             }, status=status.HTTP_200_OK)
-
-
         except Vehicle_Request.DoesNotExist:
-            raise('the resource does not eist.')
+            return Response({'error': 'The requested vehicle request does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class DriverRequestView(APIView):
