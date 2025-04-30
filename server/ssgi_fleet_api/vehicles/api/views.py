@@ -1,6 +1,6 @@
 from typing import Generic
 from rest_framework import viewsets, status, generics
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema
@@ -16,6 +16,8 @@ from .docs import (
     vehicle_retrieve_docs,
     vehicle_update_docs
 )
+from users.models import User
+from users.api.serializers import UserSerializer
 
 @extend_schema_view(post=vehicle_create_docs)
 class AddVehicleView(generics.CreateAPIView):
@@ -97,3 +99,18 @@ class VehicleViewSet(viewsets.ModelViewSet):
     def _log_status_change(self, vehicle):
         # Implement status change logging here
         pass
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated, IsAdminOrSuperAdmin])
+def unassigned_drivers(request):
+    """
+    List all drivers not currently assigned to any vehicle.
+    Returns: [{"id": ..., "first_name": ..., "last_name": ...}]
+    """
+    assigned_driver_ids = Vehicle.objects.exclude(assigned_driver=None).values_list("assigned_driver", flat=True)
+    drivers = User.objects.filter(role=User.Role.DRIVER, is_active=True).exclude(id__in=assigned_driver_ids)
+    data = [
+        {"id": d.id, "first_name": d.first_name, "last_name": d.last_name, "email": d.email}
+        for d in drivers
+    ]
+    return Response(data)

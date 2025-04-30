@@ -202,7 +202,8 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False, min_length=8)
+    old_password = serializers.CharField(write_only=True, required=False, min_length=8)
+    new_password = serializers.CharField(write_only=True, required=False, min_length=8)
 
     class Meta:
         model = User
@@ -211,14 +212,36 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
-            "password"
+            "old_password",
+            "new_password"
         ]
         
+    def validate(self, data):
+        old_password = data.get("old_password")
+        new_password = data.get("new_password")
+        # Only validate password change if either field is present
+        if old_password or new_password:
+            if not old_password or not new_password:
+                raise serializers.ValidationError({
+                    "old_password": "Both old_password and new_password are required to change password."
+                })
+            user = self.instance
+            if not user.check_password(old_password):
+                raise serializers.ValidationError({
+                    "old_password": "Old password is incorrect."
+                })
+            if old_password == new_password:
+                raise serializers.ValidationError({
+                    "new_password": "New password must be different from old password."
+                })
+        return data
+
     def update(self, instance, validated_data):
-        password = validated_data.pop("password", None)
+        old_password = validated_data.pop("old_password", None)
+        new_password = validated_data.pop("new_password", None)
         instance = super().update(instance, validated_data)
-        if password:
-            instance.set_password(password)
+        if old_password and new_password:
+            instance.set_password(new_password)
             instance.save()
         return instance
 
