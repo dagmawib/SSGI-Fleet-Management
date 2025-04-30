@@ -18,5 +18,15 @@ export const API_ENDPOINTS = {
     GET_VEHICLE:"/vehicles/vehicles/list/",
     VEHICLE_REQUEST:"/request/requests/",
     REQUESTS_FOR_DIRECTOR:"/request/requests/pending/",
+    APPROVE_REQUEST:"/request/requests",
+    APPROVE_REQUEST_BY_ID:"approve/",
+    REJECT_REQUEST:"/request/requests",
+    REJECT_REQUEST_BY_ID:"reject/",
+
+    APPROVE_REQUEST_BY_DIRECTOR:"/request/requests/list/",
+
+    // Admin Endpoints
+    ADMIN_REQUESTS:"/request/requests/list/",
+    ADMIN_REJECT_REQUEST:"/assignments/reject/",
 }
 

@@ -55,7 +55,7 @@ export default function Page() {
       }
 
       const data = await response.json();
-      setPendingRequests(data);
+      setPendingRequests(data.requests || []);
     } catch (error) {
       console.error('Error fetching pending requests:', error);
       toast.error(t("fetchError"), {
@@ -71,13 +71,14 @@ export default function Page() {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (request) => {
     try {
-      const response = await fetch(`/api/approve_request/${id}`, {
-        method: 'POST',
+      const response = await fetch('/api/approve_request', {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ id: request.request_id }),
       });
 
       if (!response.ok) {
@@ -108,13 +109,14 @@ export default function Page() {
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async (request) => {
     try {
-      const response = await fetch(`/api/reject_request/${id}`, {
-        method: 'POST',
+      const response = await fetch('/api/directoral_reject', {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ id: request.request_id }),
       });
 
       if (!response.ok) {
