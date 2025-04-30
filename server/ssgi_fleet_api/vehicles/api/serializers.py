@@ -9,7 +9,7 @@ class DriverNameSerializer(serializers.ModelSerializer):
         fields = ["id", "first_name", "last_name"]
 
 class VehicleSerializer(serializers.ModelSerializer):
-    driver_id = serializers.IntegerField(write_only=True, required=True, help_text="ID of the driver to assign")
+    # driver_id = serializers.IntegerField(write_only=True, required=True, help_text="ID of the driver to assign")
     assigned_driver = DriverNameSerializer(read_only=True)
 
     class Meta:

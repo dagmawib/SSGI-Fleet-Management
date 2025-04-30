@@ -36,7 +36,7 @@ class AssignCarAPIView(APIView):
             # Get validated objects
             vehicle_request = Vehicle_Request.objects.get(pk=serializer.validated_data['request_id'])
             vehicle = Vehicle.objects.get(pk=serializer.validated_data['vehicle_id'])
-            driver = User.objects.get(pk=serializer.validated_data['driver_id'])
+            driver = vehicle.assigned_driver
             
             # Create the assignment
             assignment = Vehicle_Assignment.objects.create(

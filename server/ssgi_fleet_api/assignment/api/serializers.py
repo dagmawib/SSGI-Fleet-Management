@@ -11,14 +11,14 @@ from django.db import transaction
 class AssignCarSerializer(serializers.ModelSerializer):
     request_id = serializers.IntegerField(write_only=True)
     vehicle_id = serializers.IntegerField(write_only=True)
-    driver_id = serializers.IntegerField(write_only=True)
+    # driver_id = serializers.IntegerField(write_only=True)
     
     class Meta:
         model = Vehicle_Assignment
         fields = [
             'request_id',
             'vehicle_id',
-            'driver_id',
+            # 'driver_id',
             'estimated_distance',
             'estimated_duration',
             'note'
@@ -55,18 +55,18 @@ class AssignCarSerializer(serializers.ModelSerializer):
                 f"No vehicle found with ID {value}"
             )
 
-    def validate_driver_id(self, value):
-        try:
-            driver = User.objects.get(pk=value)
-            if driver.role != User.Role.DRIVER:
-                raise serializers.ValidationError(
-                    "Selected user is not a driver"
-                )
-            return value
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                f"No user found with ID {value}"
-            )
+    # def validate_driver_id(self, value):
+    #     try:
+    #         driver = User.objects.get(pk=value)
+    #         if driver.role != User.Role.DRIVER:
+    #             raise serializers.ValidationError(
+    #                 "Selected user is not a driver"
+    #             )
+    #         return value
+    #     except User.DoesNotExist:
+    #         raise serializers.ValidationError(
+    #             f"No user found with ID {value}"
+    #         )
 
     def validate(self, data):
         # Check if request already has an assignment
