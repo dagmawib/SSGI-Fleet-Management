@@ -138,9 +138,6 @@ class User(AbstractUser):
             if self.department and self.department.director == self:
                 raise ValidationError(_("SuperAdmin cannot be a department director"))
 
-        # Admin must have department (except superadmin)
-        # elif self.role == self.Role.ADMIN and not self.department:
-            # raise ValidationError(_("Admins must be assigned to a department"))
 
         # Directors must be assigned to a department
         if self.role == self.Role.DIRECTOR and not self.department:

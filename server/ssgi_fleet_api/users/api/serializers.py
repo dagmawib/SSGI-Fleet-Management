@@ -148,10 +148,6 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
         if requested_role == User.Role.SUPERADMIN:
             data["department"] = None
 
-        # Regular admins must have a department
-        # if requested_role == User.Role.ADMIN and not data.get("department"):
-            # raise serializers.ValidationError("Admins must be assigned to a department")
-
         return data
 
     def validate_role(self, value):
