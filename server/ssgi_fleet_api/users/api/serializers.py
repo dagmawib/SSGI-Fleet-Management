@@ -9,6 +9,11 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.text import slugify
+from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -402,3 +407,54 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class TemporaryPasswordSerializer(serializers.Serializer):
     temporary_password = serializers.CharField()
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        # Always return success for security, but check if user exists
+        self.user = User.objects.filter(email=value, is_active=True).first()
+        return value
+
+    def save(self):
+        if hasattr(self, 'user') and self.user:
+            user = self.user
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # Set expiry (optional, token already has built-in expiry logic)
+            user.reset_token = token
+            user.reset_token_expires = timezone.now() + timezone.timedelta(hours=1)
+            user.save(update_fields=["reset_token", "reset_token_expires"])
+            # Send email (implement send_password_reset_email on User)
+            if hasattr(user, 'send_password_reset_email'):
+                user.send_password_reset_email(uid, token)
+        # Always return success
+        return True
+
+class ResetPasswordSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=8)
+
+    def validate(self, data):
+        try:
+            uid = force_str(urlsafe_base64_decode(data['uid']))
+            user = User.objects.get(pk=uid, is_active=True)
+        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+            raise serializers.ValidationError({'uid': 'Invalid or expired link.'})
+        if not default_token_generator.check_token(user, data['token']):
+            raise serializers.ValidationError({'token': 'Invalid or expired token.'})
+        # Optionally check expiry
+        if user.reset_token_expires and user.reset_token_expires < timezone.now():
+            raise serializers.ValidationError({'token': 'Token has expired.'})
+        self.user = user
+        return data
+
+    def save(self):
+        user = self.user
+        user.set_password(self.validated_data['new_password'])
+        user.reset_token = ''
+        user.reset_token_expires = None
+        user.last_password_change = timezone.now()
+        user.save()
+        return user
