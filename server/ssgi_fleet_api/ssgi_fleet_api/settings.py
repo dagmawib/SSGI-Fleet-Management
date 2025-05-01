@@ -159,3 +159,31 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django Q Configuration
+Q_CLUSTER = {
+    'name': 'SSGI_Fleet',
+    'workers': 4,
+    'recycle': 500,
+    'timeout': 60,
+    'compress': True,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'label': 'Django Q',
+    'redis': {
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 0,
+    }
+}
+
+# Schedule the pool cars update task
+Q_SCHEDULES = [
+    {
+        'name': 'Update pool cars availability',
+        'func': 'vehicles.management.commands.update_pool_cars.Command.handle',
+        'schedule_type': 'C',  # Cron-style schedule
+        'cron': '40 8 * * *',  # Run at 8:40 AM every day
+    },
+]

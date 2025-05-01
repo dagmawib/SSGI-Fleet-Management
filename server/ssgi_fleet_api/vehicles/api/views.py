@@ -36,7 +36,7 @@ class ListVehiclesView(generics.ListAPIView):
     serializer_class = VehicleSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['status', 'make', 'fuel_type']
+    filterset_fields = ['status', 'make', 'fuel_type', 'category']
 
     def get_queryset(self):
         queryset = Vehicle.objects.select_related(

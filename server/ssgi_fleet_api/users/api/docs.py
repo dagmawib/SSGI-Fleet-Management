@@ -14,12 +14,15 @@ from .serializers import (
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.models import User
 
-# ---------------------- SUPER ADMIN DOCS ---------------------- #
+# ---------------------- SUPER ADMIN REGISTRATION ---------------------- #
 super_admin_register_docs = extend_schema(
     tags=["Super Admin"],
-    description="""Register new users (SuperAdmin only). 
+    summary="Register new users (SuperAdmin only)",
+    description="""
+    Register new users (SuperAdmin only). 
     SuperAdmin can create users of any role including other SuperAdmins.
-    Department assignment is optional for all created users.""",
+    Department assignment is optional for all created users.
+    """,
     request=SuperAdminRegistrationSerializer,
     responses={
         201: OpenApiResponse(
@@ -71,60 +74,59 @@ super_admin_register_docs = extend_schema(
     ]
 )
 
-
-
 # ---------------------- AUTHENTICATION DOCS ---------------------- #
-
-user_login_docs =extend_schema(
-        tags=["Authentication"],
-        summary="User Login",
-        description="Authenticate with email/password to obtain JWT tokens and user data",
-        request=CustomTokenObtainPairSerializer,
-        responses={
-            200: OpenApiResponse(
-                response=CustomTokenObtainPairSerializer,
-                description="Successful authentication",
-                examples=[
-                    OpenApiExample(
-                        "Success Response",
-                        value={
-                            "access": "eyJhbGciOi...",
-                            "refresh": "eyJhbGciOi...",
-                            "user_id": 1,
-                            "role": "admin"
-                        }
-                    )
-                ]
-            ),
-            400: OpenApiResponse(
-                description="Invalid credentials",
-                examples=[
-                    OpenApiExample(
-                        "Error Response",
-                        value={
-                            "detail": "No active account found with the given credentials"
-                        }
-                    )
-                ]
-            )
-        },
-        examples=[
-            OpenApiExample(
-                "Login Request Example",
-                value={
-                    "email": "admin@example.com",
-                    "password": "adminpassword123"
-                },
-                request_only=True
-            )
-        ]
-    )
+user_login_docs = extend_schema(
+    tags=["Authentication"],
+    summary="User Login",
+    description="Authenticate with email/password to obtain JWT tokens and user data",
+    request=CustomTokenObtainPairSerializer,
+    responses={
+        200: OpenApiResponse(
+            response=CustomTokenObtainPairSerializer,
+            description="Successful authentication",
+            examples=[
+                OpenApiExample(
+                    "Success Response",
+                    value={
+                        "access": "eyJhbGciOi...",
+                        "refresh": "eyJhbGciOi...",
+                        "user_id": 1,
+                        "role": "admin"
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            description="Invalid credentials",
+            examples=[
+                OpenApiExample(
+                    "Error Response",
+                    value={
+                        "detail": "No active account found with the given credentials"
+                    }
+                )
+            ]
+        )
+    },
+    examples=[
+        OpenApiExample(
+            "Login Request Example",
+            value={
+                "email": "admin@example.com",
+                "password": "adminpassword123"
+            },
+            request_only=True
+        )
+    ]
+)
 
 user_profile_docs = extend_schema(
     tags=["Profile"],
-    description="""User profile management endpoint.
+    summary="User profile management endpoint",
+    description="""
     GET: Retrieve complete profile information
-    PUT/PATCH: Update allowed fields (name, phone, password)""",
+    PUT/PATCH: Update allowed fields (name, phone, password)
+    """,
     responses={
         200: OpenApiResponse(
             response=UserProfileSerializer,
@@ -197,6 +199,7 @@ user_profile_docs = extend_schema(
 
 logout_docs = extend_schema(
     tags=["Authentication"],
+    summary="Logout user",
     description="Logout user by blacklisting their refresh token",
     request={
         "application/json": {
@@ -228,8 +231,11 @@ logout_docs = extend_schema(
 # ---------------------- USER MANAGEMENT DOCS ---------------------- #
 user_list_docs = extend_schema(
     tags=["User Management"],
-    description="""List all users or create new users (Admin only).
-    Supports filtering by department and role via query parameters.""",
+    summary="List all users or create new users (Admin only)",
+    description="""
+    List all users or create new users (Admin only).
+    Supports filtering by department and role via query parameters.
+    """,
     parameters=[
         OpenApiParameter(
             name='department_id',
@@ -246,8 +252,27 @@ user_list_docs = extend_schema(
         ),
     ],
     responses={
-        200: UserSerializer(many=True),
-        201: UserCreateSerializer,
+        200: OpenApiResponse(
+            response=UserSerializer(many=True),
+            description="List of users"
+        ),
+        201: OpenApiResponse(
+            response=UserCreateSerializer,
+            description="User created successfully"
+        ),
+        400: OpenApiResponse(
+            description="Invalid input data",
+            examples=[
+                OpenApiExample(
+                    "Missing Email",
+                    value={"email": ["This field is required."]}
+                ),
+                OpenApiExample(
+                    "Invalid Role",
+                    value={"role": ["Invalid role selection."]}
+                )
+            ]
+        ),
         403: OpenApiResponse(description="Forbidden - Admin access required")
     }
 )
@@ -255,18 +280,26 @@ user_list_docs = extend_schema(
 user_detail_docs = {
     'get': extend_schema(
         tags=["User Management"],
+        summary="Retrieve complete user details (Admin only)",
         description="Retrieve complete user details (Admin only)",
         responses={
-            200: UserSerializer,
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="User details"
+            ),
             403: OpenApiResponse(description="Forbidden - Admin access required"),
             404: OpenApiResponse(description="User not found")
         }
     ),
     'put': extend_schema(
         tags=["User Management"],
+        summary="Update user details (Admin only, restricted fields)",
         description="Update user details (Admin only, restricted fields)",
         responses={
-            200: UserSerializer,
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="User updated"
+            ),
             400: OpenApiResponse(description="Invalid input data"),
             403: OpenApiResponse(description="Forbidden - Admin access required"),
             404: OpenApiResponse(description="User not found")
@@ -274,9 +307,13 @@ user_detail_docs = {
     ),
     'patch': extend_schema(
         tags=["User Management"],
+        summary="Partially update user details (Admin only, restricted fields)",
         description="Partially update user details (Admin only, restricted fields)",
         responses={
-            200: UserSerializer,
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="User updated"
+            ),
             400: OpenApiResponse(description="Invalid input data"),
             403: OpenApiResponse(description="Forbidden - Admin access required"),
             404: OpenApiResponse(description="User not found")
@@ -284,13 +321,15 @@ user_detail_docs = {
     )
 }
 
-# For DELETE operation (now properly defined as a variable, not function)
 user_delete_docs = extend_schema(
     tags=["User Management"],
-    description="""Soft deletes a user account:
+    summary="Soft delete a user account",
+    description="""
+    Soft deletes a user account:
     - Sets is_active=False
     - Anonymizes email
-    - Invalidates password""",
+    - Invalidates password
+    """,
     responses={
         200: OpenApiResponse(
             description="User deactivated with confirmation",
@@ -314,13 +353,17 @@ user_delete_docs = extend_schema(
         404: OpenApiResponse(description="User not found")
     }
 )
+
 user_restore_docs = extend_schema(
     tags=["User Management"],
-    description="""Restore a deactivated user account.
+    summary="Restore a deactivated user account",
+    description="""
+    Restore a deactivated user account.
     - Reactivates the account
     - Restores original email (removes 'deleted_' prefix)
     - Generates a temporary password
-    - Returns credentials for admin to provide to user""",
+    - Returns credentials for admin to provide to user
+    """,
     responses={
         200: OpenApiResponse(
             description="User restored successfully",
@@ -350,35 +393,4 @@ user_restore_docs = extend_schema(
             )]
         )
     }
-)
-# ---------------------- AUTH TOKEN DOCS ---------------------- #
-token_obtain_docs = extend_schema(
-    tags=["Authentication"],
-    description="Obtain JWT token pair (access + refresh)",
-    request=TokenObtainPairView.serializer_class,
-    responses={
-        200: OpenApiResponse(
-            response=TokenObtainPairView.serializer_class,
-            description="Successfully authenticated"
-        ),
-        400: OpenApiResponse(
-            description="Invalid credentials",
-            examples=[
-                OpenApiExample(
-                    "Invalid Credentials",
-                    value={"detail": "No active account found with the given credentials"}
-                )
-            ]
-        )
-    },
-    examples=[
-        OpenApiExample(
-            "Login Request",
-            value={
-                "email": "user@example.com",
-                "password": "yourpassword123"
-            },
-            request_only=True,
-        )
-    ]
 )

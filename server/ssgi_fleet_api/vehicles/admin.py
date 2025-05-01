@@ -11,8 +11,9 @@ class VehicleAdmin(admin.ModelAdmin):
         'assigned_driver',
         'last_service',
         'status',
+        'category',
     )
-    list_filter = ('status', 'make', 'fuel_type', 'department')
+    list_filter = ('status', 'make', 'fuel_type', 'department', 'category')
     search_fields = ('license_plate', 'make', 'model')
     list_editable = ('status',)
     readonly_fields = ('created_at', 'updated_at')

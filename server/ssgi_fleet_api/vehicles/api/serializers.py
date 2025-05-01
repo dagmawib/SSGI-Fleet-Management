@@ -61,3 +61,14 @@ class VehicleSerializer(serializers.ModelSerializer):
                     "Out-of-service vehicles require special reactivation"
                 )
         return value
+
+    def validate_category(self, value):
+        """
+        Ensure the category is either 'field' or 'pool'.
+        For 'pool' cars: Note that all pool cars that have been in use or available within the last 24 hours will be set to available at 8:40 AM automatically.
+        """
+        if value not in [Vehicle.Category.FIELD, Vehicle.Category.POOL]:
+            raise serializers.ValidationError(
+                "Category must be either 'field' or 'pool'."
+            )
+        return value

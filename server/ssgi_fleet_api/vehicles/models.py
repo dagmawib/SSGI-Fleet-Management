@@ -15,6 +15,16 @@ class Vehicle(models.Model):
         ELECTRIC = 'electric', 'Electric'
         HYBRID = 'hybrid', 'Hybrid'
 
+    class Category(models.TextChoices):
+        FIELD = 'field', 'Field Car'
+        POOL = 'pool', 'Pool Car'
+
+    category = models.CharField(
+        max_length=10,
+        choices=Category.choices,
+        default=Category.FIELD,
+        help_text="Vehicle category (Field or Pool car)"
+    )
     license_plate = models.CharField(max_length=20, unique=True)
     make = models.CharField(max_length=50)
     model = models.CharField(max_length=50)

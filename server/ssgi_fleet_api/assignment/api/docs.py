@@ -29,7 +29,7 @@ from .permissions import IsAdminOrSuperAdmin
 
 # Local serializer imports
 from .serializers import AcceptAssignmentSerializer, AssignCarSerializer \
-,DeclineAssigmentSerializer , CompleteAssignmentSerializer
+,DeclineAssignmentSerializer , CompleteAssignmentSerializer
 
 # Documentation constants (typically in docs.py)
 COMMON_RESPONSES = {
@@ -253,7 +253,7 @@ Allows drivers to decline a pending vehicle assignment by providing:
 2. Records rejection reason and timestamp
 3. Creates a DECLINED trip record for audit purposes
 """,
-    request=DeclineAssigmentSerializer,
+    request=DeclineAssignmentSerializer,
     responses={
         200: OpenApiResponse(
             description="Assignment successfully declined",
