@@ -3,6 +3,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse,
     OpenApiParameter,
+    OpenApiTypes,
 )
 from .serializers import (
     CustomTokenObtainPairSerializer,
@@ -391,6 +392,77 @@ user_restore_docs = extend_schema(
                 "Not Found",
                 value={"error": "No inactive user found with this ID"}
             )]
+        )
+    }
+)
+
+forgot_password_docs = extend_schema(
+    tags=["Authentication"],
+    summary="Request password reset link",
+    description="""
+    Initiates the password reset process by sending a reset link to the user's email address if it exists in the system. Always returns a generic success message for security reasons.
+    """,
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {"type": "string", "format": "email", "example": "user@example.com"}
+            },
+            "required": ["email"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(
+            description="Password reset link sent (if email exists)",
+            examples=[
+                OpenApiExample(
+                    "Success",
+                    value={"message": "If an account with that email exists, a password reset link has been sent."}
+                )
+            ]
+        )
+    }
+)
+
+reset_password_docs = extend_schema(
+    tags=["Authentication"],
+    summary="Reset password using token",
+    description="""
+    Resets the user's password using the token and uid from the password reset link. The new password must be at least 8 characters. Returns a success message if the reset is successful.
+    """,
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "uid": {"type": "string", "example": "Mg"},
+                "token": {"type": "string", "example": "set-password-token"},
+                "new_password": {"type": "string", "format": "password", "minLength": 8, "example": "newSecurePassword123!"}
+            },
+            "required": ["uid", "token", "new_password"]
+        }
+    },
+    responses={
+        200: OpenApiResponse(
+            description="Password reset successful",
+            examples=[
+                OpenApiExample(
+                    "Success",
+                    value={"message": "Password has been reset successfully. You can now log in with your new password."}
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            description="Invalid or expired token",
+            examples=[
+                OpenApiExample(
+                    "Invalid Token",
+                    value={"token": ["Invalid or expired token."]}
+                ),
+                OpenApiExample(
+                    "Token Expired",
+                    value={"token": ["Token has expired."]}
+                )
+            ]
         )
     }
 )
