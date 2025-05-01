@@ -221,3 +221,29 @@ class User(AbstractUser):
             self.Role.EMPLOYEE: "/employee",
         }
         return f"{base_url}{role_paths.get(self.role, '')}"
+
+    def send_password_reset_email(self, uid, token):
+        """Send a password reset email with a secure link."""
+        subject = _("Password Reset Request")
+        reset_link = f"{settings.FRONTEND_RESET_URL}?uid={uid}&token={token}"
+        message_lines = [
+            _(f"Hello {self.first_name},"),
+            "",
+            _(f"We received a request to reset your password. If you did not make this request, you can ignore this email."),
+            _(f"To reset your password, click the link below or paste it into your browser:"),
+            reset_link,
+            "",
+            _(f"This link will expire in 1 hour for your security."),
+            "",
+            _(f"If you have any questions, contact support."),
+            "",
+            _(f"Best regards,"),
+            _(f"The SSGI Team"),
+        ]
+        send_mail(
+            subject=subject,
+            message="\n".join(message_lines),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[self.email],
+            fail_silently=False,
+        )
