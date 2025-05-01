@@ -160,33 +160,31 @@ class User(AbstractUser):
 
     def send_welcome_email(self, temporary_password=None):
         """Send welcome email with login credentials"""
-        subject = _("Welcome to SSGI Fleet Management")
+        subject = str(_("Welcome to SSGI Fleet Management"))
         message_lines = [
-            _("Hello {name},").format(name=self.first_name),
+            str(_("Hello {name},")).format(name=self.first_name),
             "",
-            _("Your account has been created with these details:"),
-            _("- Role: {role}").format(role=self.get_role_display()),
-            _("- Email: {email}").format(email=self.email),
+            str(_("Your account has been created with these details:")),
+            str(_("- Role: {role}")).format(role=self.get_role_display()),
+            str(_("- Email: {email}")).format(email=self.email),
         ]
 
         if temporary_password:
             message_lines.extend(
                 [
                     "",
-                    _("- Temporary password: {password}").format(
-                        password=temporary_password
-                    ),
-                    _("Please change your password after first login."),
+                    str(_("- Temporary password: {password}")).format(password=temporary_password),
+                    str(_("Please change your password after first login.")),
                 ]
             )
 
         message_lines.extend(
             [
                 "",
-                _("You can login at: {url}").format(url=settings.FRONTEND_LOGIN_URL),
+                str(_("You can login at: {url}")).format(url=settings.FRONTEND_LOGIN_URL),
                 "",
-                _("Best regards,"),
-                _("The SSGI Team"),
+                str(_("Best regards,")),
+                str(_("The SSGI Team")),
             ]
         )
 
@@ -221,21 +219,21 @@ class User(AbstractUser):
 
     def send_password_reset_email(self, uid, token):
         """Send a password reset email with a secure link."""
-        subject = _("Password Reset Request")
+        subject = str(_("Password Reset Request"))
         reset_link = f"{settings.FRONTEND_RESET_URL}?uid={uid}&token={token}"
         message_lines = [
-            _(f"Hello {self.first_name},"),
+            str(_(f"Hello {self.first_name},")),
             "",
-            _(f"We received a request to reset your password. If you did not make this request, you can ignore this email."),
-            _(f"To reset your password, click the link below or paste it into your browser:"),
+            str(_("We received a request to reset your password. If you did not make this request, you can ignore this email.")),
+            str(_("To reset your password, click the link below or paste it into your browser:")),
             reset_link,
             "",
-            _(f"This link will expire in 1 hour for your security."),
+            str(_("This link will expire in 1 hour for your security.")),
             "",
-            _(f"If you have any questions, contact support."),
+            str(_("If you have any questions, contact support.")),
             "",
-            _(f"Best regards,"),
-            _(f"The SSGI Team"),
+            str(_("Best regards,")),
+            str(_("The SSGI Team")),
         ]
         send_mail(
             subject=subject,
