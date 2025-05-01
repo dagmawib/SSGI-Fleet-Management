@@ -24,6 +24,8 @@ from .serializers import (
     UserUpdateSerializer,
     TemporaryPasswordSerializer,
     DepartmentSerializer,
+    ForgotPasswordSerializer,
+    ResetPasswordSerializer,
 )
 from .docs import (
     super_admin_register_docs,
@@ -32,7 +34,9 @@ from .docs import (
     user_list_docs,
     user_detail_docs,
     user_delete_docs,
-    user_restore_docs
+    user_restore_docs,
+    forgot_password_docs,
+    reset_password_docs,
 )
 
 
@@ -270,3 +274,24 @@ def list_departments(request):
     departments = Department.objects.all()
     serializer = DepartmentSerializer(departments, many=True)
     return Response(serializer.data)
+
+@forgot_password_docs
+class ForgotPasswordAPIView(APIView):
+    """Endpoint to request a password reset link."""
+    permission_classes = []
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        # Always return generic message for security
+        return Response({"message": "If an account with that email exists, a password reset link has been sent."}, status=status.HTTP_200_OK)
+
+@reset_password_docs
+class ResetPasswordAPIView(APIView):
+    """Endpoint to reset password using token and uid."""
+    permission_classes = []
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "Password has been reset successfully. You can now log in with your new password."}, status=status.HTTP_200_OK)
