@@ -32,5 +32,12 @@ export const API_ENDPOINTS = {
     ADMIN_ASSIGN_REQUEST:"/assignments/assign/",
 
     GET_DEPARTMENTS:"/auth/departments/",
+
+    // Driver Endpoints
+    DRIVER_REQUESTS:"/assignments/driver/requests/",
+    DRIVER_ACCEPT_REQUEST:"/assignments",
+    DRIVER_DECLINE_REQUEST:"/assignments",
+    DRIVER_COMPLETE_TRIP:"/assignments",
+    DRIVER_COMPLETED_TRIPS:"/assignments/driver/completed-trips/",
 }
 
