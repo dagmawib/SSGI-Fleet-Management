@@ -187,3 +187,16 @@ Q_SCHEDULES = [
         'cron': '40 8 * * *',  # Run at 8:40 AM every day
     },
 ]
+
+# Add this for password reset link in emails
+FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost:3000/reset-password')
+
+
+# For production/real email sending, configure Gmail SMTP:
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Set in .env or replace
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Set in .env or replace
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
