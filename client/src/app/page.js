@@ -85,7 +85,7 @@ function Home() {
         setCookie("access_token", responseData.token);
         setCookie("refresh", responseData.refresh);
         setCookie("user_ID", responseData.user_id);
-        setCookie("role",responseData.role)
+        setCookie("role", responseData.role)
 
         const role = responseData.role;
         if (role === "employee" || role === "director") {
@@ -239,9 +239,8 @@ function Home() {
                 <button
                   type="submit"
                   disabled={loading} // Disable button when loading
-                  className={`w-[105px] py-2 text-white font-semibold text-lg rounded-xl cursor-pointer ${
-                    loading ? "" : ""
-                  }`}
+                  className={`w-[105px] py-2 text-white font-semibold text-lg rounded-xl cursor-pointer ${loading ? "" : ""
+                    }`}
                 >
                   {loading ? (
                     <span className="flex justify-center items-center">
@@ -258,12 +257,15 @@ function Home() {
       ) : (
         <div className="relative z-10 w-full md:w-1/2 flex items-center justify-center px-4 py-10 min-h-screen">
           <div className="border bg-white/90 md:bg-afWhite shadow rounded-2xl max-w-[382px] md:max-w-[500px] w-full flex items-center justify-center px-4 py-10">
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center">
               <div className="flex gap-x-5 items-center">
                 <CircleCheckBig size={30} className="text-[#043755]" />
                 <p className="md:text-2xl text-lg font-semibold text-[#043755]">
                   {t("successfulVerification")}
                 </p>
+              </div>
+              <div className="mt-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#043755]"></div>
               </div>
             </div>
           </div>

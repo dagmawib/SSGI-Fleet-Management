@@ -50,7 +50,33 @@ const VehicleAssignmentModal = ({
         toast.error('Please select a vehicle');
         return;
       }
-      onAssign(selectedRequest.request_id, selectedVehicle);
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/assign', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            request_id: selectedRequest.request_id,
+            vehicle_id: selectedVehicle,
+            note: note.trim()
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to assign vehicle');
+        }
+
+        toast.success('Vehicle assigned successfully');
+        onAssign(selectedRequest.request_id, selectedVehicle);
+        onClose();
+      } catch (error) {
+        console.error('Error assigning vehicle:', error);
+        toast.error('Failed to assign vehicle');
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       if (!note.trim()) {
         toast.error('Please provide a reason for rejection');
@@ -99,7 +125,8 @@ const VehicleAssignmentModal = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-10" />
+          <div className="fixed inset-0 bg-black/50" />
+
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -133,7 +160,7 @@ const VehicleAssignmentModal = ({
                     <p><strong>{t("approver")}:</strong> {selectedRequest.approver_name}</p>
                     <p><strong>{t("pickup")}:</strong> {selectedRequest.pickup_location}</p>
                     <p><strong>{t("destination")}:</strong> {selectedRequest.destination}</p>
-                    <p><strong>{t("date")}:</strong> {selectedRequest.date}</p>
+                    <p><strong>{t("date")}:</strong> {new Date(selectedRequest.created_at).toLocaleDateString()}</p>
 
                     {isAssignAction ? (
                       <>
@@ -145,6 +172,9 @@ const VehicleAssignmentModal = ({
                             className="w-full border border-gray-300 rounded px-3 py-2 text-[#043755] focus:ring-2 focus:ring-[#043755]"
                             rows="3"
                             placeholder={t("commentPlaceholder")}
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            disabled={isLoading}
                           />
                         </div>
 
@@ -160,7 +190,7 @@ const VehicleAssignmentModal = ({
                           <option value="">{t("selectPlaceholder")}</option>
                           {vehicles.map((vehicle) => (
                             <option key={vehicle.id} value={vehicle.id}>
-                              {vehicle.make} {vehicle.model} - {vehicle.registrationNumber}
+                              {vehicle.make} {vehicle.model} - {vehicle.license_plate}
                             </option>
                           ))}
                         </select>

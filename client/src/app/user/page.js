@@ -116,7 +116,10 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: request.request_id }),
+        body: JSON.stringify({
+          request_id: request.request_id,
+          reason: request.rejection_reason
+        }),
       });
 
       if (!response.ok) {

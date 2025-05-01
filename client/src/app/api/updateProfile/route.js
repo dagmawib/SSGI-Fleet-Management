@@ -15,7 +15,7 @@ export async function PUT(req) {
     }
 
     const body = await req.json(); // Get the request body
-    const { first_name, last_name, phone_number, email } = body;
+    const { first_name, last_name, phone_number, email, old_password, new_password } = body;
 
     const response = await axios.put(
       `${API_BASE_URL}${API_ENDPOINTS.PROFILE}`,
@@ -24,6 +24,8 @@ export async function PUT(req) {
         last_name,
         phone_number,
         email,
+        old_password,
+        new_password,
       },
       {
         headers: {

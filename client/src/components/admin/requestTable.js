@@ -30,11 +30,9 @@ export default function RequestTable() {
       setLoading(true);
       const response = await fetch('/api/admin/requests');
 
-
       if (!response.ok) {
         throw new Error('Failed to fetch requests');
       }
-
 
       const data = await response.json();
       setRequests(data || []);
@@ -54,10 +52,29 @@ export default function RequestTable() {
   };
 
 
-  const handleAssign = () => {
-    // Implement actual logic for assignment
-    console.log("Assigned Car ID: ", selectedCarId, "to Request ID: ", selectedRequest.request_id);
-    closeModal();
+  const handleAssign = async (requestId, vehicleId) => {
+    try {
+      // Refresh the requests list after successful assignment
+      await fetchRequests();
+      toast.success(t("assignmentSuccess"), {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } catch (error) {
+      console.error('Error handling assignment:', error);
+      toast.error(t("assignmentError"), {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
   };
 
   const handleReject = () => {
@@ -115,7 +132,7 @@ export default function RequestTable() {
           />
         </div>
         <div className="flex gap-2">
-          
+
           <button
             onClick={resetFilters}
             className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors"

@@ -14,17 +14,17 @@ export async function PATCH(request) {
         }
 
         const body = await request.json();
-        const { id } = body;
+        const { request_id, reason } = body;
 
-        if (!id) {
+        if (!request_id || !reason) {
             return new Response(
-                JSON.stringify({ error: "Request ID is required in the request body" }),
+                JSON.stringify({ error: "Request ID and reason are required in the request body" }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
 
         const response = await fetch(
-            `${API_BASE_URL}${API_ENDPOINTS.REJECT_REQUEST}/${id}/${API_ENDPOINTS.REJECT_REQUEST_BY_ID}`,
+            `${API_BASE_URL}${API_ENDPOINTS.REJECT_REQUEST}/${request_id}/${API_ENDPOINTS.REJECT_REQUEST_BY_ID}`,
             {
                 method: 'PATCH',
                 headers: {
@@ -32,6 +32,7 @@ export async function PATCH(request) {
                     "Content-Type": "application/json",
                     Accept: "application/json",
                 },
+                body: JSON.stringify({ reason }),
             }
         );
 

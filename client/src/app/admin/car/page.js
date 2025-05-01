@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 export default function AddCarForm() {
   const t = useTranslations("car");
   const [loading, setLoading] = useState(false);
+  const [drivers, setDrivers] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     license_plate: "",
     make: "",
@@ -26,6 +28,39 @@ export default function AddCarForm() {
 
   const [dateError, setDateError] = useState("");
   const [licensePlateError, setLicensePlateError] = useState("");
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const res = await fetch("/api/get_drivers");
+        if (!res.ok) {
+          throw new Error("Failed to fetch drivers");
+        }
+        const data = await res.json();
+        setDrivers(data);
+      } catch (error) {
+        console.error("Error fetching drivers:", error);
+        toast.error(t("fetchDriversError"));
+      }
+    };
+
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch("/api/get_departments");
+        if (!res.ok) {
+          throw new Error("Failed to fetch departments");
+        }
+        const data = await res.json();
+        setDepartments(data);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+        toast.error(t("fetchDepartmentsError"));
+      }
+    };
+
+    fetchDrivers();
+    fetchDepartments();
+  }, [t]);
 
   const validateLicensePlate = (plate) => {
     // Remove any spaces and convert to uppercase
@@ -120,6 +155,7 @@ export default function AddCarForm() {
         fuel_efficiency: "",
         status: "",
         department: "",
+        driver_id: "",
       });
     } catch (error) {
       console.error("Submission failed:", error);
@@ -357,10 +393,12 @@ export default function AddCarForm() {
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           >
-            <option value="">Select</option>
-            <option value="hr">HR</option>
-            <option value="engineering">Engineering</option>
-            <option value="finance">Finance</option>
+            <option value="">{t("selectDepartment")}</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -375,6 +413,12 @@ export default function AddCarForm() {
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           >
+            <option value="">{t("selectDriver")}</option>
+            {drivers.map((driver) => (
+              <option key={driver.id} value={driver.id}>
+                {driver.first_name} {driver.last_name}
+              </option>
+            ))}
           </select>
         </div>
 

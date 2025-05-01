@@ -16,33 +16,14 @@ export const POST = async (req) => {
 
     const body = await req.json();
     const {
-      license_plate,
-      make,
-      model,
-      year,
-      color,
-      capacity,
-      current_mileage,
-      last_service_date,
-      next_service_mileage,
-      fuel_type,
-      fuel_efficiency,
-      status,
-      department,
-      driver_id,
-      department_id,
+      request_id,
+      vehicle_id,
+      note,
     } = body;
 
     if (
-      !license_plate ||
-      !make ||
-      !model ||
-      !year ||
-      !color ||
-      !capacity ||
-      !current_mileage ||
-      !fuel_type ||
-      !status 
+      !request_id ||
+      !vehicle_id
     ) {
       return new Response(JSON.stringify({ error: "There are missed data" }), {
         status: 400,
@@ -51,28 +32,16 @@ export const POST = async (req) => {
 
     // Prepare URL-encoded request body
     const requestBody = {
-        license_plate,
-        make,
-        model,
-        year,
-        color,
-        capacity,
-        current_mileage,
-        last_service_date,
-        next_service_mileage,
-        fuel_type,
-        fuel_efficiency,
-        status,
-        department,
-        driver_id,
-        department_id,
+        request_id,
+        vehicle_id,
+        note,
     };
 
     console.log("Request Body:", requestBody);
 
     // Make the POST request to the token API
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.ADD_VEHICLE}`,
+      `${API_BASE_URL}${API_ENDPOINTS.ADMIN_ASSIGN_REQUEST}`,
       requestBody,
       {
         headers: {
@@ -82,6 +51,8 @@ export const POST = async (req) => {
         },
       }
     );
+    
+    console.log("Response:", response);
 
     return new Response(JSON.stringify(response.data), {
       status: response.status,

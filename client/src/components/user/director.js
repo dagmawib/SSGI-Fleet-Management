@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 const formatDateTime = (dateTimeString) => {
   if (!dateTimeString) return '';
@@ -27,6 +28,23 @@ const DirectorDashboard = ({
   handleReject,
 }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const t = useTranslations("vehicleRequest");
+
+  const handleRejectClick = (request) => {
+    setSelectedRequest(request);
+    setShowRejectModal(true);
+  };
+
+  const handleConfirmReject = () => {
+    if (!rejectionReason.trim()) {
+      return; // Don't proceed if reason is empty
+    }
+    handleReject({ ...selectedRequest, rejection_reason: rejectionReason });
+    setShowRejectModal(false);
+    setRejectionReason("");
+  };
 
   return (
     <div className="max-w-7xl xxl:max-w-[1600px] w-full py-4 mx-auto px-4 md:px-0">
@@ -49,7 +67,7 @@ const DirectorDashboard = ({
                         Destination: {request.destination}
                       </p>
                     </div>
-                    <div className="flex flex-wrap justify-start sm:justify-end gap-2 my-2">
+                    <div className="flex justify-end gap-2 mt-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -62,7 +80,7 @@ const DirectorDashboard = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleReject(request);
+                          handleRejectClick(request);
                         }}
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                       >
@@ -134,7 +152,7 @@ const DirectorDashboard = ({
                             Approve
                           </button>
                           <button
-                            onClick={() => handleReject(selectedRequest)}
+                            onClick={() => handleRejectClick(selectedRequest)}
                             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                           >
                             Reject
@@ -149,6 +167,49 @@ const DirectorDashboard = ({
           </div>
         </div>
       )}
+
+      {/* Reject Confirmation Modal */}
+      <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        <DialogContent>
+          <DialogTitle className="text-[#043755]">Confirm Rejection</DialogTitle>
+          <DialogDescription>
+            <div className="space-y-4">
+              <p>Are you sure you want to reject this request?</p>
+              <div>
+                <label className="block text-[#043755] mb-2">
+                  Rejection Reason *
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  className="w-full p-2 border rounded-lg text-[#043755]"
+                  rows="3"
+                  placeholder="Enter reason for rejection"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setShowRejectModal(false);
+                    setRejectionReason("");
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmReject}
+                  disabled={!rejectionReason.trim()}
+                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  Confirm Reject
+                </button>
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -15,6 +15,8 @@ export default function ProfilePage() {
     last_name: "",
     phone_number: "",
     email: "",
+    old_password: "",
+    new_password: "",
   });
 
   useEffect(() => {
@@ -44,10 +46,17 @@ export default function ProfilePage() {
 
   const updateProfile = async (updatedData) => {
     if (!isValidPhoneNumber(updatedData.phone_number)) {
-      toast.error(t("invalidPhone")); // Add this key in your translation
+      toast.error(t("invalidPhone"));
       return;
     }
-  
+
+    // Check if both password fields are filled or both are empty
+    if ((updatedData.old_password && !updatedData.new_password) ||
+      (!updatedData.old_password && updatedData.new_password)) {
+      toast.error(t("bothPasswordsRequired"));
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/updateProfile", {
@@ -62,6 +71,8 @@ export default function ProfilePage() {
         throw new Error(data.error || "Failed to update profile");
       }
       toast.success(t("profileUpdated"));
+      // Clear password fields after successful update
+      setUserData(prev => ({ ...prev, old_password: "", new_password: "" }));
       return data;
     } catch (err) {
       console.error("Update failed:", err.message);
@@ -190,9 +201,12 @@ export default function ProfilePage() {
           <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
             <input
               type={passwordVisible ? "text" : "password"}
-              value={userData.password || ""}
+              value={userData.old_password || ""}
               className="w-full text-[#043755]"
-              readOnly
+              onChange={(e) =>
+                setUserData((prev) => ({ ...prev, old_password: e.target.value }))
+              }
+              placeholder={t("oldPasswordPlaceholder")}
             />
             <button onClick={() => setPasswordVisible(!passwordVisible)}>
               <Icon
@@ -210,9 +224,12 @@ export default function ProfilePage() {
           <div className="flex items-center border text-[#043755] p-2 rounded mt-1">
             <input
               type={passwordVisible ? "text" : "password"}
-              value={userData.password || ""}
+              value={userData.new_password || ""}
               className="w-full text-[#043755]"
-              readOnly
+              onChange={(e) =>
+                setUserData((prev) => ({ ...prev, new_password: e.target.value }))
+              }
+              placeholder={t("newPasswordPlaceholder")}
             />
             <button onClick={() => setPasswordVisible(!passwordVisible)}>
               <Icon

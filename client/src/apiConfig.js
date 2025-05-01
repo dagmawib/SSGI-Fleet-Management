@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
     // Vehicle Management Endpoints
     ADD_VEHICLE:"/vehicles/vehicles/add/",
     GET_VEHICLE:"/vehicles/vehicles/list/",
+    GET_DRIVERS:"/vehicles/drivers/unassigned/",
     VEHICLE_REQUEST:"/request/requests/",
     REQUESTS_FOR_DIRECTOR:"/request/requests/pending/",
     APPROVE_REQUEST:"/request/requests",
@@ -28,5 +29,8 @@ export const API_ENDPOINTS = {
     // Admin Endpoints
     ADMIN_REQUESTS:"/request/requests/list/",
     ADMIN_REJECT_REQUEST:"/assignments/reject/",
+    ADMIN_ASSIGN_REQUEST:"/assignments/assign/",
+
+    GET_DEPARTMENTS:"/auth/departments/",
 }
 

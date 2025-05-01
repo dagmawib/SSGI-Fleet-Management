@@ -17,7 +17,7 @@ export default function CarsTable() {
   const [cars, setCars] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
-  const [loading, setLoading] = useState({});
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -31,6 +31,7 @@ export default function CarsTable() {
   useEffect(() => {
     const fetchCars = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/api/get_vehicles", {
           method: "GET",
           headers: {
@@ -44,6 +45,8 @@ export default function CarsTable() {
         setCars(data);
       } catch (error) {
         console.error("Error fetching cars:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -87,6 +90,15 @@ export default function CarsTable() {
     setCurrentPage(page);
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#043755]"></div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row gap-4 p-4 md:px-0 md:w-3/5">
@@ -119,7 +131,8 @@ export default function CarsTable() {
         </div>
       </div>
 
-      <div className="overflow-auto bg-white rounded-lg shadow border mx-2 md:mx-0">
+      <div className="overflow-auto bg-white rounded-lg mx-2 md:mx-0">
+
         <table className="min-w-full table-auto text-sm">
           <thead className="bg-[#043755] text-white">
             <tr>
@@ -160,8 +173,8 @@ export default function CarsTable() {
                 <td className="px-4 py-2">{t(`fuelTypes.${car.fuel_type}`)}</td>
                 <td className="px-4 py-2">{car.fuel_efficiency}</td>
                 <td className="px-4 py-2">
-                  <span className={`${!car.driver?.name ? "text-gray-500" : ""}`}>
-                    {car.driver?.name || t("notAssigned")}
+                  <span className={`${!car.assigned_driver?.first_name ? "text-gray-500" : ""}`}>
+                    {car.assigned_driver?.first_name || t("notAssigned")}
                   </span>
                 </td>
                 <td className="px-4 py-2">
@@ -176,6 +189,7 @@ export default function CarsTable() {
             ))}
           </tbody>
         </table>
+
       </div>
 
       {/* Pagination Controls */}

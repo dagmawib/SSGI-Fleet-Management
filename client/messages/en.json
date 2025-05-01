@@ -30,7 +30,9 @@
     "requestApproved": "Request approved successfully",
     "requestRejected": "Request rejected successfully",
     "rejectError": "Error rejecting request",
-    "approveError": "Error approving request"
+    "approveError": "Error approving request",
+    "rejectReason": "Reject Reason",
+    "rejectReasonPlaceholder": "Enter reject reason"
   },
   "profile": {
     "title": "Account",
@@ -55,7 +57,10 @@
     "errorLoadingProfile": "Error loading profile",
     "profileUpdated": "Profile updated successfully",
     "updateFailed": "Failed to update profile",
-    "invalidPhone": "Invalid Ethiopian phone number. Please enter a valid 10-digit number."
+    "invalidPhone": "Invalid Ethiopian phone number. Please enter a valid 10-digit number.",
+    "bothPasswordsRequired": "Both password fields are required. Please fill in both fields or leave them empty.",
+    "oldPasswordPlaceholder": "Enter your old password",
+    "newPasswordPlaceholder": "Enter your new password"
   },
   "contact": {
     "title": "Get in touch with us",
@@ -159,7 +164,9 @@
     "statuses": {
       "available": "Available",
       "maintenance": "On Maintenance",
-      "out_of_service": "Out of Service"
+      "out_of_service": "Out of Service",
+      "on_work": "On Work",
+      "in_use": "In Use"
     },
     "fuelTypes": {
       "petrol": "Petrol",
@@ -284,6 +291,8 @@
   },
   "car": {
     "title": "Add New Car",
+    "selectDriver": "Select Driver",
+    "selectDepartment": "Select Department",
     "licensePlate": "License Plate",
     "licensePlateValidationError": "Invalid license plate format. Please enter a valid license plate.",
     "make": "Make",
