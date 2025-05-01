@@ -16,6 +16,6 @@ urlpatterns = [
     path('superadmin/register/', SuperAdminRegistrationView.as_view(), name='superadmin-register'),
     path('auth/generate-password/', generate_temp_password, name='generate-password'),
     path('departments/', list_departments, name='list-departments'),
-    path('auth/forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
-    path('auth/reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),
+    path('forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
+    path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),
 ]
