@@ -143,7 +143,9 @@
       "assigned": "Assigned"
     },
     "reject": "Reject",
-    "assign": "Assign"
+    "assign": "Assign",
+    "assignError": "Error assigning vehicle",
+    "assignSuccess": "Vehicle assigned successfully"
   },
   "vehicleTable": {
     "searchPlaceholder": "Search by license plate, make, model, or year",
@@ -225,7 +227,22 @@
     "upcomingTrips": "Upcoming Trips",
     "noUpcomingTrips": "No upcoming trips scheduled.",
     "completedTrips": "Completed Trips",
-    "noCompletedTrips": "No completed trips yet."
+    "noCompletedTrips": "No completed trips yet.",
+    "declineRequest": "Decline Request",
+    "reasonForDecline": "Reason for Decline",
+    "enterReason": "Enter reason for decline",
+    "cancel": "Cancel",
+    "submitError": "Error submitting request",
+    "declineError": "Error declining request",
+    "acceptError": "Error accepting request",
+    "confirmDecline": "Confirm Decline",
+    "confirmAccept": "Are you sure you want to accept this request?",
+    "startMileage": "Start Mileage",
+    "endMileage": "End Mileage",
+    "purpose": "Purpose",
+    "requesterPhone": "Requester Phone",
+    "startDateTime": "Start Date and Time",
+    "endDateTime": "End Date and Time"
   },
   "superAdminNavbar": {
     "register": "Register User",

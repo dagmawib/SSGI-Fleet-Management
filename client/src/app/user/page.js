@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -37,39 +37,36 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const t = useTranslations("vehicleRequest");
 
-  useEffect(() => {
-    const role = getCookie('role');
-    if (role === 'director') {
-      setIsDirector(true);
-      fetchPendingRequests();
+const fetchPendingRequests = useCallback(async () => {
+  try {
+    setLoading(true);
+    const response = await fetch('/api/pending_requests_for_director');
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch pending requests');
     }
-  }, []);
 
-  const fetchPendingRequests = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/pending_requests_for_director');
+    const data = await response.json();
+    setPendingRequests(data.requests || []);
+  } catch (error) {
+    console.error('Error fetching pending requests:', error);
+    toast.error(t("fetchError"), {
+      position: "top-right",
+      autoClose: 5000,
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [t]);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch pending requests');
-      }
+useEffect(() => {
+  const role = getCookie('role');
+  if (role === 'director') {
+    setIsDirector(true);
+    fetchPendingRequests();
+  }
+}, [fetchPendingRequests]);
 
-      const data = await response.json();
-      setPendingRequests(data.requests || []);
-    } catch (error) {
-      console.error('Error fetching pending requests:', error);
-      toast.error(t("fetchError"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleApprove = async (request) => {
     try {

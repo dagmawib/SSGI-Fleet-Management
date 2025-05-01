@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import VehicleAssignmentModal from "@/components/admin/vehicleAssignementModal";
 import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from 'react-toastify';
@@ -21,19 +21,13 @@ export default function RequestTable() {
   const [loading, setLoading] = useState(true);
   const t = useTranslations("RequestTable");
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
-
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/admin/requests');
-
       if (!response.ok) {
         throw new Error('Failed to fetch requests');
       }
-
       const data = await response.json();
       setRequests(data || []);
     } catch (error) {
@@ -49,7 +43,12 @@ export default function RequestTable() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
+  
 
 
   const handleAssign = async (requestId, vehicleId) => {

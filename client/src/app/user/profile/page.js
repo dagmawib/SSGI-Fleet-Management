@@ -37,7 +37,7 @@ export default function ProfilePage() {
       }
     };
     fetchUserData();
-  }, []);
+  }, [t]);
 
   const isValidPhoneNumber = (phone) => {
     const ethiopianPhoneRegex = /^(?:\+251|251|0)?9\d{8}$/;
