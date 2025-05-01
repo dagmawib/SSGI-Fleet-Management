@@ -278,7 +278,8 @@ class DeclineAssignmentSerializer(serializers.ModelSerializer):
         trip = Trips.objects.create(
             assignment=assignment,
             status=Trips.TripStatus.DECLINED,
-            start_time=timezone.now()  # Use current time as start time for declined trips
+            start_time=timezone.now(),  # Use current time as start time for declined trips
+            start_mileage=assignment.vehicle.current_mileage  # Set start_mileage to vehicle's current mileage
         )
         return trip
 
