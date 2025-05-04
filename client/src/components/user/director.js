@@ -7,6 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const formatDateTime = (dateTimeString) => {
   if (!dateTimeString) return '';
@@ -30,6 +31,8 @@ const DirectorDashboard = ({
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
   const t = useTranslations("vehicleRequest");
 
   const handleRejectClick = (request) => {
@@ -37,13 +40,27 @@ const DirectorDashboard = ({
     setShowRejectModal(true);
   };
 
-  const handleConfirmReject = () => {
+  const handleConfirmReject = async () => {
     if (!rejectionReason.trim()) {
       return; // Don't proceed if reason is empty
     }
-    handleReject({ ...selectedRequest, rejection_reason: rejectionReason });
-    setShowRejectModal(false);
-    setRejectionReason("");
+    setRejectLoading(true);
+    try {
+      await handleReject({ ...selectedRequest, rejection_reason: rejectionReason });
+      setShowRejectModal(false);
+      setRejectionReason("");
+    } finally {
+      setRejectLoading(false);
+    }
+  };
+
+  const handleApproveClick = async (request) => {
+    setApproveLoading(true);
+    try {
+      await handleApprove(request);
+    } finally {
+      setApproveLoading(false);
+    }
   };
 
   return (
@@ -71,20 +88,30 @@ const DirectorDashboard = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleApprove(request);
+                          handleApproveClick(request);
                         }}
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        disabled={approveLoading}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center justify-center min-w-[100px]"
                       >
-                        Approve
+                        {approveLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          "Approve"
+                        )}
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRejectClick(request);
                         }}
-                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                        disabled={rejectLoading}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
                       >
-                        Reject
+                        {rejectLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          "Reject"
+                        )}
                       </button>
                     </div>
                   </div>
@@ -146,16 +173,26 @@ const DirectorDashboard = ({
 
                         <div className="flex flex-row justify-end gap-2 pt-4">
                           <button
-                            onClick={() => handleApprove(selectedRequest)}
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                            onClick={() => handleApproveClick(selectedRequest)}
+                            disabled={approveLoading}
+                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center justify-center min-w-[100px]"
                           >
-                            Approve
+                            {approveLoading ? (
+                              <CircularProgress size={20} color="inherit" />
+                            ) : (
+                              "Approve"
+                            )}
                           </button>
                           <button
                             onClick={() => handleRejectClick(selectedRequest)}
-                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                            disabled={rejectLoading}
+                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
                           >
-                            Reject
+                            {rejectLoading ? (
+                              <CircularProgress size={20} color="inherit" />
+                            ) : (
+                              "Reject"
+                            )}
                           </button>
                         </div>
                       </div>
@@ -200,10 +237,14 @@ const DirectorDashboard = ({
                 </button>
                 <button
                   onClick={handleConfirmReject}
-                  disabled={!rejectionReason.trim()}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={!rejectionReason.trim() || rejectLoading}
+                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]"
                 >
-                  Confirm Reject
+                  {rejectLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Confirm Reject"
+                  )}
                 </button>
               </div>
             </div>

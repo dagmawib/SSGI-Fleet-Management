@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const statusColors = {
   available: "text-green-600 font-semibold text-xl",
@@ -18,14 +19,20 @@ export default function CarsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
   const [loading, setLoading] = useState(false);
+  const [clearLoading, setClearLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const resetFilters = () => {
-    setSearchTerm("");
-    setSelectedMake("");
-    setCurrentPage(1); // Reset to first page when filters are cleared
+  const resetFilters = async () => {
+    setClearLoading(true);
+    try {
+      setSearchTerm("");
+      setSelectedMake("");
+      setCurrentPage(1); // Reset to first page when filters are cleared
+    } finally {
+      setClearLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -124,9 +131,14 @@ export default function CarsTable() {
           </select>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors"
+            disabled={clearLoading}
+            className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors flex items-center justify-center min-w-[100px]"
           >
-            {t("clear")}
+            {clearLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("clear")
+            )}
           </button>
         </div>
       </div>
@@ -197,37 +209,50 @@ export default function CarsTable() {
         <div className="flex justify-center items-center mt-4 space-x-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 rounded ${currentPage === 1
+            disabled={currentPage === 1 || loading}
+            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${currentPage === 1 || loading
               ? "bg-gray-200 cursor-not-allowed"
               : "bg-[#043755] text-white hover:bg-blue-700"
               }`}
           >
-            {t("previous")}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("previous")
+            )}
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 rounded ${currentPage === page
+              disabled={loading}
+              className={`px-3 py-1 rounded flex items-center justify-center min-w-[32px] ${currentPage === page
                 ? "bg-[#043755] text-white"
                 : "bg-gray-200 hover:bg-gray-300"
                 }`}
             >
-              {page}
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                page
+              )}
             </button>
           ))}
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded ${currentPage === totalPages
+            disabled={currentPage === totalPages || loading}
+            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${currentPage === totalPages || loading
               ? "bg-gray-200 cursor-not-allowed"
               : "bg-[#043755] text-white hover:bg-blue-700"
               }`}
           >
-            {t("next")}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("next")
+            )}
           </button>
         </div>
       )}

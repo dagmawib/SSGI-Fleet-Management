@@ -7,6 +7,7 @@ export default function Page() {
   const t = useTranslations("register"); // For localization
   const [temporaryPassword, setTemporaryPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generateLoading, setGenerateLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     username: "",
@@ -27,14 +28,21 @@ export default function Page() {
   ];
 
   const fetchTempPassword = async () => {
-    const res = await fetch("/api/generatePassword", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    setTemporaryPassword(data.temporary_password);
+    setGenerateLoading(true);
+    try {
+      const res = await fetch("/api/generatePassword", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      setTemporaryPassword(data.temporary_password);
+    } catch (error) {
+      console.error("Error generating password:", error);
+    } finally {
+      setGenerateLoading(false);
+    }
   };
 
   const roles = ["employee", "driver", "admin", "director"];
@@ -84,9 +92,9 @@ export default function Page() {
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow mt-8">
       <h1 className="text-2xl font-bold text-[#043755] mb-6">{t("title")}</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-      {message && (
-        <div className="mt-4 text-green-500">{message}</div>
-      )}
+        {message && (
+          <div className="mt-4 text-green-500">{message}</div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 font-medium text-[#043755]">
@@ -222,9 +230,14 @@ export default function Page() {
               <button
                 type="button"
                 onClick={fetchTempPassword}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                disabled={generateLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
               >
-                {t("generate")}
+                {generateLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  t("generate")
+                )}
               </button>
             </div>
           </div>
@@ -233,15 +246,11 @@ export default function Page() {
         <div className="pt-4">
           <button
             type="submit"
-            disabled={loading} // Disable button when loading
-            className={`w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded cursor-pointer ${
-              loading ? "" : ""
-            }`}
+            disabled={loading}
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded flex items-center justify-center min-w-[100px]"
           >
             {loading ? (
-              <span className="flex justify-center items-center">
-                <CircularProgress size={24} color="inherit" />
-              </span>
+              <CircularProgress size={20} color="inherit" />
             ) : (
               t("submit")
             )}

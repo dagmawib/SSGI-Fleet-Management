@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import VehicleAssignmentModal from "@/components/admin/vehicleAssignementModal";
 import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CircularProgress from "@mui/material/CircularProgress";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -19,6 +20,9 @@ export default function RequestTable() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
+  const [clearLoading, setClearLoading] = useState(false);
   const t = useTranslations("RequestTable");
 
   const fetchRequests = useCallback(async () => {
@@ -48,10 +52,11 @@ export default function RequestTable() {
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
-  
+
 
 
   const handleAssign = async (requestId, vehicleId) => {
+    setAssignLoading(true);
     try {
       // Refresh the requests list after successful assignment
       await fetchRequests();
@@ -73,13 +78,20 @@ export default function RequestTable() {
         pauseOnHover: true,
         draggable: true,
       });
+    } finally {
+      setAssignLoading(false);
     }
   };
 
-  const handleReject = () => {
-    // Implement actual logic for rejection
-    console.log("Rejected Request ID: ", selectedRequest.request_id);
-    closeModal();
+  const handleReject = async () => {
+    setRejectLoading(true);
+    try {
+      // Implement actual logic for rejection
+      console.log("Rejected Request ID: ", selectedRequest.request_id);
+      closeModal();
+    } finally {
+      setRejectLoading(false);
+    }
   };
 
   const closeModal = () => {
@@ -93,9 +105,14 @@ export default function RequestTable() {
     setModalOpen(true);
   };
 
-  const resetFilters = () => {
-    setSearchTerm("");
-    setSelectedStatus("");
+  const resetFilters = async () => {
+    setClearLoading(true);
+    try {
+      setSearchTerm("");
+      setSelectedStatus("");
+    } finally {
+      setClearLoading(false);
+    }
   };
 
   // Filter requests based on search term and selected status
@@ -134,9 +151,14 @@ export default function RequestTable() {
 
           <button
             onClick={resetFilters}
-            className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors"
+            disabled={clearLoading}
+            className="px-4 py-2 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors flex items-center justify-center min-w-[100px]"
           >
-            {t("clear")}
+            {clearLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("clear")
+            )}
           </button>
         </div>
       </div>
@@ -177,21 +199,35 @@ export default function RequestTable() {
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={() => openModal(request, 'assign')}
-                          className="px-3 py-1 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors text-sm flex items-center gap-1"
+                          disabled={assignLoading}
+                          className="px-3 py-1 bg-[#043755] text-white rounded-lg hover:bg-[#032b42] transition-colors text-sm flex items-center gap-1 min-w-[100px] justify-center"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-                          </svg>
-                          {t("assign")}
+                          {assignLoading ? (
+                            <CircularProgress size={16} color="inherit" />
+                          ) : (
+                            <>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                              </svg>
+                              {t("assign")}
+                            </>
+                          )}
                         </button>
                         <button
                           onClick={() => openModal(request, 'reject')}
-                          className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center gap-1"
+                          disabled={rejectLoading}
+                          className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center gap-1 min-w-[100px] justify-center"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                          {t("reject")}
+                          {rejectLoading ? (
+                            <CircularProgress size={16} color="inherit" />
+                          ) : (
+                            <>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                              </svg>
+                              {t("reject")}
+                            </>
+                          )}
                         </button>
                       </div>
                     )}

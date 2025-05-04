@@ -15,6 +15,8 @@ export default function SuperAdminUsersPage() {
     Math.ceil(usersData.length / 10)
   );
   const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [openMenu, setOpenMenu] = useState(null);
   const buttonRef = useRef(null);
@@ -40,6 +42,7 @@ export default function SuperAdminUsersPage() {
   };
 
   const confirmDelete = async () => {
+    setDeleteLoading(true);
     try {
       const res = await fetch("/api/removeUser", {
         method: "DELETE",
@@ -60,6 +63,7 @@ export default function SuperAdminUsersPage() {
     } catch (error) {
       console.error("Error deleting user:", error);
     } finally {
+      setDeleteLoading(false);
       setDeleteModalOpen(false);
     }
   };
@@ -158,25 +162,35 @@ export default function SuperAdminUsersPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(user)}
-                          className="p-1 text-[#043755] hover:bg-gray-100 rounded-full transition-colors"
+                          disabled={editLoading}
+                          className="p-1 text-[#043755] hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center min-w-[32px] min-h-[32px]"
                           title={t("edit")}
                         >
-                          <Icon
-                            icon="mdi:pencil"
-                            width={20}
-                            height={20}
-                          />
+                          {editLoading ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <Icon
+                              icon="mdi:pencil"
+                              width={20}
+                              height={20}
+                            />
+                          )}
                         </button>
                         <button
                           onClick={() => handleRemove(user.id)}
-                          className="p-1 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                          disabled={deleteLoading}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded-full transition-colors flex items-center justify-center min-w-[32px] min-h-[32px]"
                           title={t("remove")}
                         >
-                          <Icon
-                            icon="mdi:delete"
-                            width={20}
-                            height={20}
-                          />
+                          {deleteLoading ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <Icon
+                              icon="mdi:delete"
+                              width={20}
+                              height={20}
+                            />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -191,10 +205,14 @@ export default function SuperAdminUsersPage() {
         <div className="my-4 flex flex-row items-center text-[#043755] justify-center space-x-4">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="border border-[#043755] cursor-pointer px-4 py-2 rounded disabled:opacity-50"
+            disabled={currentPage === 1 || loading}
+            className="border border-[#043755] cursor-pointer px-4 py-2 rounded flex items-center justify-center min-w-[100px] disabled:opacity-50"
           >
-            {t("previous")}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("previous")
+            )}
           </button>
           <div className="flex items-center space-x-2">
             <span>
@@ -203,10 +221,14 @@ export default function SuperAdminUsersPage() {
           </div>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="border border-[#043755] cursor-pointer px-4 py-2 rounded disabled:opacity-50"
+            disabled={currentPage === totalPages || loading}
+            className="border border-[#043755] cursor-pointer px-4 py-2 rounded flex items-center justify-center min-w-[100px] disabled:opacity-50"
           >
-            {t("next")}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              t("next")
+            )}
           </button>
         </div>
       </div>
@@ -215,6 +237,7 @@ export default function SuperAdminUsersPage() {
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         onSave={async (updatedUser) => {
+          setEditLoading(true);
           try {
             const res = await fetch(`/api/updateUserData`, {
               method: "PUT",
@@ -243,6 +266,8 @@ export default function SuperAdminUsersPage() {
             }
           } catch (err) {
             console.error("Error updating user:", err);
+          } finally {
+            setEditLoading(false);
           }
         }}
       />

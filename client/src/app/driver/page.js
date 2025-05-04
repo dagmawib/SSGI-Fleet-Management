@@ -12,6 +12,7 @@ import WorldFlag from "react-world-flags";
 import { setCookie } from "cookies-next";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Page() {
   const [hasUpcomingRequest, setHasUpcomingRequest] = useState(false);
@@ -26,6 +27,9 @@ export default function Page() {
   const [tripId, setTripId] = useState(null);
   const [completedTrips, setCompletedTrips] = useState([]);
   const [completedTripsLoading, setCompletedTripsLoading] = useState(true);
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [declineLoading, setDeclineLoading] = useState(false);
   const t = useTranslations("driverDashboard");
 
   useEffect(() => {
@@ -84,6 +88,7 @@ export default function Page() {
       return;
     }
 
+    setAcceptLoading(true);
     try {
       const response = await fetch('/api/driver/accept_requests', {
         method: 'POST',
@@ -108,6 +113,8 @@ export default function Page() {
     } catch (error) {
       console.error('Error accepting request:', error);
       toast.error(error.message || 'Failed to accept request');
+    } finally {
+      setAcceptLoading(false);
     }
   };
 
@@ -117,6 +124,7 @@ export default function Page() {
       return;
     }
 
+    setDeclineLoading(true);
     try {
       const response = await fetch('/api/driver/decline_request', {
         method: 'POST',
@@ -144,6 +152,8 @@ export default function Page() {
     } catch (error) {
       console.error('Error declining request:', error);
       toast.error(error.message || 'Failed to decline request');
+    } finally {
+      setDeclineLoading(false);
     }
   };
 
@@ -158,6 +168,7 @@ export default function Page() {
       return;
     }
 
+    setSubmitLoading(true);
     try {
       const response = await fetch('/api/driver/complete_trip', {
         method: 'PATCH',
@@ -186,6 +197,8 @@ export default function Page() {
     } catch (error) {
       console.error('Error submitting trip:', error);
       toast.error(error.message || 'Failed to submit trip');
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -279,9 +292,14 @@ export default function Page() {
                 <>
                   <button
                     onClick={handleAccept}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                    disabled={acceptLoading}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
                   >
-                    {t("accept")}
+                    {acceptLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      t("accept")
+                    )}
                   </button>
                   <button
                     onClick={() => setShowDeclineModal(true)}
@@ -293,9 +311,14 @@ export default function Page() {
               ) : (
                 <button
                   onClick={handleSubmit}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                  disabled={submitLoading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
                 >
-                  {t("submit")}
+                  {submitLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    t("submit")
+                  )}
                 </button>
               )}
             </div>
@@ -338,14 +361,20 @@ export default function Page() {
                   setRejectionReason("");
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                disabled={declineLoading}
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={handleDecline}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                disabled={declineLoading}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
               >
-                {t("confirmDecline")}
+                {declineLoading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  t("confirmDecline")
+                )}
               </button>
             </div>
           </div>

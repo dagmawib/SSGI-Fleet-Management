@@ -9,6 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getCookie } from 'cookies-next';
 import DirectorDashboard from "@/components/user/director";
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 // Zod validation schema
@@ -35,37 +36,40 @@ export default function Page() {
   const [isDirector, setIsDirector] = useState(false);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [addPassengerLoading, setAddPassengerLoading] = useState(false);
+  const [removePassengerLoading, setRemovePassengerLoading] = useState(false);
   const t = useTranslations("vehicleRequest");
 
-const fetchPendingRequests = useCallback(async () => {
-  try {
-    setLoading(true);
-    const response = await fetch('/api/pending_requests_for_director');
+  const fetchPendingRequests = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/pending_requests_for_director');
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch pending requests');
+      if (!response.ok) {
+        throw new Error('Failed to fetch pending requests');
+      }
+
+      const data = await response.json();
+      setPendingRequests(data.requests || []);
+    } catch (error) {
+      console.error('Error fetching pending requests:', error);
+      toast.error(t("fetchError"), {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    } finally {
+      setLoading(false);
     }
+  }, [t]);
 
-    const data = await response.json();
-    setPendingRequests(data.requests || []);
-  } catch (error) {
-    console.error('Error fetching pending requests:', error);
-    toast.error(t("fetchError"), {
-      position: "top-right",
-      autoClose: 5000,
-    });
-  } finally {
-    setLoading(false);
-  }
-}, [t]);
-
-useEffect(() => {
-  const role = getCookie('role');
-  if (role === 'director') {
-    setIsDirector(true);
-    fetchPendingRequests();
-  }
-}, [fetchPendingRequests]);
+  useEffect(() => {
+    const role = getCookie('role');
+    if (role === 'director') {
+      setIsDirector(true);
+      fetchPendingRequests();
+    }
+  }, [fetchPendingRequests]);
 
 
   const handleApprove = async (request) => {
@@ -166,6 +170,7 @@ useEffect(() => {
   });
 
   const onSubmit = async (data) => {
+    setSubmitLoading(true);
     try {
       const passengerCount = data.passengers.filter(passenger => passenger.name.trim() !== '').length;
 
@@ -180,7 +185,7 @@ useEffect(() => {
         start_dateTime: data.startDate,
         end_dateTime: data.endDate,
         passenger_count: passengerCount,
-        passenger_names: passengerNames, // Add passenger names array
+        passenger_names: passengerNames,
         purpose: data.reason,
         urgency: data.urgency,
       };
@@ -200,7 +205,6 @@ useEffect(() => {
 
       const result = await response.json();
 
-      // Show success toast
       toast.success(t("requestSubmitted"), {
         position: "top-right",
         autoClose: 5000,
@@ -211,13 +215,10 @@ useEffect(() => {
         progress: undefined,
       });
 
-      // Reset form after successful submission
       reset();
 
     } catch (error) {
       console.error('Error submitting request:', error);
-
-      // Show error toast
       toast.error(t("submitError") + ": " + error.message, {
         position: "top-right",
         autoClose: 5000,
@@ -227,6 +228,8 @@ useEffect(() => {
         draggable: true,
         progress: undefined,
       });
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -339,10 +342,19 @@ useEffect(() => {
 
                 <button
                   type="button"
-                  onClick={() => append({ name: "" })}
-                  className="w-8 h-8 rounded-full bg-[#043755] text-white flex items-center justify-center hover:bg-opacity-90"
+                  onClick={() => {
+                    setAddPassengerLoading(true);
+                    append({ name: "" });
+                    setAddPassengerLoading(false);
+                  }}
+                  disabled={addPassengerLoading}
+                  className="w-8 h-8 rounded-full bg-[#043755] text-white flex items-center justify-center hover:bg-opacity-90 min-w-[32px] min-h-[32px]"
                 >
-                  +
+                  {addPassengerLoading ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    "+"
+                  )}
                 </button>
               </div>
 
@@ -357,10 +369,19 @@ useEffect(() => {
                     />
                     <button
                       type="button"
-                      onClick={() => remove(index)}
-                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-opacity-90"
+                      onClick={() => {
+                        setRemovePassengerLoading(true);
+                        remove(index);
+                        setRemovePassengerLoading(false);
+                      }}
+                      disabled={removePassengerLoading}
+                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-opacity-90 min-w-[32px] min-h-[32px]"
                     >
-                      -
+                      {removePassengerLoading ? (
+                        <CircularProgress size={16} color="inherit" />
+                      ) : (
+                        "-"
+                      )}
                     </button>
                   </div>
                 ))}
@@ -416,9 +437,14 @@ useEffect(() => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition"
+              disabled={submitLoading}
+              className="w-full bg-[#043755] text-white py-2 rounded-lg hover:bg-opacity-90 transition flex items-center justify-center min-h-[40px]"
             >
-              {t("submit")}
+              {submitLoading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                t("submit")
+              )}
             </button>
           </form>
         </div>
