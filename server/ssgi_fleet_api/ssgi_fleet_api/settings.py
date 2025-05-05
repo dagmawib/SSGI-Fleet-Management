@@ -189,7 +189,7 @@ Q_SCHEDULES = [
 ]
 
 # Add this for password reset link in emails
-FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost:3000/reset-password')
+FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost:3000/forgotPassword')
 
 
 # For production/real email sending, configure Gmail SMTP:

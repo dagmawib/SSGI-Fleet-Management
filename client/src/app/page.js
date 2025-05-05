@@ -225,7 +225,7 @@ function Home() {
                   </label>
                 </div>
                 <Link
-                  href="/forgotPassword"
+                  href="/resetPassword"
                   className="text-[#043755] font-medium underline text-sm font-inter"
                 >
                   {t("forgotPassword")}

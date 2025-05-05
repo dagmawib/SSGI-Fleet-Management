@@ -5,6 +5,8 @@ export const API_ENDPOINTS = {
     LOGIN: "/auth/login/",
     LOGOUT: "/auth/logout/",
     PROFILE: "/auth/profile/",
+    FORGOT_PASSWORD: "/auth/forgot-password/",
+    RESET_PASSWORD: "/auth/reset-password/",
 
     // User Management Endpoints
     GENERATE_PASSWORD: "/auth/auth/generate-password/",

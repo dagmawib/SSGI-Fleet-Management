@@ -119,7 +119,14 @@
     "confirmPasswordPlaceholder": "Re-enter your new password",
     "updatePassword": "Update Password",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "continue": "Continue",
+    "emailPlaceholder": "Enter your email address",
+    "email": "Email",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "emailSent": "Email sent! Please check your email for further instructions."
   },
   "AdminPage": {
     "request": "Requests",
