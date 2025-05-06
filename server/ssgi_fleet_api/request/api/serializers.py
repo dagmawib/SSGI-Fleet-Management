@@ -1,9 +1,9 @@
 from django.utils import timezone
 from rest_framework import serializers
-from ..models import Vehicle_Request
+from ssgi_fleet_api.request.models import Vehicle_Request
+from ssgi_fleet_api.users.models import User, Department
 from django.utils.dateparse import parse_datetime
-from users.api.serializers import UserSerializer
-from users.models import Department
+from ssgi_fleet_api.users.api.serializers import UserSerializer
 
 
 
@@ -194,14 +194,12 @@ class RequestRejectSerializer(serializers.Serializer):
         return value
     
 
-from users.models import Department
 class EmployeeAndDirectorDepartemntSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = ['id', 'name', 'director']
 
 
-from users.models import User
 class UserMatchSerializer(serializers.ModelSerializer):
     department = EmployeeAndDirectorDepartemntSerilizer()
     

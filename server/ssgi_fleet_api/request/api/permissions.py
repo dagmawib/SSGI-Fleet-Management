@@ -1,6 +1,5 @@
-
 from rest_framework.permissions import BasePermission
-from users.models import User
+from ssgi_fleet_api.users.models import User
 
 class IsEmployee(BasePermission):
     def has_permission(self, request, view):

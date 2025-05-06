@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./server
+    container_name: ssgi_backend
+    env_file:
+      - ./server/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=ssgi_fleet_api.ssgi_fleet_api.settings
+    ports:
+      - "8000:8000"
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+    container_name: ssgi_frontend
+    env_file:
+      - ./client/.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+# No database service, since you are using Supabase

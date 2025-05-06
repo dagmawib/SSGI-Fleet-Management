@@ -13,7 +13,7 @@ from .serializers import (
     UserCreateSerializer,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
-from users.models import User
+from ssgi_fleet_api.users.models import User
 
 # ---------------------- SUPER ADMIN REGISTRATION ---------------------- #
 super_admin_register_docs = extend_schema(

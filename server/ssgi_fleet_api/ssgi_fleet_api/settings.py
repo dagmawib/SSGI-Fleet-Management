@@ -19,7 +19,7 @@ SECRET_KEY = 'django-insecure-^bg#z39v3*rzbju1cec&^i04)ycpr10r121s&rhr^#u89$14@v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']
 
 
 # Application definition
@@ -31,16 +31,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',    # Custom user app
-    'vehicles', # Vehicle management app
+    'ssgi_fleet_api.users',    # Custom user app
+    'ssgi_fleet_api.vehicles', # Vehicle management app
     'rest_framework',##for JWT authentication
     'rest_framework_simplejwt',#for JWT authentication
     'rest_framework_simplejwt.token_blacklist', #for JWT authentication
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_filters',
-    'request',
-    'assignment'
+    'ssgi_fleet_api.request',
+    'ssgi_fleet_api.assignment'
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
@@ -79,7 +79,7 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-ROOT_URLCONF = 'ssgi_fleet_api.urls'
+ROOT_URLCONF = 'ssgi_fleet_api.ssgi_fleet_api.urls'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -109,11 +109,11 @@ WSGI_APPLICATION = 'ssgi_fleet_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'postgres'),
-        'USER': os.getenv('DB_USER', 'postgres.wyskppbfbbydmslwecgo'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'jMDXNscy0bdIoFSv'),
-        'HOST': os.getenv('DB_HOST', 'aws-0-ap-south-1.pooler.supabase.com'),
-        'PORT': os.getenv('DB_PORT', '6543'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

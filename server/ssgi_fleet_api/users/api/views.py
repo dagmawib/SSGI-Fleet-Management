@@ -13,7 +13,7 @@ from django.db import transaction
 
 
 from .permissions import IsSuperAdmin
-from users.models import User, Department
+from ssgi_fleet_api.users.models import User, Department
 from .serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
@@ -103,7 +103,7 @@ class LogoutView(APIView):
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
+            return Response({"message": "Logged out"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

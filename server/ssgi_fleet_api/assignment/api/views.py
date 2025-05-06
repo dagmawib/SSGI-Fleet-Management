@@ -23,9 +23,9 @@ from .docs import (
     COMPLETE_ASSIGNMENT_DOCS
 )
 from ..models import Vehicle_Assignment, Trips
-from request.models import Vehicle_Request
-from vehicles.models import Vehicle
-from users.models import User
+from ssgi_fleet_api.request.models import Vehicle_Request
+from ssgi_fleet_api.vehicles.models import Vehicle
+from ssgi_fleet_api.users.models import User
 
 
 class AssignCarAPIView(APIView):

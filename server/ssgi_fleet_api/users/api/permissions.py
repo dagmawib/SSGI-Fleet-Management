@@ -1,6 +1,6 @@
 from rest_framework import permissions
 from django.core.exceptions import PermissionDenied
-from users.models import User  # Import the User model
+from ssgi_fleet_api.users.models import User  # Import the User model
 
 class IsSuperAdmin(permissions.BasePermission):
     """
