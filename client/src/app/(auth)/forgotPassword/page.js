@@ -124,7 +124,7 @@ export default function Home() {
           pauseOnHover: true,
           draggable: true,
         });
-        router.push('/login');
+        router.push('/');
       } else {
         const data = await response.json();
         toast.error(data.error || "Failed to reset password. Please try again.", {

@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from vehicles.models import Vehicle
-from users.models import User
+from ssgi_fleet_api.vehicles.models import Vehicle
+from ssgi_fleet_api.users.models import User
 from django.db.models import Q
 
 class DriverNameSerializer(serializers.ModelSerializer):
