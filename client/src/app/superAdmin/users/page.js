@@ -6,6 +6,14 @@ import DeleteConfirmModal from "@/components/superAdmin/removeUserModal";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Icon } from "@iconify/react";
 
+const capitalizeFirstLetters = (str) => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export default function SuperAdminUsersPage() {
   const t = useTranslations("regeisteredUsers");
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,15 +156,15 @@ export default function SuperAdminUsersPage() {
                   <tr key={user.id} className="border-b">
                     <td className="px-4 py-2 text-[#043755]">{user.email}</td>
                     <td className="px-4 py-2 text-[#043755]">
-                      {user.first_name}
+                      {capitalizeFirstLetters(user.first_name)}
                     </td>
                     <td className="px-4 py-2 text-[#043755]">
-                      {user.last_name}
+                      {capitalizeFirstLetters(user.last_name)}
                     </td>
                     <td className="px-4 py-2 text-[#043755]">
-                      {user.department?.name || ""}
+                      {capitalizeFirstLetters(user.department?.name) || ""}
                     </td>
-                    <td className="px-4 py-2 text-[#043755]">{user.role}</td>
+                    <td className="px-4 py-2 text-[#043755]">{capitalizeFirstLetters(user.role)}</td>
                     {/* Action Dropdown */}
                     <td className="px-4 py-2 text-[#043755]">
                       <div className="flex gap-2">

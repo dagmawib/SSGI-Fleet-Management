@@ -5,11 +5,21 @@ import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CircularProgress from "@mui/material/CircularProgress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
   assigned: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+};
+
+// Add capitalize function
+const capitalizeFirstLetters = (str) => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 
 export default function RequestTable() {
@@ -23,6 +33,9 @@ export default function RequestTable() {
   const [assignLoading, setAssignLoading] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
   const t = useTranslations("RequestTable");
 
   const fetchRequests = useCallback(async () => {
@@ -86,9 +99,40 @@ export default function RequestTable() {
   const handleReject = async () => {
     setRejectLoading(true);
     try {
-      // Implement actual logic for rejection
-      console.log("Rejected Request ID: ", selectedRequest.request_id);
+      const response = await fetch(`/api/admin/requests/${selectedRequest.request_id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reject request');
+      }
+
+      // Refresh the requests list after successful rejection
+      await fetchRequests();
+
+      toast.success(t("rejectionSuccess"), {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       closeModal();
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      toast.error(t("rejectionError"), {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setRejectLoading(false);
     }
@@ -124,14 +168,31 @@ export default function RequestTable() {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.ceil(filteredRequests.length / rowsPerPage);
+  const paginatedRequests = filteredRequests.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#043755]"></div>
+      <div className="space-y-4 p-4">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="grid grid-cols-6 gap-4 animate-pulse bg-white p-4 rounded-lg shadow"
+          >
+            {[...Array(6)].map((_, j) => (
+              <Skeleton key={j} className="h-6 w-16 rounded-full bg-gray-300" />
+            ))}
+          </div>
+        ))}
       </div>
     );
   }
+
 
 
   return (
@@ -176,16 +237,16 @@ export default function RequestTable() {
             </tr>
           </thead>
           <tbody>
-            {filteredRequests.map((request) => (
+            {paginatedRequests.map((request) => (
               <tr
                 key={request.request_id}
                 className={`border-t text-[#043755] border-gray-100 hover:bg-gray-50 ${request.status === "pending" ? "cursor-pointer" : "cursor-default"
                   }`}
               >
-                <td className="py-3 px-4">{request.requester_name}</td>
-                <td className="py-3 px-4">{request.approver_name}</td>
-                <td className="py-3 px-4">{request.pickup_location}</td>
-                <td className="py-3 px-4">{request.destination}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.requester_name)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.approver_name)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.pickup_location)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.destination)}</td>
                 <td className="py-3 px-4">{new Date(request.created_at).toLocaleDateString()}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center justify-between">
@@ -237,6 +298,27 @@ export default function RequestTable() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-between items-center mt-4 px-4">
+        <p className="text-sm text-gray-600">
+          {t("showing")} {(currentPage - 1) * rowsPerPage + 1}–{Math.min(currentPage * rowsPerPage, filteredRequests.length)} {t("of")} {filteredRequests.length}
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-[#043755] rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            {t("previous")}
+          </button>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-[#043755] rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            {t("next")}
+          </button>
+        </div>
       </div>
 
       <VehicleAssignmentModal

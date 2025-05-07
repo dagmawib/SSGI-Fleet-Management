@@ -24,7 +24,6 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,10 +48,6 @@ export default function Home() {
       router.push('/login');
     }
   }, [router]);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
 
   const toggleNewPasswordVisibility = () => {
     setShowNewPassword(!showNewPassword);
@@ -124,7 +119,7 @@ export default function Home() {
           pauseOnHover: true,
           draggable: true,
         });
-        router.push('/login');
+        router.push('/');
       } else {
         const data = await response.json();
         toast.error(data.error || "Failed to reset password. Please try again.", {
@@ -198,33 +193,6 @@ export default function Home() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          {/* Old Password */}
-          <div className="mb-3">
-            <label className="block text-[#043755] text-sm leading-6 mb-1 font-inter font-medium">
-              {t("oldPassword")}
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder={t("oldPasswordPlaceholder")}
-                className="block w-full px-4 py-3 rounded-lg border text-[#043755] font-normal font-inter text-sm placeholder:text-zinc-500"
-              />
-              <span
-                onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#043755] cursor-pointer"
-                aria-label={
-                  showPassword ? t("hidePassword") : t("showPassword")
-                }
-              >
-                {showPassword ? (
-                  <VisibilityOffIcon />
-                ) : (
-                  <RemoveRedEyeOutlinedIcon />
-                )}
-              </span>
-            </div>
           </div>
 
           {/* New Password */}

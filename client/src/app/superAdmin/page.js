@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import CircularProgress from "@mui/material/CircularProgress";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Page() {
   const t = useTranslations("register"); // For localization
   const [temporaryPassword, setTemporaryPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -68,7 +69,7 @@ export default function Page() {
           last_name: formData.lastName,
           role: formData.role,
           department_id: formData.departmentId,
-          generate_credentials: false, // Always send false as you mentioned
+          generate_credentials: false,
           password: temporaryPassword,
         }),
       });
@@ -80,21 +81,33 @@ export default function Page() {
       }
 
       setLoading(false)
-      setMessage("User registered successfully!");
-      // Optionally reset form here
+      toast.success("User registered successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      // Reset form here if needed
     } catch (error) {
       console.error("Registration failed:", error.message);
-      alert("Registration failed: " + error.message);
+      toast.error("Registration failed: " + error.message, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow mt-8">
+      <ToastContainer />
       <h1 className="text-2xl font-bold text-[#043755] mb-6">{t("title")}</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {message && (
-          <div className="mt-4 text-green-500">{message}</div>
-        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 font-medium text-[#043755]">
