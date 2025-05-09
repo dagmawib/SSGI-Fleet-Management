@@ -25,15 +25,28 @@ const formatDateTime = (dateTimeString) => {
 const DirectorDashboard = ({
   isDirector,
   requests,
+  loading,
   handleApprove,
   handleReject,
+  approvingRequests,
+  rejectingRequests,
+  rejectLoading,
+  approveLoading,
 }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [approveLoading, setApproveLoading] = useState(false);
-  const [rejectLoading, setRejectLoading] = useState(false);
   const t = useTranslations("vehicleRequest");
+
+  if (!isDirector) return null;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-32">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   const handleRejectClick = (request) => {
     setSelectedRequest(request);
@@ -44,22 +57,12 @@ const DirectorDashboard = ({
     if (!rejectionReason.trim()) {
       return; // Don't proceed if reason is empty
     }
-    setRejectLoading(true);
     try {
       await handleReject({ ...selectedRequest, rejection_reason: rejectionReason });
       setShowRejectModal(false);
       setRejectionReason("");
-    } finally {
-      setRejectLoading(false);
-    }
-  };
-
-  const handleApproveClick = async (request) => {
-    setApproveLoading(true);
-    try {
-      await handleApprove(request);
-    } finally {
-      setApproveLoading(false);
+    } catch (error) {
+      console.error('Error rejecting request:', error);
     }
   };
 
@@ -88,15 +91,15 @@ const DirectorDashboard = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleApproveClick(request);
+                          handleApprove(request);
                         }}
-                        disabled={approveLoading}
+                        disabled={approvingRequests[request.request_id]}
                         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center justify-center min-w-[100px]"
                       >
-                        {approveLoading ? (
+                        {approvingRequests[request.request_id] ? (
                           <CircularProgress size={20} color="inherit" />
                         ) : (
-                          "Approve"
+                          t("approve")
                         )}
                       </button>
                       <button
@@ -104,13 +107,13 @@ const DirectorDashboard = ({
                           e.stopPropagation();
                           handleRejectClick(request);
                         }}
-                        disabled={rejectLoading}
+                        disabled={rejectingRequests[request.request_id]}
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
                       >
-                        {rejectLoading ? (
+                        {rejectingRequests[request.request_id] ? (
                           <CircularProgress size={20} color="inherit" />
                         ) : (
-                          "Reject"
+                          t("reject")
                         )}
                       </button>
                     </div>
@@ -173,25 +176,25 @@ const DirectorDashboard = ({
 
                         <div className="flex flex-row justify-end gap-2 pt-4">
                           <button
-                            onClick={() => handleApproveClick(selectedRequest)}
-                            disabled={approveLoading}
+                            onClick={() => handleApprove(selectedRequest)}
+                            disabled={approvingRequests[selectedRequest.request_id]}
                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center justify-center min-w-[100px]"
                           >
-                            {approveLoading ? (
+                            {approvingRequests[selectedRequest.request_id] ? (
                               <CircularProgress size={20} color="inherit" />
                             ) : (
-                              "Approve"
+                              t("approve")
                             )}
                           </button>
                           <button
                             onClick={() => handleRejectClick(selectedRequest)}
-                            disabled={rejectLoading}
+                            disabled={rejectingRequests[selectedRequest.request_id]}
                             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
                           >
-                            {rejectLoading ? (
+                            {rejectingRequests[selectedRequest.request_id] ? (
                               <CircularProgress size={20} color="inherit" />
                             ) : (
-                              "Reject"
+                              t("reject")
                             )}
                           </button>
                         </div>

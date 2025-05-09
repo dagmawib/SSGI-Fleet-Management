@@ -39,6 +39,8 @@ export default function Page() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [addPassengerLoading, setAddPassengerLoading] = useState(false);
   const [removePassengerLoading, setRemovePassengerLoading] = useState(false);
+  const [approvingRequests, setApprovingRequests] = useState({});
+  const [rejectingRequests, setRejectingRequests] = useState({});
   const t = useTranslations("vehicleRequest");
 
   const fetchPendingRequests = useCallback(async () => {
@@ -74,6 +76,8 @@ export default function Page() {
 
   const handleApprove = async (request) => {
     try {
+      setApprovingRequests(prev => ({ ...prev, [request.request_id]: true }));
+
       const response = await fetch('/api/approve_request', {
         method: 'PATCH',
         headers: {
@@ -107,11 +111,15 @@ export default function Page() {
         pauseOnHover: true,
         draggable: true,
       });
+    } finally {
+      setApprovingRequests(prev => ({ ...prev, [request.request_id]: false }));
     }
   };
 
   const handleReject = async (request) => {
     try {
+      setRejectingRequests(prev => ({ ...prev, [request.request_id]: true }));
+
       const response = await fetch('/api/directoral_reject', {
         method: 'PATCH',
         headers: {
@@ -148,6 +156,8 @@ export default function Page() {
         pauseOnHover: true,
         draggable: true,
       });
+    } finally {
+      setRejectingRequests(prev => ({ ...prev, [request.request_id]: false }));
     }
   };
 
@@ -243,6 +253,8 @@ export default function Page() {
           loading={loading}
           handleApprove={handleApprove}
           handleReject={handleReject}
+          approvingRequests={approvingRequests}
+          rejectingRequests={rejectingRequests}
         />
       )}
       <ToastContainer />

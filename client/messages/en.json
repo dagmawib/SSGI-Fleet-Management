@@ -32,7 +32,19 @@
     "rejectError": "Error rejecting request",
     "approveError": "Error approving request",
     "rejectReason": "Reject Reason",
-    "rejectReasonPlaceholder": "Enter reject reason"
+    "rejectReasonPlaceholder": "Enter reject reason",
+    "requester": "Requester",
+    "duration": "Duration",
+    "reason": "Reason for Request",
+    "urgencyLevel": "Urgency Level",
+    "selectUrgencyLevel": "Select Urgency Level",
+    "passengers": "Name of Passengers",
+    "destination": "Destination",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveSuccess": "Request approved successfully",
+    "rejectSuccess": "Request rejected successfully",
+    "action": "Action"
   },
   "profile": {
     "title": "Account",
@@ -152,7 +164,11 @@
     "reject": "Reject",
     "assign": "Assign",
     "assignError": "Error assigning vehicle",
-    "assignSuccess": "Vehicle assigned successfully"
+    "assignSuccess": "Vehicle assigned successfully",
+    "showing":"Showing",
+    "previous":"Previous",
+    "next":"Next",
+    "of":"Of"
   },
   "vehicleTable": {
     "searchPlaceholder": "Search by license plate, make, model, or year",

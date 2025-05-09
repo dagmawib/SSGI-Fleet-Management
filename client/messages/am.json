@@ -123,10 +123,22 @@
     "status": "ሁኔታ",
     "statusLabels": {
       "pending": "በመጠባበቅ ላይ",
-      "approved": "የተፈቀደ",
-      "rejected": "የተተወ",
-      "assigned": "የተመደበ"
-    }
+      "approved": "ጸድቋል",
+      "rejected": "ተቀባይነት አላገኘም።",
+      "assigned": "ተመድቧል"
+    },
+    "reject": "ተቀባይ",
+    "assign": "ተመድቡ",
+    "assignError": "ተመድቡ አልተሳካም።",
+    "assignSuccess": "ተመድቡ በተሳካ ሁኔታ ገብቷል።",
+    "showing": "የሚያስመሰረት ጥያቄዎች",
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ",
+    "of": "ከ",
+    "clear": "አጽዳው።",
+    "searchPlaceholder": "በጠያቂ፣ በተሽከርካሪ ወይም በሁኔታ ፈለግ",
+    "comment": "መልስ",
+    "commentPlaceholder": "መልስ ያስገቡ"
   },
   "vehicleTable": {
     "licensePlate": "የመኪና ሰሌዳ ቁጥር",
@@ -145,7 +157,8 @@
     "statuses": {
       "available": "ዝግጁ",
       "maintenance": "በጥገና ላይ",
-      "out_of_service": "ከአገልግሎት ውጭ"
+      "out_of_service": "ከአገልግሎት ውጭ",
+      "in_use": "ጥቅም ላይ የዋለ"
     },
     "fuelTypes": {
       "petrol": "ፔትሮል",
@@ -156,7 +169,16 @@
     "driver": "ሹፌር",
     "notAssigned": "ሰራተኛ የሉም",
     "previous": "ቀዳሚ",
-    "next": "ቀጣይ"
+    "next": "ቀጣይ",
+    "of": "ከ",
+    "clear": "አጽዳው።",
+    "searchPlaceholder": "በሹፌር፣ በተሽከርካሪ ወይም በሁኔታ ፈለግ",
+    "comment": "መልስ",
+    "commentPlaceholder": "መልስ ያስገቡ",
+    "edit": "አርትዕ",
+    "remove": "አስወግድ",
+    "loading": "ተሽከርካሪዎች በመጫን ላይ...",
+    "page": "ገፅ"
   },
   "assignModal": {
     "title": "መኪናን ለጥያቄ መመደብ",
@@ -169,7 +191,17 @@
     "selectPlaceholder": "-- ይምረጡ --",
     "cancel": "መተው",
     "reject": "መትቀል",
-    "assign": "መመደብ"
+    "assign": "መመደብ",
+    "assignedTitle": "ተመድቡ በተሳካ ሁኔታ ገብቷል።",
+    "assignedError": "ተመድቡ አልተሳካም።",
+    "assignedSuccess": "ተመድቡ በተሳካ ሁኔታ ገብቷል።",
+    "comment": "መልስ",
+    "commentPlaceholder": "መልስ ያስገቡ",
+    "rejectTitle": "ተትቀል በተሳካ ሁኔታ ገብቷል።",
+    "rejectError": "ተትቀል አልተሳካም።",
+    "rejectSuccess": "ተትቀል በተሳካ ሁኔታ ገብቷል።",
+    "assignConfirmation": "እርግጠኛ ነዎት ይህን ተሽከርካሪ ለዚህ ጥያቄ መመደብ ይፈልጋሉ?",
+    "rejectConfirmation": "እርግጠኛ ነዎት ይህን ጥያቄ ውድቅ ማድረግ ይፈልጋሉ?"
   },
   "AdminNavbar": {
     "request": "ጥያቄዎች",

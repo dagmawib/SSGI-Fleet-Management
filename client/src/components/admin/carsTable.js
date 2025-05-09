@@ -13,6 +13,14 @@ const statusColors = {
   out_of_service: "text-red-600 font-semibold text-xl",
 };
 
+const capitalizeFirstLetters = (str) => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export default function CarsTable() {
   const t = useTranslations("vehicleTable");
   const [cars, setCars] = useState([]);
@@ -174,19 +182,19 @@ export default function CarsTable() {
               >
                 <td className="px-4 py-2">{startIndex + index + 1}</td>
                 <td className="px-4 py-2">{car.license_plate}</td>
-                <td className="px-4 py-2">{car.make}</td>
-                <td className="px-4 py-2">{car.model}</td>
+                <td className="px-4 py-2">{capitalizeFirstLetters(car.make)}</td>
+                <td className="px-4 py-2">{capitalizeFirstLetters(car.model)}</td>
                 <td className="px-4 py-2">{car.year}</td>
-                <td className="px-4 py-2">{car.color}</td>
+                <td className="px-4 py-2">{capitalizeFirstLetters(car.color)}</td>
                 <td className="px-4 py-2">{car.capacity}</td>
                 <td className="px-4 py-2">{car.current_mileage}</td>
                 <td className="px-4 py-2">{car.last_service_date}</td>
                 <td className="px-4 py-2">{car.next_service_mileage}</td>
-                <td className="px-4 py-2">{t(`fuelTypes.${car.fuel_type}`)}</td>
+                <td className="px-4 py-2">{capitalizeFirstLetters(t(`fuelTypes.${car.fuel_type}`))}</td>
                 <td className="px-4 py-2">{car.fuel_efficiency}</td>
                 <td className="px-4 py-2">
                   <span className={`${!car.assigned_driver?.first_name ? "text-gray-500" : ""}`}>
-                    {car.assigned_driver?.first_name || t("notAssigned")}
+                    {capitalizeFirstLetters(car.assigned_driver?.first_name) || t("notAssigned")}
                   </span>
                 </td>
                 <td className="px-4 py-2">
