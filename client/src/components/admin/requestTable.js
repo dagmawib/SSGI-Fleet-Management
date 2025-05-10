@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CircularProgress from "@mui/material/CircularProgress";
 import { Skeleton } from "@/components/ui/skeleton";
+import useSWR from "swr";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -22,57 +23,28 @@ const capitalizeFirstLetters = (str) => {
     .join(' ');
 };
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function RequestTable() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedCarId, setSelectedCarId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [assignLoading, setAssignLoading] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const { data: requests = [], isLoading, error, mutate } = useSWR("/api/admin/requests", fetcher);
 
   const t = useTranslations("RequestTable");
-
-  const fetchRequests = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/admin/requests');
-      if (!response.ok) {
-        throw new Error('Failed to fetch requests');
-      }
-      const data = await response.json();
-      setRequests(data || []);
-    } catch (error) {
-      console.error('Error fetching requests:', error);
-      toast.error(t("fetchError"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    fetchRequests();
-  }, [fetchRequests]);
-
-
 
   const handleAssign = async (requestId, vehicleId) => {
     setAssignLoading(true);
     try {
       // Refresh the requests list after successful assignment
-      await fetchRequests();
+      await mutate();
       toast.success(t("assignmentSuccess"), {
         position: "top-right",
         autoClose: 5000,
@@ -111,7 +83,7 @@ export default function RequestTable() {
       }
 
       // Refresh the requests list after successful rejection
-      await fetchRequests();
+     await mutate();
 
       toast.success(t("rejectionSuccess"), {
         position: "top-right",
@@ -176,7 +148,7 @@ export default function RequestTable() {
 
 
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4 p-4">
         {[...Array(5)].map((_, i) => (

@@ -71,9 +71,9 @@ const DirectorDashboard = ({
       {isDirector && (
         <div className="mb-6">
           {/* Incoming Requests */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {requests.map((request, index) => (
-              <Dialog key={index}>
+              <Dialog key={index} >
                 <DialogTrigger asChild>
                   <div
                     onClick={() => setSelectedRequest(request)}

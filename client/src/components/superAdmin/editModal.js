@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 
-export default function EditUserModal({ isOpen, onClose, user, onSave }) {
+export default function EditUserModal({ isOpen, onClose, user, onSave, departments }) {
   const t = useTranslations("editModal");
 
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         phone_number: user.phone_number || "",
-        department: user.department?.name || "",
+        department: user.department?.id || "",
         is_active: user.is_active || false,
       });
     }
@@ -72,12 +72,21 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
             value={formData.phone_number}
             onChange={handleChange}
           />
-          <Field
-            id="department"
-            label={t("department")}
+          <label className="text-black">Department</label>
+          <select
             value={formData.department}
-            onChange={handleChange}
-          />
+            onChange={(e) =>
+              setFormData({ ...formData, department: parseInt(e.target.value) })
+            }
+            className="w-full border px-3 py-2 rounded text-black"
+          >
+            <option value="">Select Department</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
