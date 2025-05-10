@@ -1,86 +1,43 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-} from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
-import WorldFlag from "react-world-flags";
-import { setCookie } from "cookies-next";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const [hasUpcomingRequest, setHasUpcomingRequest] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [kmBefore, setKmBefore] = useState("");
   const [kmAfter, setKmAfter] = useState("");
-  const [upcomingRequest, setUpcomingRequest] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [tripId, setTripId] = useState(null);
-  const [completedTrips, setCompletedTrips] = useState([]);
-  const [completedTripsLoading, setCompletedTripsLoading] = useState(true);
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [declineLoading, setDeclineLoading] = useState(false);
   const t = useTranslations("driverDashboard");
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await fetch('/api/driver/get_requests');
-        if (!response.ok) {
-          throw new Error('Failed to fetch requests');
-        }
-        const data = await response.json();
+  const {
+    data: upcomingRequest,
+    error: requestError,
+    isLoading: loading,
+  } = useSWR("/api/driver/get_requests", fetcher);
+  const hasUpcomingRequest =
+    upcomingRequest && Array.isArray(upcomingRequest)
+      ? upcomingRequest.length > 0
+      : !!upcomingRequest;
 
-        // Check if data is empty array
-        if (Array.isArray(data) && data.length === 0) {
-          setHasUpcomingRequest(false);
-          setUpcomingRequest(null);
-        } else {
-          setUpcomingRequest(data);
-          setHasUpcomingRequest(true);
-        }
-      } catch (error) {
-        console.error('Error fetching requests:', error);
-        setHasUpcomingRequest(false);
-        setUpcomingRequest(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRequests();
-  }, []);
-
-  useEffect(() => {
-    const fetchCompletedTrips = async () => {
-      setCompletedTripsLoading(true);
-      try {
-        const response = await fetch('/api/driver/completed_trips');
-        if (!response.ok) {
-          throw new Error('Failed to fetch completed trips');
-        }
-        const data = await response.json();
-        console.log("data", data?.trips);
-        setCompletedTrips(data?.trips);
-      } catch (error) {
-        console.error('Error fetching completed trips:', error);
-      } finally {
-        setCompletedTripsLoading(false);
-      }
-    };
-
-    fetchCompletedTrips();
-  }, []);
+  const {
+    data: completedTripsData,
+    error: completedTripsError,
+    isLoading: completedTripsLoading,
+    mutate: refetchCompletedTrips,
+  } = useSWR("/api/driver/completed_trips", fetcher);
+  const completedTrips = completedTripsData?.trips || [];
 
   const handleAccept = async () => {
     if (!kmBefore) {
@@ -90,20 +47,20 @@ export default function Page() {
 
     setAcceptLoading(true);
     try {
-      const response = await fetch('/api/driver/accept_requests', {
-        method: 'POST',
+      const response = await fetch("/api/driver/accept_requests", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           assignment_id: upcomingRequest.assignment_id,
-          start_mileage: parseFloat(kmBefore)
-        })
+          start_mileage: parseFloat(kmBefore),
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to accept request');
+        throw new Error(errorData.error || "Failed to accept request");
       }
 
       const data = await response.json();
@@ -111,8 +68,8 @@ export default function Page() {
       setAccepted(true);
       toast.success("Request accepted successfully!");
     } catch (error) {
-      console.error('Error accepting request:', error);
-      toast.error(error.message || 'Failed to accept request');
+      console.error("Error accepting request:", error);
+      toast.error(error.message || "Failed to accept request");
     } finally {
       setAcceptLoading(false);
     }
@@ -123,26 +80,23 @@ export default function Page() {
       toast.error("Please enter a reason for declining the request");
       return;
     }
-
     setDeclineLoading(true);
     try {
-      const response = await fetch('/api/driver/decline_request', {
-        method: 'POST',
+      const response = await fetch("/api/driver/decline_request", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           assignment_id: upcomingRequest.assignment_id,
-          rejection_reason: rejectionReason
-        })
+          rejection_reason: rejectionReason,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to decline request');
+        throw new Error(errorData.error || "Failed to decline request");
       }
-
-      setHasUpcomingRequest(false);
       setAccepted(false);
       setKmBefore("");
       setKmAfter("");
@@ -150,8 +104,8 @@ export default function Page() {
       setRejectionReason("");
       toast.success("Request declined successfully!");
     } catch (error) {
-      console.error('Error declining request:', error);
-      toast.error(error.message || 'Failed to decline request');
+      console.error("Error declining request:", error);
+      toast.error(error.message || "Failed to decline request");
     } finally {
       setDeclineLoading(false);
     }
@@ -170,20 +124,20 @@ export default function Page() {
 
     setSubmitLoading(true);
     try {
-      const response = await fetch('/api/driver/complete_trip', {
-        method: 'PATCH',
+      const response = await fetch("/api/driver/complete_trip", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           trip_id: tripId,
-          end_mileage: parseFloat(kmAfter)
-        })
+          end_mileage: parseFloat(kmAfter),
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit trip');
+        throw new Error(errorData.error || "Failed to submit trip");
       }
 
       setSubmitted(true);
@@ -193,10 +147,10 @@ export default function Page() {
       setTripId(null);
       toast.success("Trip completed successfully!");
 
-      await fetchCompletedTrips();
+     await refetchCompletedTrips();
     } catch (error) {
-      console.error('Error submitting trip:', error);
-      toast.error(error.message || 'Failed to submit trip');
+      console.error("Error submitting trip:", error);
+      toast.error(error.message || "Failed to submit trip");
     } finally {
       setSubmitLoading(false);
     }
@@ -337,7 +291,10 @@ export default function Page() {
 
       {/* Decline Modal */}
       {showDeclineModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}>
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 px-4"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
+        >
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-xl font-semibold text-[#043755] mb-4">
               {t("declineRequest")}
@@ -394,27 +351,59 @@ export default function Page() {
             <table className="min-w-full bg-white border border-gray-200">
               <thead className="bg-[#043755] text-white">
                 <tr>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("pickup")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("destination")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("purpose")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("passengers")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("startMileage")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("endMileage")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("requester")}</th>
-                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">{t("requesterPhone")}</th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("pickup")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("destination")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("purpose")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("passengers")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("startMileage")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("endMileage")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("requester")}
+                  </th>
+                  <th className="px-3 py-3 text-left text-sm font-normal uppercase tracking-wider">
+                    {t("requesterPhone")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {completedTrips.map((trip, index) => (
                   <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.trip_details?.pickup}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.trip_details?.destination}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.purpose}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.passengers}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.trip_details?.start_mileage}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.trip_details?.end_mileage}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.requester?.name}</td>
-                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">{trip.requester?.phone}</td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.trip_details?.pickup}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.trip_details?.destination}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.purpose}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.passengers}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.trip_details?.start_mileage}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.trip_details?.end_mileage}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.requester?.name}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap text-sm text-[#043755]">
+                      {trip.requester?.phone}
+                    </td>
                   </tr>
                 ))}
               </tbody>

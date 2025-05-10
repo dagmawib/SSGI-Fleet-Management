@@ -168,7 +168,8 @@
     "showing":"Showing",
     "previous":"Previous",
     "next":"Next",
-    "of":"Of"
+    "of":"Of",
+    "assignmentSuccess": "Vehicle assigned successfully"
   },
   "vehicleTable": {
     "searchPlaceholder": "Search by license plate, make, model, or year",
