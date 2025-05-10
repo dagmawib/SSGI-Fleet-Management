@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from vehicles.models import Vehicle
 from datetime import datetime, time, timedelta
+from vehicles.tasks import update_pool_cars
 
 
 class Command(BaseCommand):
@@ -9,13 +10,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         now = timezone.localtime()  # Uses Django TIME_ZONE
-        updated = Vehicle.objects.filter(
-            category=Vehicle.Category.POOL,
-            status=Vehicle.Status.IN_USE
-        ).update(status=Vehicle.Status.AVAILABLE)
-
+        print(f'[{now}] Starting pool cars update...')
+        updated = update_pool_cars()
         self.stdout.write(
             self.style.SUCCESS(
                 f'[{now}] Successfully updated {updated} pool cars from in_use to available.'
             )
-        ) 
+        )

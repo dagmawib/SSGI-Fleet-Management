@@ -12,8 +12,25 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+# Install cron
+RUN apt-get update && apt-get install -y cron
+
+# Set timezone to Africa/Nairobi
+RUN apt-get update && apt-get install -y tzdata \
+    && ln -fs /usr/share/zoneinfo/Africa/Nairobi /etc/localtime \
+    && dpkg-reconfigure -f noninteractive tzdata
+ENV TZ=Africa/Nairobi
+
 # Copy project files
 COPY . /app/
+
+# Copy crontab file and install it as user crontab
+COPY crontab.txt /crontab.txt
+RUN crontab /crontab.txt
+
+# Copy start.sh and make it executable
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Set workdir to Django project root for collectstatic
 WORKDIR /app/ssgi_fleet_api
@@ -25,5 +42,5 @@ WORKDIR /app
 # Expose port (default for Django)
 EXPOSE 8000
 
-# Start server
-CMD ["gunicorn", "ssgi_fleet_api.wsgi:application", "--chdir", "ssgi_fleet_api", "--bind", "0.0.0.0:8000"]
+# Start both cron and gunicorn using start.sh
+ENTRYPOINT ["/start.sh"]

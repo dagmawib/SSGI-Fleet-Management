@@ -13,30 +13,8 @@ services:
       - "8000:8000"
     depends_on:
       - frontend
-      - redis
     restart: unless-stopped
 
-  djangoq:
-    build:
-      context: ./server
-    container_name: ssgi_djangoq
-    command: python manage.py qcluster
-    working_dir: /app/ssgi_fleet_api
-    env_file:
-      - ./server/.env
-    environment:
-      - DJANGO_SETTINGS_MODULE=ssgi_fleet_api.settings
-    depends_on:
-      - redis
-      - backend
-    restart: unless-stopped
-
-  redis:
-    image: redis:7
-    container_name: ssgi_redis
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
 
   frontend:
     build:

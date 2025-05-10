@@ -1,0 +1,2 @@
+40 8 * * * cd /app/ssgi_fleet_api && /usr/local/bin/python manage.py update_pool_cars >> /cron.log 2>&1
+40 8 * * * echo "cron ran at $(date)" >> /cron.log
