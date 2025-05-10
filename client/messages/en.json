@@ -61,9 +61,9 @@
     "status": "Account Status",
     "active": "Active",
     "inactive": "Inactive",
-    "updatePassword":"Update Password",
+    "updatePassword": "Update Password",
     "password": "New Password",
-    "oldPassword":"Old Password",
+    "oldPassword": "Old Password",
     "update": "Update profile",
     "profileLoaded": "Profile loaded successfully",
     "errorLoadingProfile": "Error loading profile",
@@ -165,10 +165,10 @@
     "assign": "Assign",
     "assignError": "Error assigning vehicle",
     "assignSuccess": "Vehicle assigned successfully",
-    "showing":"Showing",
-    "previous":"Previous",
-    "next":"Next",
-    "of":"Of",
+    "showing": "Showing",
+    "previous": "Previous",
+    "next": "Next",
+    "of": "Of",
     "assignmentSuccess": "Vehicle assigned successfully"
   },
   "vehicleTable": {
@@ -311,7 +311,7 @@
     "page": "Page",
     "of": "of"
   },
-  "editModal":{
+  "editModal": {
     "editUser": "Edit User",
     "username": "Username",
     "email": "Email",
@@ -324,13 +324,19 @@
     "cancel": "Cancel",
     "save": "Save"
   },
-  "removeModal":{
+  "removeModal": {
     "confirmDeletion": "Confirm Deletion",
     "confirmMessage": "Are you sure you want to remove this user?",
     "cancel": "Cancel",
     "delete": "Delete"
   },
   "car": {
+    "category": "Category",
+    "selectCategory": "Select Category",
+    "categoryOptions": {
+      "field": "Field",
+      "pool": "Pool"
+    },
     "title": "Add New Car",
     "selectDriver": "Select Driver",
     "selectDepartment": "Select Department",
@@ -348,7 +354,7 @@
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
     "status": "Status",
-    "department":"Department",
+    "department": "Department",
     "statusOptions": {
       "available": "Available",
       "inMaintenance": "In Maintenance",
