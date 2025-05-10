@@ -13,7 +13,7 @@ from django.db import transaction
 
 
 from .permissions import IsSuperAdmin
-from ssgi_fleet_api.users.models import User, Department
+from users.models import User, Department
 from .serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
@@ -116,7 +116,7 @@ class UserListView(generics.ListCreateAPIView):
     """
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperAdmin]
-    queryset = User.objects.select_related('department').order_by('-date_joined')
+    queryset = User.objects.select_related('department').order_by('-date_joined').filter(is_active=True)
     filterset_fields = ['department', 'role']
     search_fields = ['email', 'first_name', 'last_name']
 
@@ -133,12 +133,10 @@ class UserListView(generics.ListCreateAPIView):
         queryset = super().get_queryset()
         department_id = self.request.query_params.get('department_id')
         role = self.request.query_params.get('role')
-        
         if department_id:
             queryset = queryset.filter(department_id=department_id)
         if role:
             queryset = queryset.filter(role=role)
-            
         return queryset
 
 

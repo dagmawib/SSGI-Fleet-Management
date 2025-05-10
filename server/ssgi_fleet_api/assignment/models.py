@@ -1,8 +1,8 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from ssgi_fleet_api.request.models import Vehicle_Request
-from ssgi_fleet_api.users.models import User
-from ssgi_fleet_api.vehicles.models import Vehicle
+from request.models import Vehicle_Request
+from users.models import User
+from vehicles.models import Vehicle
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 # Create your models here.

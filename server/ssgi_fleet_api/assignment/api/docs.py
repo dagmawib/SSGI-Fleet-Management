@@ -20,9 +20,9 @@ from drf_spectacular.utils import (
 
 # App model imports
 from ..models import Vehicle_Assignment
-from ssgi_fleet_api.vehicles.models import Vehicle
-from ssgi_fleet_api.request.models import Vehicle_Request 
-from ssgi_fleet_api.users.models import User
+from vehicles.models import Vehicle
+from request.models import Vehicle_Request 
+from users.models import User
 
 # Permission imports
 from .permissions import IsAdminOrSuperAdmin

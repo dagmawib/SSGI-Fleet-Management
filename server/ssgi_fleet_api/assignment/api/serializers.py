@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from ..models import Vehicle_Assignment, Trips
-from ssgi_fleet_api.request.models import Vehicle_Request
-from ssgi_fleet_api.users.models import User
-from ssgi_fleet_api.vehicles.models import Vehicle
+from request.models import Vehicle_Request
+from users.models import User
+from vehicles.models import Vehicle
 from django.utils import timezone
 from django.db import transaction
 from django.core.exceptions import ValidationError

@@ -7,7 +7,7 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResp
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
-from ssgi_fleet_api.vehicles.models import Vehicle
+from vehicles.models import Vehicle
 from .serializers import VehicleSerializer
 from .permissions import IsAdminOrSuperAdmin
 from .docs import (
@@ -16,8 +16,8 @@ from .docs import (
     vehicle_retrieve_docs,
     vehicle_update_docs
 )
-from ssgi_fleet_api.users.models import User
-from ssgi_fleet_api.users.api.serializers import UserSerializer
+from users.models import User
+from users.api.serializers import UserSerializer
 
 @extend_schema_view(post=vehicle_create_docs)
 class AddVehicleView(generics.CreateAPIView):

@@ -31,22 +31,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ssgi_fleet_api.users',    # Custom user app
-    'ssgi_fleet_api.vehicles', # Vehicle management app
+    'users',    # Custom user app
+    'vehicles', # Vehicle management app
     'rest_framework',##for JWT authentication
     'rest_framework_simplejwt',#for JWT authentication
     'rest_framework_simplejwt.token_blacklist', #for JWT authentication
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_filters',
-    'ssgi_fleet_api.request',
-    'ssgi_fleet_api.assignment'
+    'request',
+    'assignment'
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,7 +80,7 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-ROOT_URLCONF = 'ssgi_fleet_api.ssgi_fleet_api.urls'
+ROOT_URLCONF = 'ssgi_fleet_api.urls'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -154,6 +155,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
