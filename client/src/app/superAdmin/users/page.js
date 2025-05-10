@@ -122,7 +122,7 @@ export default function SuperAdminUsersPage() {
                   {t("lastName")}
                 </th>
                 <th className="px-4 py-2 text-left font-semibold border-b">
-                  Departemtn
+                  {t("department")}
                 </th>
                 <th className="px-4 py-2 text-left font-semibold border-b">
                   {t("role")}

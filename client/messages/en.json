@@ -11,6 +11,9 @@
     "title": "Vehicle Request",
     "description": "Please fill out the form below to request a vehicle.",
     "pickupLocation": "Pickup Location",
+    "pickupLocationPlaceholder": "Enter pickup location",
+    "destinationPlaceholder": "Enter destination",
+    "reasonPlaceholder": "Enter reason for request",
     "dropoffLocation": "Drop-off Location",
     "Duration": "Duration",
     "startDateTime": "Start Date and Time",
@@ -82,7 +85,8 @@
     "email": "Email",
     "phone": "Phone number",
     "message": "Message",
-    "send": "Send message"
+    "send": "Send message",
+    "sending": "Sending..."
   },
   "history": {
     "title": "Request Tracking",
@@ -301,6 +305,7 @@
     "email": "Email",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "department": "Department",
     "role": "Role",
     "action": "Action",
     "edit": "Edit",
@@ -375,5 +380,23 @@
     "fuelEfficiencyValidationError": "Invalid fuel efficiency format. Please enter a valid number.",
     "currentMileageValidationError": "Invalid current mileage format. Please enter a valid number.",
     "nextMaintenanceMileageValidationError": "Invalid next maintenance mileage format. Please enter a valid number."
+  },
+  "director": {
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "requester": "Requester",
+    "reason": "Reason",
+    "urgency": "Urgency",
+    "approve": "Approve",
+    "reject": "Reject",
+    "requestDetails": "Request Details",
+    "confirmRejection": "Confirm Rejection",
+    "areYouSureReject": "Are you sure you want to reject this request?",
+    "rejectionReason": "Rejection Reason",
+    "placeholderReason": "Enter reason for rejection",
+    "cancel": "Cancel",
+    "confirmReject": "Confirm Reject"
   }
 }
