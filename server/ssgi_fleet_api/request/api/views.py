@@ -48,6 +48,8 @@ class RequestCreateAPIView(APIView):
             department_approver=request.user if is_director else None,
             department_approval=is_director
         )
+        passenger_count = serializer.validated_data.get('passenger_count', 0)
+        passenger_names = serializer.validated_data.get('passenger_names', [])
 
         return Response(
             {
@@ -142,9 +144,6 @@ class RequestApproveAPI(APIView):
         # Get the department where the request.user is the director
         try:
             director_dept = Department.objects.get(director=request.user)
-            print(f'director department : {director_dept}')
-            print(f'director department id : {director_dept.id}')
-            print(f'name of director : {director_dept.director}')
 
         except Department.DoesNotExist:
             return Response(
@@ -309,7 +308,6 @@ class DepartmentListWithDirectorsView(APIView):
                 to_attr='directors'
             )
         )
-        
         # Serialize the data
         serializer = DepartmentListSerializer(departments, many=True)
         
