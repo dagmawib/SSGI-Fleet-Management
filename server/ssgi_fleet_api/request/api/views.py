@@ -32,17 +32,11 @@ class RequestCreateAPIView(APIView):
     @request_create_docs
     def post(self, request):
         serializer = RequestSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        
-        passenger_count = serializer.validated_data.get('passenger_count', 0)
-        passenger_names = serializer.validated_data.get('passenger_names', [])
-        
-        if passenger_names and len(passenger_names) != passenger_count:
-            return Response(
-                {"error": "Passenger names count must match passenger_count"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+       
         is_director = hasattr(request.user, 'role') and request.user.role == User.Role.DIRECTOR
         requester = User.objects.get(
             pk =request.user.id
