@@ -38,9 +38,13 @@ class RequestCreateAPIView(APIView):
 
        
         is_director = hasattr(request.user, 'role') and request.user.role == User.Role.DIRECTOR
+        print(f"User role: {getattr(request.user, 'role', 'NONE')}")
+        print(f"Is director: {is_director}")
+        print(f"Status to set: {'APPROVED' if is_director else 'PENDING'}")
         requester = User.objects.get(
             pk =request.user.id
         )
+        print(f'requester : {requester}')
         
         vehicle_request = serializer.save(
             requester=request.user,

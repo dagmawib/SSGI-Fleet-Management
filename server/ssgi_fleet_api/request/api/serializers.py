@@ -146,7 +146,7 @@ class RequestSerializer(serializers.ModelSerializer):
         """Auto-set requester and status when creating"""
 
         validated_data['requester'] = self.context['request'].user
-        validated_data['status'] = Vehicle_Request.Status.PENDING
+        
 
         return super().create(validated_data)
 
