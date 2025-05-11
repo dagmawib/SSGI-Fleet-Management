@@ -16,6 +16,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import status
 
 
 User = get_user_model()
@@ -33,26 +34,47 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             authenticate_kwargs["request"] = self.context["request"]
         except KeyError:
             pass
+        try:
 
-        self.user = authenticate(**authenticate_kwargs)
+            self.user = authenticate(**authenticate_kwargs)
 
-        if not self.user:
+            if not self.user:
+                return {
+                    "status": False,
+                    "error": "authentication_failed",
+                    "message": "you have entered an invalid credentials",
+                    "status_code": 401
+                }
+            
+            if not self.user.is_active:
+                return {
+                    "status": False,
+                    "error": "account_inactive", 
+                    "message": "User account is disabled",
+                    "status_code": status.HTTP_401_UNAUTHORIZED
+                }
+            
+                # Generate tokens manually
+            refresh = RefreshToken.for_user(self.user)
+            access = refresh.access_token
+
+            # Build custom response
+            return {
+                "token": str(access),
+                "refresh": str(refresh),
+                "user_id": self.user.id,
+                "role": self.user.role,
+            }   
+        except Exception as e:
             raise serializers.ValidationError(
-                "No active account found with the given credentials"
+                {
+                    "error": "authentication_error",
+                    "detail": str(e),
+                    "status_code": 500
+                }
             )
 
-        # Generate tokens manually
-        refresh = RefreshToken.for_user(self.user)
-        access = refresh.access_token
-
-        # Build custom response
-        return {
-            "token": str(access),
-            "refresh": str(refresh),
-            "user_id": self.user.id,
-            "role": self.user.role,
-        }
-
+       
 
 class DepartmentDirectorSerializer(serializers.ModelSerializer):
     class Meta:
