@@ -141,7 +141,7 @@ export default function CarsTable() {
               <th className="px-4 py-2 text-left">{t("make")}</th>
               <th className="px-4 py-2 text-left">{t("model")}</th>
               <th className="px-4 py-2 text-left">{t("year")}</th>
-              <th className="px-4 py-2 text-left">{t("color")}</th>
+              <th className="px-4 py-2 text-left">{t("category")}</th>
               <th className="px-4 py-2 text-left">{t("capacity")}</th>
               <th className="px-4 py-2 text-left">{t("currentMileage")}</th>
               <th className="px-4 py-2 text-left">{t("lastMaintenance")}</th>
@@ -170,7 +170,7 @@ export default function CarsTable() {
                 </td>
                 <td className="px-4 py-2">{car.year}</td>
                 <td className="px-4 py-2">
-                  {capitalizeFirstLetters(car.color)}
+                  {capitalizeFirstLetters(car.category)}
                 </td>
                 <td className="px-4 py-2">{car.capacity}</td>
                 <td className="px-4 py-2">{car.current_mileage}</td>

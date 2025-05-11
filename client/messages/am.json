@@ -155,7 +155,7 @@
     "make": "አምራች",
     "model": "ሞዴል",
     "year": "ዓመት",
-    "color": "ቀለም",
+    "category": "ምድብ",
     "type": "አይነት",
     "capacity": "የመቀመጫ ችሎታ",
     "currentMileage": "አሁን ያለው ማይሌጅ",
@@ -200,7 +200,7 @@
     "selectVehicleLabel": "መኪና ይምረጡ",
     "selectPlaceholder": "-- ይምረጡ --",
     "cancel": "መተው",
-    "reject": "መትቀል",
+    "reject": "አስወግድ",
     "assign": "መመደብ",
     "assignedTitle": "ተመድቡ በተሳካ ሁኔታ ገብቷል።",
     "assignedError": "ተመድቡ አልተሳካም።",
@@ -211,7 +211,9 @@
     "rejectError": "ተትቀል አልተሳካም።",
     "rejectSuccess": "ተትቀል በተሳካ ሁኔታ ገብቷል።",
     "assignConfirmation": "እርግጠኛ ነዎት ይህን ተሽከርካሪ ለዚህ ጥያቄ መመደብ ይፈልጋሉ?",
-    "rejectConfirmation": "እርግጠኛ ነዎት ይህን ጥያቄ ውድቅ ማድረግ ይፈልጋሉ?"
+    "rejectConfirmation": "እርግጠኛ ነዎት ይህን ጥያቄ ውድቅ ማድረግ ይፈልጋሉ?",
+    "rejectReason": "ያለመቀበል ምክንያት",
+    "rejectReasonPlaceholder": "ምክንያቶትን እዚህ ያስገቡ"
   },
   "AdminNavbar": {
     "request": "ጥያቄዎች",
