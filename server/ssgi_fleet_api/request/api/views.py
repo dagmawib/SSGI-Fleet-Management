@@ -32,17 +32,11 @@ class RequestCreateAPIView(APIView):
     @request_create_docs
     def post(self, request):
         serializer = RequestSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        
-        passenger_count = serializer.validated_data.get('passenger_count', 0)
-        passenger_names = serializer.validated_data.get('passenger_names', [])
-        
-        if passenger_names and len(passenger_names) != passenger_count:
-            return Response(
-                {"error": "Passenger names count must match passenger_count"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+       
         is_director = hasattr(request.user, 'role') and request.user.role == User.Role.DIRECTOR
         requester = User.objects.get(
             pk =request.user.id
@@ -54,6 +48,8 @@ class RequestCreateAPIView(APIView):
             department_approver=request.user if is_director else None,
             department_approval=is_director
         )
+        passenger_count = serializer.validated_data.get('passenger_count', 0)
+        passenger_names = serializer.validated_data.get('passenger_names', [])
 
         return Response(
             {
@@ -148,9 +144,6 @@ class RequestApproveAPI(APIView):
         # Get the department where the request.user is the director
         try:
             director_dept = Department.objects.get(director=request.user)
-            print(f'director department : {director_dept}')
-            print(f'director department id : {director_dept.id}')
-            print(f'name of director : {director_dept.director}')
 
         except Department.DoesNotExist:
             return Response(
@@ -315,7 +308,6 @@ class DepartmentListWithDirectorsView(APIView):
                 to_attr='directors'
             )
         )
-        
         # Serialize the data
         serializer = DepartmentListSerializer(departments, many=True)
         
