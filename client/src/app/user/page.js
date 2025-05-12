@@ -281,7 +281,7 @@ export default function Page() {
                 {...register("pickupLocation")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter pickup location"
+                placeholder={t("pickupLocationPlaceholder")}
               />
               {errors.pickupLocation && (
                 <p className="text-red-500 text-sm mt-1">
@@ -300,7 +300,7 @@ export default function Page() {
                 {...register("destination")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter destination"
+                placeholder={t("destinationPlaceholder")}
               />
               {errors.destination && (
                 <p className="text-red-500 text-sm mt-1">
@@ -422,7 +422,7 @@ export default function Page() {
                 {...register("reason")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
-                placeholder="Enter reason"
+                placeholder={t("reasonPlaceholder")}
               />
               {errors.reason && (
                 <p className="text-red-500 text-sm mt-1">

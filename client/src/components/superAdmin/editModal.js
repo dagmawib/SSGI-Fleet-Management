@@ -72,7 +72,7 @@ export default function EditUserModal({ isOpen, onClose, user, onSave, departmen
             value={formData.phone_number}
             onChange={handleChange}
           />
-          <label className="text-black">Department</label>
+          <label className="text-black">{t("department")}</label>
           <select
             value={formData.department}
             onChange={(e) =>
