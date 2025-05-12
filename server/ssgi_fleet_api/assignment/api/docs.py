@@ -1,13 +1,13 @@
 # Django imports
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
+# Removed unused import: from django.shortcuts import get_object_or_404
+# Removed unused import: from django.utils import timezone
 
 # DRF imports
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
+# Removed unused import: from rest_framework.views import APIView
+# Removed unused import: from rest_framework.response import Response
+# Removed unused import: from rest_framework import status
+# Removed unused import: from rest_framework import serializers
+# Removed unused import: from rest_framework.permissions import IsAuthenticated
 
 # Documentation imports
 from drf_spectacular.utils import (
@@ -19,13 +19,13 @@ from drf_spectacular.utils import (
 )
 
 # App model imports
-from ..models import Vehicle_Assignment
-from vehicles.models import Vehicle
+# Removed unused import: from ..models import Vehicle_Assignment
+# Removed unused import: from vehicles.models import Vehicle
 from request.models import Vehicle_Request 
-from users.models import User
+# Removed unused import: from users.models import User
 
 # Permission imports
-from .permissions import IsAdminOrSuperAdmin
+# Removed unused import: from .permissions import IsAdminOrSuperAdmin
 
 # Local serializer imports
 from .serializers import AcceptAssignmentSerializer, AssignCarSerializer \
@@ -274,13 +274,13 @@ Allows drivers to decline a pending vehicle assignment by providing:
             examples=[
                 OpenApiExample(
                     "Missing Reason",
-                    value={"rejection_reason": ["This field is required."]}
+                    value={"rejection_reason": ["This field is required."]},
                 ),
                 OpenApiExample(
                     "Already Processed",
-                    value={"error": "Assignment already processed"}
-                )
-            ]
+                    value={"error": "Assignment already processed"},
+                ),
+            ],
         ),
         401: OpenApiResponse(description="Unauthorized - Invalid/missing token"),
         403: OpenApiResponse(
@@ -288,25 +288,25 @@ Allows drivers to decline a pending vehicle assignment by providing:
             examples=[
                 OpenApiExample(
                     "Wrong Driver",
-                    value={"error": "Only the assigned driver can decline this assignment"}
+                    value={"error": "Only the assigned driver can decline this assignment"},
                 )
-            ]
+            ],
         ),
         404: OpenApiResponse(
             description="Not Found",
             examples=[
                 OpenApiExample(
                     "Invalid Assignment",
-                    value={"error": "No pending assignment found with this ID"}
+                    value={"error": "No pending assignment found with this ID"},
                 )
-            ]
-        )
+            ],
+        ),
     },
     examples=[
         OpenApiExample(
             "Decline Request Example",
             value={"rejection_reason": "Vehicle maintenance required"},
-            request_only=True
+            request_only=True,
         )
     ],
     parameters=[
@@ -314,18 +314,18 @@ Allows drivers to decline a pending vehicle assignment by providing:
             name="assignment_id",
             type=OpenApiTypes.INT,
             location=OpenApiParameter.PATH,
-            description="ID of the assignment to decline"
+            description="ID of the assignment to decline",
         ),
         OpenApiParameter(
             name="Authorization",
             type=OpenApiTypes.STR,
             location=OpenApiParameter.HEADER,
             description="Bearer token",
-            required=True
-        )
-    ]
+            required=True,
+        ),
+    ],
 )
-# In your docs.py
+
 COMPLETE_ASSIGNMENT_DOCS = extend_schema(
     tags=["Driver Endpoints"],
     summary="Complete Vehicle Assignment",
@@ -411,4 +411,36 @@ Marks a started trip as completed by recording:
             required=True
         )
     ]
+)
+
+admin_assignment_history_docs = extend_schema(
+    tags=["Admin Endpoints"],
+    summary="Admin Assignment History",
+    description="""
+    Returns a list of all completed assignments (trips) for the admin dashboard history table. Each row includes: assigned date, requester, vehicle, driver, approver, completed trip pickup, destination, and total km (end_mileage - start_mileage). Department is omitted.
+    """,
+    responses={
+        200: OpenApiResponse(
+            description="List of completed assignments for admin history table",
+            examples=[
+                OpenApiExample(
+                    "Admin Assignment History Example",
+                    value={
+                        "history": [
+                            {
+                                "assigned_date": "2025-04-01",
+                                "requester": "Liya Mekonnen",
+                                "vehicle": "Toyota Corolla - AB1234",
+                                "driver": "Tsegaye Assefa",
+                                "approver": "Daniel Kebede",
+                                "pickup": "HQ",
+                                "destination": "Airport",
+                                "total_km": 120.5
+                            }
+                        ]
+                    }
+                )
+            ]
+        )
+    }
 )

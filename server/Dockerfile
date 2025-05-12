@@ -34,5 +34,5 @@ WORKDIR /app
 # Expose port (default for Django)
 EXPOSE 8000
 
-# Start cron and gunicorn together
-CMD service cron start && gunicorn ssgi_fleet_api.wsgi:application --chdir ssgi_fleet_api --bind 0.0.0.0:8000
+# Start cron and gunicorn together using start.sh
+CMD ["sh", "/app/start.sh"]

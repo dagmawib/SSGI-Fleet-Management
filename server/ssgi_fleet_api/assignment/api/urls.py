@@ -6,7 +6,8 @@ from .views import(
     AcceptAssignmentAPIView,
     DeclineAssignmentAPIView,
     CompleteAssignmentAPIView,
-    DriverCompletedTripsView
+    DriverCompletedTripsView,
+    AdminAssignmentHistoryAPIView
 )
 
 urlpatterns = [
@@ -19,5 +20,7 @@ urlpatterns = [
         CompleteAssignmentAPIView.as_view(),
         name='complete-assignment'
     ),
-    path('driver/completed-trips/', DriverCompletedTripsView.as_view(), name='driver-completed-trips')
+    path('driver/completed-trips/', DriverCompletedTripsView.as_view(), name='driver-completed-trips'),
+    path('admin/assignment-history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history'),
+    path('assignments/admin/history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history')
 ]

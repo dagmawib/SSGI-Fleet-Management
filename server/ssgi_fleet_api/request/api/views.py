@@ -327,32 +327,44 @@ class UserRequestHistoryAPIView(APIView):
         Returns the request history for a user (current user if user_id is not provided).
         See user_request_history_docs in docs.py for full documentation.
         """
-        # If user_id is not provided, default to current user
+        # Only allow access to own history or if admin/superuser
         if user_id is None:
             user = request.user
         else:
-            # Only allow access to own history or if admin
             if not (request.user.is_superuser or request.user.id == int(user_id)):
                 return Response({'detail': 'Not authorized.'}, status=403)
             user = get_object_or_404(User, pk=user_id)
 
         requests = Vehicle_Request.objects.filter(requester=user).order_by('-created_at')
         total_requests = requests.count()
-        accepted_requests = requests.filter(status=Vehicle_Request.Status.APPROVED).count()
+        accepted_requests = requests.filter(status=Vehicle_Request.Status.ASSIGNED).count()
         declined_requests = requests.filter(status=Vehicle_Request.Status.REJECTED).count()
 
         request_list = []
         for req in requests:
+            vehicle = None
+            driver = None
+            reason = req.purpose
+            # If assigned, get assignment details
+            if req.status == Vehicle_Request.Status.ASSIGNED:
+                assignment = req.assignments.first()  # related_name='assignments'
+                if assignment:
+                    vehicle = f"{assignment.vehicle.make} {assignment.vehicle.model} - {assignment.vehicle.license_plate}" if assignment.vehicle else None
+                    driver = assignment.driver.get_full_name() if assignment.driver else None
+                    reason = assignment.note or req.purpose
+            elif req.status == Vehicle_Request.Status.REJECTED:
+                reason = req.rejection_reason or req.purpose
+
             request_list.append({
                 "request_id": req.request_id,
                 "date": req.created_at.strftime('%d %b, %Y'),
                 "requester": req.requester.get_full_name(),
                 "approver": req.department_approver.get_full_name() if req.department_approver else None,
-                "vehicle": req.vehicle.vehicle_type if hasattr(req, 'vehicle') and req.vehicle else None,
-                "driver": req.driver.get_full_name() if hasattr(req, 'driver') and req.driver else None,
+                "vehicle": vehicle,
+                "driver": driver,
                 "pickup": req.pickup_location,
                 "destination": req.destination,
-                "reason": req.purpose,
+                "reason": reason,
                 "status": req.status,
             })
 

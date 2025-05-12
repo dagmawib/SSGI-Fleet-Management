@@ -20,7 +20,9 @@ from .docs import (
     DRIVER_REQUEST_GET_DOCS,
     ACCEPT_ASSIGNMENT_DOCS,
     DECLINE_ASSIGNMENT_DOCS,
-    COMPLETE_ASSIGNMENT_DOCS
+    COMPLETE_ASSIGNMENT_DOCS,
+    admin_requests_docs,
+    admin_assignment_history_docs
 )
 from ..models import Vehicle_Assignment, Trips
 from request.models import Vehicle_Request
@@ -615,5 +617,45 @@ class DriverCompletedTripsView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    
-    #pushing babay
+
+class AdminAssignmentHistoryAPIView(APIView):
+    """
+    Returns a list of all completed assignments (trips) for admin dashboard history table.
+    Each row includes: assigned date, requester, vehicle, driver, approver, completed trip pickup, destination, and total km.
+    Department is omitted as requested.
+    """
+    permission_classes = [IsAuthenticated]
+    @admin_assignment_history_docs
+    def get(self, request):
+        # Only allow admin/superadmin
+        if not (request.user.role in [User.Role.ADMIN, User.Role.SUPERADMIN]):
+            return Response({'detail': 'Not authorized.'}, status=403)
+
+        # Get all completed assignments (trips)
+        completed_trips = Trips.objects.filter(
+            status=Trips.TripStatus.COMPLETED
+        ).select_related(
+            'assignment',
+            'assignment__vehicle',
+            'assignment__driver',
+            'assignment__assigned_by',
+            'assignment__request',
+            'assignment__request__requester',
+            'assignment__request__department_approver',
+        ).order_by('-end_time')
+
+        data = []
+        for trip in completed_trips:
+            assignment = trip.assignment
+            request_obj = assignment.request
+            data.append({
+                'assigned_date': assignment.assigned_at.date() if assignment.assigned_at else None,
+                'requester': request_obj.requester.get_full_name() if request_obj.requester else None,
+                'vehicle': f"{assignment.vehicle.make} {assignment.vehicle.model} - {assignment.vehicle.license_plate}" if assignment.vehicle else None,
+                'driver': assignment.driver.get_full_name() if assignment.driver else None,
+                'approver': request_obj.department_approver.get_full_name() if request_obj.department_approver else None,
+                'pickup': request_obj.pickup_location,
+                'destination': request_obj.destination,
+                'total_km': float(trip.end_mileage - trip.start_mileage) if trip.end_mileage is not None and trip.start_mileage is not None else None,
+            })
+        return Response({'history': data})
