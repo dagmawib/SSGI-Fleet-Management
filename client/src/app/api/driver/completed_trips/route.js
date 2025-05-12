@@ -25,8 +25,6 @@ export async function GET(req) {
             }
         );
 
-        console.log(response.data);
-
         return new Response(JSON.stringify(response.data), {
             status: 200,
             headers: { "Content-Type": "application/json" },

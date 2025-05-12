@@ -44,11 +44,15 @@ export default function RequestTable() {
     setModalOpen(false);
     setSelectedRequest(null);
     setSelectedCarId("");
+    setRejectLoading(false); // Reset reject loading state
+    setAssignLoading(false); // Reset assign loading state
   };
 
   const openModal = (request, action) => {
     setSelectedRequest({ ...request, action });
     setModalOpen(true);
+    setRejectLoading(false); // Reset reject loading state on open
+    setAssignLoading(false); // Reset assign loading state on open
   };
 
   const resetFilters = async () => {
@@ -227,6 +231,7 @@ export default function RequestTable() {
         open={modalOpen}
         selectedRequest={selectedRequest}
         onClose={closeModal}
+        mutate={mutate}
       />
     </div>
   );

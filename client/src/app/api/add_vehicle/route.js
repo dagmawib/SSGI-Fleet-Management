@@ -68,8 +68,6 @@ export const POST = async (req) => {
         department_id,
     };
 
-    console.log("Request Body:", requestBody);
-
     // Make the POST request to the token API
     const response = await axios.post(
       `${API_BASE_URL}${API_ENDPOINTS.ADD_VEHICLE}`,

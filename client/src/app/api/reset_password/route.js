@@ -23,9 +23,6 @@ export const POST = async (req) => {
             uid
         };
 
-        console.log("Request Body:", requestBody);
-        console.log("URL:", `${API_BASE_URL}${API_ENDPOINTS.RESET_PASSWORD}`);
-
         // Make the POST request to the token API
         const response = await axios.post(
             `${API_BASE_URL}${API_ENDPOINTS.RESET_PASSWORD}`,
