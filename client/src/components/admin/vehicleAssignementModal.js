@@ -9,8 +9,6 @@ const VehicleAssignmentModal = ({
   open,
   selectedRequest,
   onClose,
-  onAssign,
-  onReject,
 }) => {
   const t = useTranslations("assignModal");
   const [vehicles, setVehicles] = useState([]);
@@ -69,7 +67,6 @@ const VehicleAssignmentModal = ({
         }
 
         toast.success('Vehicle assigned successfully');
-        onAssign(selectedRequest.request_id, selectedVehicle);
         onClose();
       } catch (error) {
         console.error('Error assigning vehicle:', error);
@@ -100,7 +97,6 @@ const VehicleAssignmentModal = ({
         }
 
         toast.success('Request rejected successfully');
-        onReject(selectedRequest.request_id);
         onClose();
       } catch (error) {
         console.error('Error rejecting request:', error);
