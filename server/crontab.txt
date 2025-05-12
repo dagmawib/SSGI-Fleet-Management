@@ -1,2 +1,3 @@
-40 8 * * * cd /app/ssgi_fleet_api && /usr/local/bin/python manage.py update_pool_cars >> /cron.log 2>&1
-40 8 * * * echo "cron ran at $(date)" >> /cron.log
+PATH=/usr/local/bin:/usr/bin:/bin
+DJANGO_SETTINGS_MODULE=ssgi_fleet_api.settings
+*/2 * * * * cd /app/ssgi_fleet_api && /usr/local/bin/python manage.py update_pool_cars >> /app/cron.log 2>&1

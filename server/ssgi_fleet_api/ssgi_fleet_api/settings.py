@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'request',
     'assignment',
+    # 'django_q',  # Removed because we now use cron for scheduling
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
@@ -80,7 +81,7 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-ROOT_URLCONF = 'ssgi_fleet_api.urls'
+ROOT_URLCONF = 'ssgi_fleet_api.ssgi_fleet_api.urls'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

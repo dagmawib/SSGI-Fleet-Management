@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from users.models import User
+from ssgi_fleet_api.users.models import User
 
 class IsAdminOrSuperAdmin(BasePermission):
     def has_permission(self, request, view):

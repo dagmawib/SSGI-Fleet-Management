@@ -377,3 +377,35 @@ status_transitions_docs = OpenApiExample(
     """,
     value=None
 )
+
+user_request_history_docs = """
+get:
+Returns a summary and list of all requests for the specified user (by user_id),
+including counts for total, accepted, and declined requests, and all request details for the dashboard.
+Only accessible by the user themselves or an admin.
+
+- If no user_id is provided, returns the history for the current authenticated user.
+- If user_id is provided, only the user themselves or a superuser can access that user's history.
+
+Response example:
+{
+    "total_requests": 6,
+    "accepted_requests": 3,
+    "declined_requests": 2,
+    "requests": [
+        {
+            "request_id": "#001",
+            "date": "11 Feb, 2024",
+            "requester": "John Doe",
+            "approver": "Jane Smith",
+            "vehicle": "Sedan",
+            "driver": "Michael Smith",
+            "pickup": "Location A",
+            "destination": "Location B",
+            "reason": "Business Trip",
+            "status": "Accepted"
+        },
+        ...
+    ]
+}
+"""

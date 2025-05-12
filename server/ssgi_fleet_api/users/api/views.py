@@ -13,7 +13,7 @@ from django.db import transaction
 
 
 from .permissions import IsSuperAdmin
-from users.models import User, Department
+from ssgi_fleet_api.users.models import User, Department
 from .serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
@@ -249,8 +249,19 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Customized JWT token obtain view with enhanced documentation."""
-
     serializer_class = CustomTokenObtainPairSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            data = serializer.validate(request.data)
+            return Response(data, status=data.get('status_code', 200))
+        except Exception as e:
+            return Response({   
+                    "status": False,
+                    "error": "validation_error",
+                    "message": str(e),
+                    "status_code": 400
+            }, status=400)
 
 @extend_schema(
     summary="List all departments",

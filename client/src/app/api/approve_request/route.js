@@ -15,7 +15,6 @@ export async function PATCH(request) {
 
         const body = await request.json();
         const { id } = body;
-        console.log(id);
 
         if (!id) {
             return new Response(

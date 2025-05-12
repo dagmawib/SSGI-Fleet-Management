@@ -11,6 +11,9 @@
     "title": "Vehicle Request",
     "description": "Please fill out the form below to request a vehicle.",
     "pickupLocation": "Pickup Location",
+    "pickupLocationPlaceholder": "Enter pickup location",
+    "destinationPlaceholder": "Enter destination",
+    "reasonPlaceholder": "Enter reason for request",
     "dropoffLocation": "Drop-off Location",
     "Duration": "Duration",
     "startDateTime": "Start Date and Time",
@@ -61,9 +64,9 @@
     "status": "Account Status",
     "active": "Active",
     "inactive": "Inactive",
-    "updatePassword":"Update Password",
+    "updatePassword": "Update Password",
     "password": "New Password",
-    "oldPassword":"Old Password",
+    "oldPassword": "Old Password",
     "update": "Update profile",
     "profileLoaded": "Profile loaded successfully",
     "errorLoadingProfile": "Error loading profile",
@@ -82,7 +85,8 @@
     "email": "Email",
     "phone": "Phone number",
     "message": "Message",
-    "send": "Send message"
+    "send": "Send message",
+    "sending": "Sending..."
   },
   "history": {
     "title": "Request Tracking",
@@ -165,10 +169,12 @@
     "assign": "Assign",
     "assignError": "Error assigning vehicle",
     "assignSuccess": "Vehicle assigned successfully",
-    "showing":"Showing",
-    "previous":"Previous",
-    "next":"Next",
-    "of":"Of"
+    "showing": "Showing",
+    "previous": "Previous",
+    "next": "Next",
+    "of": "Of",
+    "assignmentSuccess": "Vehicle assigned successfully",
+    "rejectionError": "Error rejecting request"
   },
   "vehicleTable": {
     "searchPlaceholder": "Search by license plate, make, model, or year",
@@ -177,7 +183,7 @@
     "make": "Make",
     "model": "Model",
     "year": "Year",
-    "color": "Color",
+    "category": "Category",
     "type": "Type",
     "capacity": "Capacity",
     "currentMileage": "Current Mileage",
@@ -300,6 +306,7 @@
     "email": "Email",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "department": "Department",
     "role": "Role",
     "action": "Action",
     "edit": "Edit",
@@ -310,7 +317,7 @@
     "page": "Page",
     "of": "of"
   },
-  "editModal":{
+  "editModal": {
     "editUser": "Edit User",
     "username": "Username",
     "email": "Email",
@@ -323,13 +330,19 @@
     "cancel": "Cancel",
     "save": "Save"
   },
-  "removeModal":{
+  "removeModal": {
     "confirmDeletion": "Confirm Deletion",
     "confirmMessage": "Are you sure you want to remove this user?",
     "cancel": "Cancel",
     "delete": "Delete"
   },
   "car": {
+    "category": "Category",
+    "selectCategory": "Select Category",
+    "categoryOptions": {
+      "field": "Field",
+      "pool": "Pool"
+    },
     "title": "Add New Car",
     "selectDriver": "Select Driver",
     "selectDepartment": "Select Department",
@@ -347,7 +360,7 @@
     "fuelType": "Fuel Type",
     "fuelEfficiency": "Fuel Efficiency (km/l)",
     "status": "Status",
-    "department":"Department",
+    "department": "Department",
     "statusOptions": {
       "available": "Available",
       "inMaintenance": "In Maintenance",

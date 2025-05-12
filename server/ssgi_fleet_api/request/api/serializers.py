@@ -93,6 +93,7 @@ class RequestSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         validated_data = super().validate(data)
+        errors = {}
         
         # Get datetime values
         start_time = validated_data.get('start_dateTime')
@@ -100,9 +101,7 @@ class RequestSerializer(serializers.ModelSerializer):
 
         # Check if both datetimes are provided
         if not start_time or not end_time:
-            raise serializers.ValidationError(
-                {"datetime": "Both start_dateTime and end_dateTime must be provided"}
-            )
+            errors["datetime"] = "Both start_dateTime and end_dateTime must be provided"
 
         # Ensure both datetimes are timezone-aware
         if timezone.is_naive(start_time):
@@ -112,25 +111,33 @@ class RequestSerializer(serializers.ModelSerializer):
 
         # Validate time ranges
         if start_time >= end_time:
-            raise serializers.ValidationError(
-                {"end_dateTime": "Must be after start_dateTime"}
-            )
+            errors["end_dateTime"] = "Must be after start_dateTime"
         
         # Validate request isn't being made for past time
         if start_time < timezone.now():
-            raise serializers.ValidationError(
-                {"start_dateTime": "Cannot create request for past time"}
-            )
+            errors["start_dateTime"] = "Cannot create request for past time"
         
         # Validate passenger count
         if 'passenger_count' in validated_data and validated_data['passenger_count'] > 15:
-            raise serializers.ValidationError(
-                {"passenger_count": "Maximum 15 passengers allowed"}
-            )
+            errors["passenger_count"] = "Maximum 15 passengers allowed"
         
+        if "passenger_names" in validated_data and len(validated_data['passenger_names']) != validated_data['passenger_count']:
+            errors["passenger_names"] = "Passenger names count must match passenger_count"
+            # 
         # Update with timezone-aware datetimes
         validated_data['start_dateTime'] = start_time
         validated_data['end_dateTime'] = end_time
+        
+        if errors:
+            # Return a DRF-standard validation error with explicit custom structure
+            raise serializers.ValidationError({
+                "status": False,
+                "error": "validation_error",
+                "message": "Invalid request data",
+                "errors": errors,
+                "status_code": 400
+            })
+
         
         return validated_data
 
@@ -139,7 +146,7 @@ class RequestSerializer(serializers.ModelSerializer):
         """Auto-set requester and status when creating"""
 
         validated_data['requester'] = self.context['request'].user
-        validated_data['status'] = Vehicle_Request.Status.PENDING
+        
 
         return super().create(validated_data)
 
@@ -186,6 +193,7 @@ class RequestRejectSerializer(serializers.Serializer):
             raise serializers.ValidationError("Please provide a detailed reason (minimum 10 characters)")
         return value
     
+
 
 class EmployeeAndDirectorDepartemntSerilizer(serializers.ModelSerializer):
     class Meta:

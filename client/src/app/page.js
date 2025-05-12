@@ -99,7 +99,7 @@ function Home() {
         } else {
           setErrorMessage("Invalid role. Access denied.");
         }
-        console.log("Login successful:", responseData);
+       
       }
     } catch (error) {
       console.error("Login error:", error.message);

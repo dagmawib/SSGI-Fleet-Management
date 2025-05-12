@@ -15,7 +15,6 @@ services:
       - frontend
     restart: unless-stopped
 
-
   frontend:
     build:
       context: ./client

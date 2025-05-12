@@ -11,6 +11,9 @@
     "title": "የተሽከርካሪ ጥያቄ",
     "description": "እባክዎ በታች ያለውን ቅጽ በመሙላት የተሽከርካሪ ጥያቄዎን ያቅርቡ።",
     "pickupLocation": "የመነሻ ቦታ",
+    "pickupLocationPlaceholder": "የመነሻ ቦታ ይምረጡ",
+    "destinationPlaceholder": "የመድረሻ ቦታ ይምረጡ",
+    "reasonPlaceholder": "የጥያቄ ምክንያት ይምረጡ",
     "dropoffLocation": "የመድረሻ ቦታ",
     "Duration": "ቆይታ ጊዜ",
     "passangers": "የተሳፋሪዎች ስም",
@@ -24,7 +27,11 @@
     "passanger": "ተሳፋሪ",
     "submitError": "ጥያቄ ማስገባት ላይ ስህተት",
     "requestSubmitted": "ጥያቄ በተሳካ ሁኔታ ገብቷል።",
-    "fetchError": "ጥያቄዎች መጫን ላይ ስህተት"
+    "fetchError": "ጥያቄዎች መጫን ላይ ስህተት",
+    "approve": "ይቀበሉ",
+    "reject": "ይተዉ",
+    "startDateTime": "የመጀመሪያ ቀን እና ሰዓት",
+    "endDateTime": "የመጨረሻ ቀን እና ሰዓት"
   },
   "profile": {
     "title": "መለያ",
@@ -41,15 +48,17 @@
     "status": "የመለያ ሁኔታ",
     "active": "ንቁ",
     "inactive": "ዝምተኛ",
-    "updatePassword":"የይለፍ ቃል አዘምን",
+    "updatePassword": "የይለፍ ቃል አዘምን",
     "password": "አዲስ የይለፍ ቃል",
-    "oldPassword":"የድሮ የይለፍ ቃል",
+    "oldPassword": "የድሮ የይለፍ ቃል",
     "update": "መለያን ያዘምኑ",
     "profileLoaded": "መገለጫ በተሳካ ሁኔታ ተጭኗል",
     "errorLoadingProfile": "መለያ መጫን ላይ ስህተት",
     "profileUpdated": "መለያ በተሳካ ሁኔታ ገብቷል።",
     "updateFailed": "መገለጫን ማዘመን አልተሳካም።",
-    "invalidPhone": "ልክ ያልሆነ የኢትዮጵያ ስልክ ቁጥር። እባክህ የሚሰራ ባለ 10 አሃዝ ቁጥር አስገባ።"
+    "invalidPhone": "ልክ ያልሆነ የኢትዮጵያ ስልክ ቁጥር። እባክህ የሚሰራ ባለ 10 አሃዝ ቁጥር አስገባ።",
+    "oldPasswordPlaceholder": "የድሮ የይለፍ ቃልዎን ያስገቡ",
+    "newPasswordPlaceholder": "አዲሱን የይለፍ ቃልዎን ያስገቡ"
   },
   "contact": {
     "title": "ከኛ ጋር ያግኙ",
@@ -59,7 +68,8 @@
     "email": "ኢሜይል",
     "phone": "የስልክ ቁጥር",
     "message": "መልዕክት",
-    "send": "መልዕክት ላክ"
+    "send": "መልእክት ላክ",
+    "sending": "መልእክት በላክ ላይ..."
   },
   "history": {
     "title": "የመጠየቂያ እከታ",
@@ -138,14 +148,15 @@
     "clear": "አጽዳው።",
     "searchPlaceholder": "በጠያቂ፣ በተሽከርካሪ ወይም በሁኔታ ፈለግ",
     "comment": "መልስ",
-    "commentPlaceholder": "መልስ ያስገቡ"
+    "commentPlaceholder": "መልስ ያስገቡ",
+    "rejectionError": "የተቀባይነት ማስታወቂያ አልተሳካም።"
   },
   "vehicleTable": {
     "licensePlate": "የመኪና ሰሌዳ ቁጥር",
     "make": "አምራች",
     "model": "ሞዴል",
     "year": "ዓመት",
-    "color": "ቀለም",
+    "category": "ምድብ",
     "type": "አይነት",
     "capacity": "የመቀመጫ ችሎታ",
     "currentMileage": "አሁን ያለው ማይሌጅ",
@@ -190,7 +201,7 @@
     "selectVehicleLabel": "መኪና ይምረጡ",
     "selectPlaceholder": "-- ይምረጡ --",
     "cancel": "መተው",
-    "reject": "መትቀል",
+    "reject": "አስወግድ",
     "assign": "መመደብ",
     "assignedTitle": "ተመድቡ በተሳካ ሁኔታ ገብቷል።",
     "assignedError": "ተመድቡ አልተሳካም።",
@@ -201,7 +212,9 @@
     "rejectError": "ተትቀል አልተሳካም።",
     "rejectSuccess": "ተትቀል በተሳካ ሁኔታ ገብቷል።",
     "assignConfirmation": "እርግጠኛ ነዎት ይህን ተሽከርካሪ ለዚህ ጥያቄ መመደብ ይፈልጋሉ?",
-    "rejectConfirmation": "እርግጠኛ ነዎት ይህን ጥያቄ ውድቅ ማድረግ ይፈልጋሉ?"
+    "rejectConfirmation": "እርግጠኛ ነዎት ይህን ጥያቄ ውድቅ ማድረግ ይፈልጋሉ?",
+    "rejectReason": "ያለመቀበል ምክንያት",
+    "rejectReasonPlaceholder": "ምክንያቶትን እዚህ ያስገቡ"
   },
   "AdminNavbar": {
     "request": "ጥያቄዎች",
@@ -216,10 +229,10 @@
     "upcomingRequest": "የሚመጣ ጥያቄ",
     "pickup": "መነሻ ቦታ",
     "destination": "መድረሻ",
-    "requester": "ተጠያቂ",
+    "requester": "ጠያቂ",
     "department": "ክፍል",
     "phone": "ስልክ",
-    "passengers": "ጓደኞች",
+    "passengers": "ተሳፋሪዎች",
     "kmBefore": "ጉዞ ከመጀመር በፊት ኪ.ሜ",
     "kmAfter": "ጉዞ ከመጨረሻ በኋላ ኪ.ሜ",
     "accept": "ተቀበል",
@@ -262,6 +275,7 @@
     "username": "የተጠቃሚ ስም",
     "email": "ኢሜይል",
     "firstName": "የመጀመሪያ ስም",
+    "department": "የሥራ ክፍል",
     "lastName": "የአባት ስም",
     "role": "ሚና",
     "action": "ተግባር",

@@ -37,8 +37,6 @@ export const POST = async (req) => {
         note,
     };
 
-    console.log("Request Body:", requestBody);
-
     // Make the POST request to the token API
     const response = await axios.post(
       `${API_BASE_URL}${API_ENDPOINTS.ADMIN_ASSIGN_REQUEST}`,
@@ -51,8 +49,6 @@ export const POST = async (req) => {
         },
       }
     );
-    
-    console.log("Response:", response);
 
     return new Response(JSON.stringify(response.data), {
       status: response.status,

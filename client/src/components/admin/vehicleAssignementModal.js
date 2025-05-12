@@ -1,39 +1,34 @@
 "use client";
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useState, useEffect } from 'react';
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
-const VehicleAssignmentModal = ({
-  open,
-  selectedRequest,
-  onClose,
-  onAssign,
-  onReject,
-}) => {
+const VehicleAssignmentModal = ({ open, selectedRequest, onClose, mutate }) => {
   const t = useTranslations("assignModal");
   const [vehicles, setVehicles] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState('');
+  const [selectedVehicle, setSelectedVehicle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [note, setNote] = useState('');
-
-  console.log(selectedRequest);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     const fetchAvailableVehicles = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/get_vehicles');
+        const response = await fetch("/api/get_vehicles");
         if (!response.ok) {
-          throw new Error('Failed to fetch available vehicles');
+          throw new Error("Failed to fetch available vehicles");
         }
         const data = await response.json();
-        const availableVehicles = data.filter(vehicle => vehicle.status === 'available');
+        const availableVehicles = data.filter(
+          (vehicle) => vehicle.status === "available"
+        );
         setVehicles(availableVehicles);
       } catch (error) {
-        console.error('Error fetching available vehicles:', error);
-        toast.error('Failed to fetch available vehicles');
+        console.error("Error fetching available vehicles:", error);
+        toast.error("Failed to fetch available vehicles");
       } finally {
         setIsLoading(false);
       }
@@ -42,76 +37,79 @@ const VehicleAssignmentModal = ({
     if (open) {
       fetchAvailableVehicles();
     }
-  }, [open]);
+  }, [open, mutate]);
 
   const handleAction = async () => {
-    if (selectedRequest.action === 'assign') {
+    if (selectedRequest.action === "assign") {
       if (!selectedVehicle) {
-        toast.error('Please select a vehicle');
+        toast.error("Please select a vehicle");
         return;
       }
       try {
         setIsLoading(true);
-        const response = await fetch('/api/admin/assign', {
-          method: 'POST',
+        const response = await fetch("/api/admin/assign", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             request_id: selectedRequest.request_id,
             vehicle_id: selectedVehicle,
-            note: note.trim()
+            note: note.trim(),
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to assign vehicle');
+          throw new Error("Failed to assign vehicle");
         }
 
-        toast.success('Vehicle assigned successfully');
-        onAssign(selectedRequest.request_id, selectedVehicle);
-        onClose();
+        toast.success("Vehicle assigned successfully");
+        onClose(); // Close the modal after success
+        await mutate(); // Refresh the requests data
+        return; // Prevent further execution
       } catch (error) {
-        console.error('Error assigning vehicle:', error);
-        toast.error('Failed to assign vehicle');
+        console.error("Error assigning vehicle:", error);
+        toast.error("Failed to assign vehicle");
       } finally {
         setIsLoading(false);
       }
     } else {
-      if (!note.trim()) {
-        toast.error('Please provide a reason for rejection');
+      if (!note.trim() || note.trim().length < 10) {
+        toast.error("Rejection reason must be at least 10 characters long");
         return;
       }
       try {
         setIsLoading(true);
-        const response = await fetch('/api/admin/reject', {
-          method: 'POST',
+        const response = await fetch("/api/admin/reject", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             request_id: selectedRequest.request_id,
-            note: note.trim()
+            note: note.trim(),
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to reject request');
+          throw new Error("Failed to reject request");
         }
 
-        toast.success('Request rejected successfully');
-        onReject(selectedRequest.request_id);
-        onClose();
+        toast.success("Request rejected successfully");
+        onClose(); // Close the modal after success
+        await mutate(); // Refresh the requests data
+        setNote(""); // Reset the comment section after rejection
+        return; // Prevent further execution
       } catch (error) {
-        console.error('Error rejecting request:', error);
-        toast.error('Failed to reject request');
+        console.error("Error rejecting request:", error);
+        toast.error("Failed to reject request");
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  const isAssignAction = selectedRequest?.action === 'assign';
+  const isAssignAction = selectedRequest?.action === "assign";
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -126,7 +124,6 @@ const VehicleAssignmentModal = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black/50" />
-
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -156,11 +153,28 @@ const VehicleAssignmentModal = ({
 
                 {selectedRequest && (
                   <div className="text-[#043755] space-y-2 text-sm">
-                    <p><strong>{t("requester")}:</strong> {selectedRequest.requester_name}</p>
-                    <p><strong>{t("approver")}:</strong> {selectedRequest.approver_name}</p>
-                    <p><strong>{t("pickup")}:</strong> {selectedRequest.pickup_location}</p>
-                    <p><strong>{t("destination")}:</strong> {selectedRequest.destination}</p>
-                    <p><strong>{t("date")}:</strong> {new Date(selectedRequest.created_at).toLocaleDateString()}</p>
+                    <p>
+                      <strong>{t("requester")}:</strong>{" "}
+                      {selectedRequest.requester_name}
+                    </p>
+                    <p>
+                      <strong>{t("approver")}:</strong>{" "}
+                      {selectedRequest.approver_name}
+                    </p>
+                    <p>
+                      <strong>{t("pickup")}:</strong>{" "}
+                      {selectedRequest.pickup_location}
+                    </p>
+                    <p>
+                      <strong>{t("destination")}:</strong>{" "}
+                      {selectedRequest.destination}
+                    </p>
+                    <p>
+                      <strong>{t("date")}:</strong>{" "}
+                      {new Date(
+                        selectedRequest.created_at
+                      ).toLocaleDateString()}
+                    </p>
 
                     {isAssignAction ? (
                       <>
@@ -190,7 +204,8 @@ const VehicleAssignmentModal = ({
                           <option value="">{t("selectPlaceholder")}</option>
                           {vehicles.map((vehicle) => (
                             <option key={vehicle.id} value={vehicle.id}>
-                              {vehicle.make} {vehicle.model} - {vehicle.license_plate}
+                              {vehicle.make} {vehicle.model} -{" "}
+                              {vehicle.license_plate}
                             </option>
                           ))}
                         </select>
@@ -224,14 +239,21 @@ const VehicleAssignmentModal = ({
                   </button>
                   <button
                     type="button"
-                    className={`${isAssignAction
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-red-600 hover:bg-red-700"
-                      } text-white px-4 py-2 rounded`}
+                    className={`${
+                      isAssignAction
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-red-600 hover:bg-red-700"
+                    } text-white px-4 py-2 rounded`}
                     onClick={handleAction}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Processing...' : (isAssignAction ? t("assign") : t("reject"))}
+                    {isLoading ? (
+                      <CircularProgress size={18} color="inherit" />
+                    ) : isAssignAction ? (
+                      t("assign")
+                    ) : (
+                      t("reject")
+                    )}
                   </button>
                 </div>
               </Dialog.Panel>

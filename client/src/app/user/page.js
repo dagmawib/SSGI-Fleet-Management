@@ -42,6 +42,11 @@ export default function Page() {
   const [approvingRequests, setApprovingRequests] = useState({});
   const [rejectingRequests, setRejectingRequests] = useState({});
   const t = useTranslations("vehicleRequest");
+  const now = new Date();
+  const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16); // Format: "YYYY-MM-DDTHH:MM"
+
 
   const fetchPendingRequests = useCallback(async () => {
     try {
@@ -276,7 +281,7 @@ export default function Page() {
                 {...register("pickupLocation")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter pickup location"
+                placeholder={t("pickupLocationPlaceholder")}
               />
               {errors.pickupLocation && (
                 <p className="text-red-500 text-sm mt-1">
@@ -295,7 +300,7 @@ export default function Page() {
                 {...register("destination")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder="Enter destination"
+                placeholder={t("destinationPlaceholder")}
               />
               {errors.destination && (
                 <p className="text-red-500 text-sm mt-1">
@@ -318,6 +323,7 @@ export default function Page() {
                   <input
                     {...register("startDate")}
                     type="datetime-local"
+                    min={localISOTime}
                     className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
                   />
                   {errors.startDate && (
@@ -333,6 +339,7 @@ export default function Page() {
                   <input
                     {...register("endDate")}
                     type="datetime-local"
+                    min={localISOTime}
                     className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
                   />
                   {errors.endDate && (
@@ -415,7 +422,7 @@ export default function Page() {
                 {...register("reason")}
                 type="text"
                 className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2"
-                placeholder="Enter reason"
+                placeholder={t("reasonPlaceholder")}
               />
               {errors.reason && (
                 <p className="text-red-500 text-sm mt-1">

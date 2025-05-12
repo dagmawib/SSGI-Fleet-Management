@@ -10,15 +10,15 @@ import { useTranslations } from "next-intl";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const formatDateTime = (dateTimeString) => {
-  if (!dateTimeString) return '';
+  if (!dateTimeString) return "";
   const date = new Date(dateTimeString);
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
   });
 };
 
@@ -36,7 +36,7 @@ const DirectorDashboard = ({
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  const t = useTranslations("vehicleRequest");
+  const t = useTranslations("director");
 
   if (!isDirector) return null;
 
@@ -58,11 +58,14 @@ const DirectorDashboard = ({
       return; // Don't proceed if reason is empty
     }
     try {
-      await handleReject({ ...selectedRequest, rejection_reason: rejectionReason });
+      await handleReject({
+        ...selectedRequest,
+        rejection_reason: rejectionReason,
+      });
       setShowRejectModal(false);
       setRejectionReason("");
     } catch (error) {
-      console.error('Error rejecting request:', error);
+      console.error("Error rejecting request:", error);
     }
   };
 
@@ -71,7 +74,7 @@ const DirectorDashboard = ({
       {isDirector && (
         <div className="mb-6">
           {/* Incoming Requests */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {requests.map((request, index) => (
               <Dialog key={index}>
                 <DialogTrigger asChild>
@@ -81,10 +84,10 @@ const DirectorDashboard = ({
                   >
                     <div>
                       <p className="text-[#043755] font-semibold">
-                        Pickup: {request.pickup_location}
+                        {t("pickup")}: {request.pickup_location}
                       </p>
                       <p className="text-[#043755] font-semibold">
-                        Destination: {request.destination}
+                        {t("destination")}: {request.destination}
                       </p>
                     </div>
                     <div className="flex justify-end gap-2 mt-2">
@@ -122,54 +125,54 @@ const DirectorDashboard = ({
 
                 <DialogContent>
                   <DialogTitle className="text-[#043755]">
-                    Request Details
+                    {t("requestDetails")}
                   </DialogTitle>
                   {selectedRequest && (
                     <DialogDescription asChild>
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[#043755]">
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Pickup
+                            {t("pickup")}
                           </div>
                           <div className="py-2">
                             {selectedRequest.pickup_location}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Destination
+                            {t("destination")}
                           </div>
                           <div className="py-2">
                             {selectedRequest.destination}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Start Time
+                            {t("startTime")}
                           </div>
                           <div className="py-2">
                             {formatDateTime(selectedRequest.start_dateTime)}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            End Time
+                            {t("endTime")}
                           </div>
                           <div className="py-2">
                             {formatDateTime(selectedRequest.end_dateTiem)}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Requester
+                            {t("requester")}
                           </div>
                           <div className="py-2">
                             {selectedRequest.requester?.full_name}
                           </div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Reason
+                            {t("reason")}
                           </div>
                           <div className="py-2">{selectedRequest.purpose}</div>
 
                           <div className="bg-[#9EC6F3] px-3 py-2 font-semibold rounded">
-                            Urgency
+                            {t("urgency")}
                           </div>
                           <div className="py-2">{selectedRequest.urgency}</div>
                         </div>
@@ -177,7 +180,9 @@ const DirectorDashboard = ({
                         <div className="flex flex-row justify-end gap-2 pt-4">
                           <button
                             onClick={() => handleApprove(selectedRequest)}
-                            disabled={approvingRequests[selectedRequest.request_id]}
+                            disabled={
+                              approvingRequests[selectedRequest.request_id]
+                            }
                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center justify-center min-w-[100px]"
                           >
                             {approvingRequests[selectedRequest.request_id] ? (
@@ -188,7 +193,9 @@ const DirectorDashboard = ({
                           </button>
                           <button
                             onClick={() => handleRejectClick(selectedRequest)}
-                            disabled={rejectingRequests[selectedRequest.request_id]}
+                            disabled={
+                              rejectingRequests[selectedRequest.request_id]
+                            }
                             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
                           >
                             {rejectingRequests[selectedRequest.request_id] ? (
@@ -211,7 +218,9 @@ const DirectorDashboard = ({
       {/* Reject Confirmation Modal */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
         <DialogContent>
-          <DialogTitle className="text-[#043755]">Confirm Rejection</DialogTitle>
+          <DialogTitle className="text-[#043755]">
+            Confirm Rejection
+          </DialogTitle>
           <DialogDescription>
             <div className="space-y-4">
               <p>Are you sure you want to reject this request?</p>

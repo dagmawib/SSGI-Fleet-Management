@@ -24,6 +24,7 @@ export default function AddCarForm() {
     status: "",
     department: "",
     driver_id: "",
+    category: "",
   });
 
   const [dateError, setDateError] = useState("");
@@ -64,7 +65,7 @@ export default function AddCarForm() {
 
   const validateLicensePlate = (plate) => {
     // Remove any spaces and convert to uppercase
-    const cleanPlate = plate.replace(/\s/g, '').toUpperCase();
+    const cleanPlate = plate.replace(/\s/g, "").toUpperCase();
 
     // Check if the plate matches the pattern: 0-1 letter followed by 5 digits
     const platePattern = /^[A-Z]{0,1}\d{5}$/;
@@ -156,6 +157,7 @@ export default function AddCarForm() {
         status: "",
         department: "",
         driver_id: "",
+        category: "",
       });
     } catch (error) {
       console.error("Submission failed:", error);
@@ -197,8 +199,9 @@ export default function AddCarForm() {
             name="license_plate"
             value={formData.license_plate}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${licensePlateError ? "border-red-500" : "border-gray-300"
-              }`}
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
+              licensePlateError ? "border-red-500" : "border-gray-300"
+            }`}
             required
           />
           {licensePlateError && (
@@ -264,6 +267,23 @@ export default function AddCarForm() {
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
           />
         </div>
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium text-[#043755]">
+            {t("category")}
+          </label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-[#043755]"
+            required
+          >
+            <option value="">{t("selectCategory")}</option>
+            <option value="field">{t("categoryOptions.field")}</option>
+            <option value="pool">{t("categoryOptions.pool")}</option>
+          </select>
+        </div>
 
         {/* Capacity */}
         <div>
@@ -303,9 +323,14 @@ export default function AddCarForm() {
             name="last_service_date"
             value={formData.last_service_date}
             onChange={handleChange}
-            max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]}
-            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${dateError ? "border-red-500" : "border-gray-300"
-              }`}
+            max={
+              new Date(new Date().setDate(new Date().getDate() - 1))
+                .toISOString()
+                .split("T")[0]
+            }
+            className={`mt-1 block w-full p-2 border rounded-md text-[#043755] ${
+              dateError ? "border-red-500" : "border-gray-300"
+            }`}
           />
           {dateError && (
             <p className="mt-1 text-sm text-red-500">{dateError}</p>

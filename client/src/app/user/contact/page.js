@@ -150,7 +150,7 @@ export default function ContactUsPage() {
         </div>
 
         <button className="w-full bg-[#043755] text-white py-2 rounded mt-4 hover:bg-blue-900">
-          {loading ? "Sending..." : "Send"}
+          {loading ? t("sending") : t("send")}
         </button>
       </form>
     </div>

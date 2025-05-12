@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const statusColors = {
   available: "text-green-600 font-semibold text-xl",
@@ -14,21 +16,24 @@ const statusColors = {
 };
 
 const capitalizeFirstLetters = (str) => {
-  if (!str) return '';
+  if (!str) return "";
   return str
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 export default function CarsTable() {
   const t = useTranslations("vehicleTable");
-  const [cars, setCars] = useState([]);
+  const {
+    data: cars = [],
+    isLoading,
+    error,
+  } = useSWR("/api/get_vehicles", fetcher);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
-  const [loading, setLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -42,31 +47,6 @@ export default function CarsTable() {
       setClearLoading(false);
     }
   };
-
-  useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/get_vehicles", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch cars");
-        }
-        const data = await response.json();
-        setCars(data);
-      } catch (error) {
-        console.error("Error fetching cars:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
-  }, []);
 
   const formatStatus = (status) => {
     switch (status) {
@@ -84,11 +64,11 @@ export default function CarsTable() {
   };
 
   // Get unique makes for the filter dropdown
-  const uniqueMakes = [...new Set(cars.map(car => car.make))].sort();
+  const uniqueMakes = [...new Set(cars.map((car) => car.make))].sort();
 
   // Filter cars based on search term and selected make
-  const filteredCars = cars.filter(car => {
-    const matchesSearch = Object.values(car).some(value =>
+  const filteredCars = cars.filter((car) => {
+    const matchesSearch = Object.values(car).some((value) =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
     );
     const matchesMake = !selectedMake || car.make === selectedMake;
@@ -105,14 +85,13 @@ export default function CarsTable() {
     setCurrentPage(page);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#043755]"></div>
       </div>
     );
   }
-
 
   return (
     <div className="space-y-4">
@@ -133,8 +112,10 @@ export default function CarsTable() {
             className="w-full text-[#043755] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#043755]"
           >
             <option value="">{t("make")}</option>
-            {uniqueMakes.map(make => (
-              <option key={make} value={make}>{make}</option>
+            {uniqueMakes.map((make) => (
+              <option key={make} value={make}>
+                {make}
+              </option>
             ))}
           </select>
           <button
@@ -152,7 +133,6 @@ export default function CarsTable() {
       </div>
 
       <div className="overflow-auto bg-white rounded-lg mx-2 md:mx-0">
-
         <table className="min-w-full table-auto text-sm">
           <thead className="bg-[#043755] text-white">
             <tr>
@@ -161,7 +141,7 @@ export default function CarsTable() {
               <th className="px-4 py-2 text-left">{t("make")}</th>
               <th className="px-4 py-2 text-left">{t("model")}</th>
               <th className="px-4 py-2 text-left">{t("year")}</th>
-              <th className="px-4 py-2 text-left">{t("color")}</th>
+              <th className="px-4 py-2 text-left">{t("category")}</th>
               <th className="px-4 py-2 text-left">{t("capacity")}</th>
               <th className="px-4 py-2 text-left">{t("currentMileage")}</th>
               <th className="px-4 py-2 text-left">{t("lastMaintenance")}</th>
@@ -182,25 +162,39 @@ export default function CarsTable() {
               >
                 <td className="px-4 py-2">{startIndex + index + 1}</td>
                 <td className="px-4 py-2">{car.license_plate}</td>
-                <td className="px-4 py-2">{capitalizeFirstLetters(car.make)}</td>
-                <td className="px-4 py-2">{capitalizeFirstLetters(car.model)}</td>
+                <td className="px-4 py-2">
+                  {capitalizeFirstLetters(car.make)}
+                </td>
+                <td className="px-4 py-2">
+                  {capitalizeFirstLetters(car.model)}
+                </td>
                 <td className="px-4 py-2">{car.year}</td>
-                <td className="px-4 py-2">{capitalizeFirstLetters(car.color)}</td>
+                <td className="px-4 py-2">
+                  {capitalizeFirstLetters(car.category)}
+                </td>
                 <td className="px-4 py-2">{car.capacity}</td>
                 <td className="px-4 py-2">{car.current_mileage}</td>
                 <td className="px-4 py-2">{car.last_service_date}</td>
                 <td className="px-4 py-2">{car.next_service_mileage}</td>
-                <td className="px-4 py-2">{capitalizeFirstLetters(t(`fuelTypes.${car.fuel_type}`))}</td>
+                <td className="px-4 py-2">
+                  {capitalizeFirstLetters(t(`fuelTypes.${car.fuel_type}`))}
+                </td>
                 <td className="px-4 py-2">{car.fuel_efficiency}</td>
                 <td className="px-4 py-2">
-                  <span className={`${!car.assigned_driver?.first_name ? "text-gray-500" : ""}`}>
-                    {capitalizeFirstLetters(car.assigned_driver?.first_name) || t("notAssigned")}
+                  <span
+                    className={`${
+                      !car.assigned_driver?.first_name ? "text-gray-500" : ""
+                    }`}
+                  >
+                    {capitalizeFirstLetters(car.assigned_driver?.first_name) ||
+                      t("notAssigned")}
                   </span>
                 </td>
                 <td className="px-4 py-2">
                   <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${statusColors[car.status] || "bg-gray-100 text-gray-600"
-                      }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      statusColors[car.status] || "bg-gray-100 text-gray-600"
+                    }`}
                   >
                     {t(`statuses.${car.status}`)}
                   </span>
@@ -209,7 +203,6 @@ export default function CarsTable() {
             ))}
           </tbody>
         </table>
-
       </div>
 
       {/* Pagination Controls */}
@@ -218,10 +211,11 @@ export default function CarsTable() {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1 || loading}
-            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${currentPage === 1 || loading
-              ? "bg-gray-200 cursor-not-allowed"
-              : "bg-[#043755] text-white hover:bg-blue-700"
-              }`}
+            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${
+              currentPage === 1 || loading
+                ? "bg-gray-200 cursor-not-allowed"
+                : "bg-[#043755] text-white hover:bg-blue-700"
+            }`}
           >
             {loading ? (
               <CircularProgress size={20} color="inherit" />
@@ -235,26 +229,24 @@ export default function CarsTable() {
               key={page}
               onClick={() => handlePageChange(page)}
               disabled={loading}
-              className={`px-3 py-1 rounded flex items-center justify-center min-w-[32px] ${currentPage === page
-                ? "bg-[#043755] text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-                }`}
+              className={`px-3 py-1 rounded flex items-center justify-center min-w-[32px] ${
+                currentPage === page
+                  ? "bg-[#043755] text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
             >
-              {loading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                page
-              )}
+              {loading ? <CircularProgress size={20} color="inherit" /> : page}
             </button>
           ))}
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || loading}
-            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${currentPage === totalPages || loading
-              ? "bg-gray-200 cursor-not-allowed"
-              : "bg-[#043755] text-white hover:bg-blue-700"
-              }`}
+            className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${
+              currentPage === totalPages || loading
+                ? "bg-gray-200 cursor-not-allowed"
+                : "bg-[#043755] text-white hover:bg-blue-700"
+            }`}
           >
             {loading ? (
               <CircularProgress size={20} color="inherit" />

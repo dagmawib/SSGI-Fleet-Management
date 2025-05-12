@@ -19,7 +19,8 @@ from .docs import (
     reject_request_docs,
     request_status_docs,
     admin_requests_docs,
-    approve_request_docs
+    approve_request_docs,
+    user_request_history_docs,  # <-- import the docs string
 )
 
 
@@ -32,21 +33,19 @@ class RequestCreateAPIView(APIView):
     @request_create_docs
     def post(self, request):
         serializer = RequestSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        
-        passenger_count = serializer.validated_data.get('passenger_count', 0)
-        passenger_names = serializer.validated_data.get('passenger_names', [])
-        
-        if passenger_names and len(passenger_names) != passenger_count:
-            return Response(
-                {"error": "Passenger names count must match passenger_count"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+       
         is_director = hasattr(request.user, 'role') and request.user.role == User.Role.DIRECTOR
+        print(f"User role: {getattr(request.user, 'role', 'NONE')}")
+        print(f"Is director: {is_director}")
+        print(f"Status to set: {'APPROVED' if is_director else 'PENDING'}")
         requester = User.objects.get(
             pk =request.user.id
         )
+        print(f'requester : {requester}')
         
         vehicle_request = serializer.save(
             requester=request.user,
@@ -54,6 +53,8 @@ class RequestCreateAPIView(APIView):
             department_approver=request.user if is_director else None,
             department_approval=is_director
         )
+        passenger_count = serializer.validated_data.get('passenger_count', 0)
+        passenger_names = serializer.validated_data.get('passenger_names', [])
 
         return Response(
             {
@@ -148,9 +149,6 @@ class RequestApproveAPI(APIView):
         # Get the department where the request.user is the director
         try:
             director_dept = Department.objects.get(director=request.user)
-            print(f'director department : {director_dept}')
-            print(f'director department id : {director_dept.id}')
-            print(f'name of director : {director_dept.director}')
 
         except Department.DoesNotExist:
             return Response(
@@ -315,8 +313,54 @@ class DepartmentListWithDirectorsView(APIView):
                 to_attr='directors'
             )
         )
-        
         # Serialize the data
         serializer = DepartmentListSerializer(departments, many=True)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserRequestHistoryAPIView(APIView):
+    """
+    Returns the request history for a user (current user if user_id is not provided).
+    See user_request_history_docs in docs.py for full documentation.
+    """
+    permission_classes = [IsAuthenticated]
+    def get(self, request, user_id=None):
+        """
+        Returns the request history for a user (current user if user_id is not provided).
+        See user_request_history_docs in docs.py for full documentation.
+        """
+        # If user_id is not provided, default to current user
+        if user_id is None:
+            user = request.user
+        else:
+            # Only allow access to own history or if admin
+            if not (request.user.is_superuser or request.user.id == int(user_id)):
+                return Response({'detail': 'Not authorized.'}, status=403)
+            user = get_object_or_404(User, pk=user_id)
+
+        requests = Vehicle_Request.objects.filter(requester=user).order_by('-created_at')
+        total_requests = requests.count()
+        accepted_requests = requests.filter(status=Vehicle_Request.Status.APPROVED).count()
+        declined_requests = requests.filter(status=Vehicle_Request.Status.REJECTED).count()
+
+        request_list = []
+        for req in requests:
+            request_list.append({
+                "request_id": req.request_id,
+                "date": req.created_at.strftime('%d %b, %Y'),
+                "requester": req.requester.get_full_name(),
+                "approver": req.department_approver.get_full_name() if req.department_approver else None,
+                "vehicle": req.vehicle.vehicle_type if hasattr(req, 'vehicle') and req.vehicle else None,
+                "driver": req.driver.get_full_name() if hasattr(req, 'driver') and req.driver else None,
+                "pickup": req.pickup_location,
+                "destination": req.destination,
+                "reason": req.purpose,
+                "status": req.status,
+            })
+
+        return Response({
+            "total_requests": total_requests,
+            "accepted_requests": accepted_requests,
+            "declined_requests": declined_requests,
+            "requests": request_list
+        })
