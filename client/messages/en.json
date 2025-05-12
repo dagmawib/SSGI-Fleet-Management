@@ -173,7 +173,8 @@
     "previous": "Previous",
     "next": "Next",
     "of": "Of",
-    "assignmentSuccess": "Vehicle assigned successfully"
+    "assignmentSuccess": "Vehicle assigned successfully",
+    "rejectionError": "Error rejecting request"
   },
   "vehicleTable": {
     "searchPlaceholder": "Search by license plate, make, model, or year",

@@ -148,7 +148,8 @@
     "clear": "አጽዳው።",
     "searchPlaceholder": "በጠያቂ፣ በተሽከርካሪ ወይም በሁኔታ ፈለግ",
     "comment": "መልስ",
-    "commentPlaceholder": "መልስ ያስገቡ"
+    "commentPlaceholder": "መልስ ያስገቡ",
+    "rejectionError": "የተቀባይነት ማስታወቂያ አልተሳካም።"
   },
   "vehicleTable": {
     "licensePlate": "የመኪና ሰሌዳ ቁጥር",

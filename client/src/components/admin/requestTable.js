@@ -40,85 +40,19 @@ export default function RequestTable() {
 
   const t = useTranslations("RequestTable");
 
-  const handleAssign = async (requestId, vehicleId) => {
-    setAssignLoading(true);
-    try {
-      // Refresh the requests list after successful assignment
-      await mutate();
-      toast.success(t("assignmentSuccess"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } catch (error) {
-      console.error('Error handling assignment:', error);
-      toast.error(t("assignmentError"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setAssignLoading(false);
-    }
-  };
-
-  const handleReject = async () => {
-    setRejectLoading(true);
-    try {
-      const response = await fetch(`/api/admin/requests/${selectedRequest.request_id}/reject`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to reject request');
-      }
-
-      // Refresh the requests list after successful rejection
-     await mutate();
-
-      toast.success(t("rejectionSuccess"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      closeModal();
-    } catch (error) {
-      console.error('Error rejecting request:', error);
-      toast.error(t("rejectionError"), {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setRejectLoading(false);
-    }
-  };
-
   const closeModal = () => {
     setModalOpen(false);
     setSelectedRequest(null);
     setSelectedCarId("");
+    setRejectLoading(false); // Reset reject loading state
+    setAssignLoading(false); // Reset assign loading state
   };
 
   const openModal = (request, action) => {
     setSelectedRequest({ ...request, action });
     setModalOpen(true);
+    setRejectLoading(false); // Reset reject loading state on open
+    setAssignLoading(false); // Reset assign loading state on open
   };
 
   const resetFilters = async () => {
@@ -297,8 +231,7 @@ export default function RequestTable() {
         open={modalOpen}
         selectedRequest={selectedRequest}
         onClose={closeModal}
-        onAssign={handleAssign}
-        onReject={handleReject}
+        mutate={mutate}
       />
     </div>
   );
