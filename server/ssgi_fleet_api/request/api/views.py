@@ -3,15 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from ..models import Vehicle_Request
-from .serializers import RequestSerializer , RequestListSerializer , RequestRejectSerializer ,EmployeeRequestStatusSerializer ,UserMatchSerializer
+from request.models import Vehicle_Request
+from users.models import User, Department
+from .serializers import RequestSerializer, RequestListSerializer, RequestRejectSerializer, EmployeeRequestStatusSerializer, UserMatchSerializer, DepartmentListSerializer
 from users.api.permissions import IsRegularAdmin, IsSuperAdmin
 from rest_framework.permissions import OR
-from users.models import User, Department
 from django.utils import timezone
-
-
-from .permissions import IsEmployee , IsDirector ,IsEmployeeOrDirector
+from .permissions import IsEmployee, IsDirector, IsEmployeeOrDirector
 from .docs import (
     request_create_docs,
     pending_requests_docs,
@@ -20,8 +18,9 @@ from .docs import (
     request_status_docs,
     admin_requests_docs,
     approve_request_docs,
-    user_request_history_docs,  # <-- import the docs string
+    user_request_history_docs,
 )
+from django.db.models import Prefetch
 
 
 class RequestCreateAPIView(APIView):
@@ -299,8 +298,7 @@ class EmployeeRequestStatusView(APIView):
         serializer = EmployeeRequestStatusSerializer(requests, many=True)
         return Response(serializer.data)
     
-from .serializers import DepartmentListSerializer
-from django.db.models import Prefetch
+
 class DepartmentListWithDirectorsView(APIView):
     permission_classes = [IsAuthenticated, IsSuperAdmin]
     

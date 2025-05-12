@@ -1,12 +1,12 @@
-# Use official Node.js image
-FROM node:20-alpine
+# Use official Node.js image (Debian-based, not Alpine, for Next.js native modules)
+FROM node:20-bullseye
 
 # Set working directory
 WORKDIR /app
 
 # Install dependencies
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy project files
 COPY . .

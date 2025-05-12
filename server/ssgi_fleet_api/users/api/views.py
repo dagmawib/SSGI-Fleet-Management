@@ -8,13 +8,11 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import action
-# from .docs import get_user_detail_docs
 from django.db import transaction
 
-
-from .permissions import IsSuperAdmin
-from ssgi_fleet_api.users.models import User, Department
-from .serializers import (
+from users.api.permissions import IsSuperAdmin
+from users.models import User, Department
+from users.api.serializers import (
     CustomTokenObtainPairSerializer,
     SuperAdminRegistrationSerializer,
     UserProfileSerializer,
@@ -27,7 +25,7 @@ from .serializers import (
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
 )
-from .docs import (
+from users.api.docs import (
     super_admin_register_docs,
     user_profile_docs,
     logout_docs,

@@ -3,7 +3,7 @@ import string
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from ssgi_fleet_api.users.models import Department
+from users.models import Department
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate

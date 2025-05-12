@@ -10,7 +10,8 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --default-timeout=100 --retries=10 -r requirements.txt
 
 # Install cron
 RUN apt-get update && apt-get install -y cron
