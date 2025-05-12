@@ -5,9 +5,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from ..models import Vehicle_Request
 from .serializers import RequestSerializer , RequestListSerializer , RequestRejectSerializer ,EmployeeRequestStatusSerializer ,UserMatchSerializer
-from ssgi_fleet_api.users.api.permissions import IsRegularAdmin, IsSuperAdmin
+from users.api.permissions import IsRegularAdmin, IsSuperAdmin
 from rest_framework.permissions import OR
-from ssgi_fleet_api.users.models import User, Department
+from users.models import User, Department
 from django.utils import timezone
 
 

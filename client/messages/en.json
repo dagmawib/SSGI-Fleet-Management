@@ -381,23 +381,5 @@
     "fuelEfficiencyValidationError": "Invalid fuel efficiency format. Please enter a valid number.",
     "currentMileageValidationError": "Invalid current mileage format. Please enter a valid number.",
     "nextMaintenanceMileageValidationError": "Invalid next maintenance mileage format. Please enter a valid number."
-  },
-  "director": {
-    "pickup": "Pickup",
-    "destination": "Destination",
-    "startTime": "Start Time",
-    "endTime": "End Time",
-    "requester": "Requester",
-    "reason": "Reason",
-    "urgency": "Urgency",
-    "approve": "Approve",
-    "reject": "Reject",
-    "requestDetails": "Request Details",
-    "confirmRejection": "Confirm Rejection",
-    "areYouSureReject": "Are you sure you want to reject this request?",
-    "rejectionReason": "Rejection Reason",
-    "placeholderReason": "Enter reason for rejection",
-    "cancel": "Cancel",
-    "confirmReject": "Confirm Reject"
   }
 }

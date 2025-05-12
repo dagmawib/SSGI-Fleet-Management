@@ -1,9 +1,9 @@
 from django.utils import timezone
 from rest_framework import serializers
-from ssgi_fleet_api.request.models import Vehicle_Request
-from ssgi_fleet_api.users.models import User, Department
+from request.models import Vehicle_Request
+from users.models import User, Department
 from django.utils.dateparse import parse_datetime
-from ssgi_fleet_api.users.api.serializers import UserSerializer
+from users.api.serializers import UserSerializer
 
 
 
@@ -193,6 +193,7 @@ class RequestRejectSerializer(serializers.Serializer):
             raise serializers.ValidationError("Please provide a detailed reason (minimum 10 characters)")
         return value
     
+
 
 class EmployeeAndDirectorDepartemntSerilizer(serializers.ModelSerializer):
     class Meta:

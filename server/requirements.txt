@@ -20,5 +20,5 @@ sqlparse==0.5.3
 uritemplate==4.1.1
 gunicorn
 python-dotenv
-redis
 psycopg2-binary
+whitenoise

@@ -31,22 +31,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ssgi_fleet_api.users',    # Custom user app
-    'ssgi_fleet_api.vehicles', # Vehicle management app
+    'users',    # Custom user app
+    'vehicles', # Vehicle management app
     'rest_framework',##for JWT authentication
     'rest_framework_simplejwt',#for JWT authentication
     'rest_framework_simplejwt.token_blacklist', #for JWT authentication
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_filters',
-    'ssgi_fleet_api.request',
-    'ssgi_fleet_api.assignment'
+    'request',
+    'assignment',
+    # 'django_q',  # Removed because we now use cron for scheduling
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Replace default User model
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -154,39 +156,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Django Q Configuration
-Q_CLUSTER = {
-    'name': 'SSGI_Fleet',
-    'workers': 4,
-    'recycle': 500,
-    'timeout': 60,
-    'compress': True,
-    'save_limit': 250,
-    'queue_limit': 500,
-    'cpu_affinity': 1,
-    'label': 'Django Q',
-    'redis': {
-        'host': '127.0.0.1',
-        'port': 6379,
-        'db': 0,
-    }
-}
-
-# Schedule the pool cars update task
-Q_SCHEDULES = [
-    {
-        'name': 'Update pool cars availability',
-        'func': 'vehicles.management.commands.update_pool_cars.Command.handle',
-        'schedule_type': 'C',  # Cron-style schedule
-        'cron': '40 8 * * *',  # Run at 8:40 AM every day
-    },
-]
 
 # Add this for password reset link in emails
 FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost:3000/forgotPassword')

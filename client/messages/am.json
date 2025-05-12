@@ -229,10 +229,10 @@
     "upcomingRequest": "የሚመጣ ጥያቄ",
     "pickup": "መነሻ ቦታ",
     "destination": "መድረሻ",
-    "requester": "ተጠያቂ",
+    "requester": "ጠያቂ",
     "department": "ክፍል",
     "phone": "ስልክ",
-    "passengers": "ጓደኞች",
+    "passengers": "ተሳፋሪዎች",
     "kmBefore": "ጉዞ ከመጀመር በፊት ኪ.ሜ",
     "kmAfter": "ጉዞ ከመጨረሻ በኋላ ኪ.ሜ",
     "accept": "ተቀበል",
@@ -341,23 +341,6 @@
     "fuelEfficiencyValidationError": "ልክ ያልሆነ የነዳጅ ቅልጥፍና ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
     "currentMileageValidationError": "ልክ ያልሆነ የአሁኑ ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
     "nextMaintenanceMileageValidationError": "ልክ ያልሆነ ቀጣይ የጥገና ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።"
-  },
-  "director": {
-    "pickup": "መነሻ ቦታ",
-    "destination": "መድረሻ ቦታ",
-    "startTime": "የመጀመሪያ ሰዓት",
-    "endTime": "የመጨረሻ ሰዓት",
-    "requester": "ጠየቀው",
-    "reason": "ምክንያት",
-    "urgency": "አስቸኳይነት",
-    "approve": "አጽድቀው",
-    "reject": "አትች",
-    "requestDetails": "የጥያቄ ዝርዝር",
-    "confirmRejection": "እቅፍነትን አረጋግጥ",
-    "areYouSureReject": "ይህን ጥያቄ መቅደም እንደምትፈልጉ እርግጠኛ ነዎት?",
-    "rejectionReason": "የእቅፍነት ምክንያት",
-    "placeholderReason": "የእቅፍነት ምክንያትን ያስገቡ",
-    "cancel": "ተወው",
-    "confirmReject": "እቅፍነትን አረጋግጥ"
+
   }
 }
