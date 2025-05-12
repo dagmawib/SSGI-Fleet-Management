@@ -90,10 +90,15 @@
       "status": "ሁኔታ"
     },
     "statuses": {
-      "accepted": "ተቀብሏል",
-      "declined": "ተተውቷል",
+      "assigned": "ተቀብሏል",
+      "rejected": "ተተውቷል",
       "pending": "በመጠባበቅ ላይ"
-    }
+    },
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ",
+    "of": "ከ",
+    "page": "ገፅ",
+    "showing": "በማሳየት ላይ"
   },
   "login": {
     "title": "መግቢያ",
@@ -118,7 +123,14 @@
     "confirmPasswordPlaceholder": "አዲሱን የይለፍ ቃል ድጋሚ ያስገቡ",
     "updatePassword": "የይለፍ ቃል አዘምን",
     "showPassword": "የይለፍ ቃል አሳይ",
-    "hidePassword": "የይለፍ ቃል ደብቅ"
+    "hidePassword": "የይለፍ ቃል ደብቅ",
+    "continue": "ይቀጥሉ",
+    "emailPlaceholder": "የኢሜል አድራሻዎን ያስገቡ",
+    "email": "ኢሜይል",
+    "loading": "የይለፍ ቃል በመጫን ላይ...",
+    "error": "የይለፍ ቃል መርማሪያ አልተሳካም።",
+    "success": "የይለፍ ቃል በተሳካ ሁኔታ ወደ ኢሜይል ተላክቷል።",
+    "emailSent": "ኢሜል ተልኳል! ለተጨማሪ መመሪያዎች እባክዎ ኢሜልዎን ያረጋግጡ።"
   },
   "AdminPage": {
     "request": "ጥያቄዎች",

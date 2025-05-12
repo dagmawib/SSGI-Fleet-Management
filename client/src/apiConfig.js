@@ -41,5 +41,7 @@ export const API_ENDPOINTS = {
     DRIVER_DECLINE_REQUEST:"/assignments",
     DRIVER_COMPLETE_TRIP:"/assignments",
     DRIVER_COMPLETED_TRIPS:"/assignments/driver/completed-trips/",
+
+    HISTORY:"/request/user/history/",
 }
 

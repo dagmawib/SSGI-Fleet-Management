@@ -107,10 +107,16 @@
       "status": "Status"
     },
     "statuses": {
-      "accepted": "Accepted",
-      "declined": "Declined",
+      "assigned": "Assigned",
+      "rejected": "Rejected",
       "pending": "Pending"
-    }
+    },
+    "previous": "Previous",
+    "next": "Next",
+    "of": "Of",
+    "page": "Page",
+    "showing": "Showing",
+    "noRequests": "No requests found."
   },
   "login": {
     "title": "Login",

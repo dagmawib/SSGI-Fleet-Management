@@ -1,84 +1,40 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import useSWR from "swr";
+import { useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
 
-const requests = [
-  {
-    id: "#001",
-    date: "11 Feb, 2024",
-    requester: "John Doe",
-    approver: "Jane Smith",
-    vehicle: "Sedan",
-    driver: "Michael Smith",
-    pickup: "Location A",
-    destination: "Location B",
-    reason: "Business Trip",
-    status: "Accepted",
-  },
-  {
-    id: "#002",
-    date: "13 Feb, 2024",
-    requester: "Alice Johnson",
-    approver: "Tom Johnson",
-    vehicle: "SUV",
-    driver: "Robert Brown",
-    pickup: "Location C",
-    destination: "Location D",
-    reason: "Conference",
-    status: "Pending",
-  },
-  {
-    id: "#003",
-    date: "15 Feb, 2024",
-    requester: "David Lee",
-    approver: "Alice Williams",
-    vehicle: "Truck",
-    driver: "William Davis",
-    pickup: "Location E",
-    destination: "Location F",
-    reason: "Cargo Transport",
-    status: "Declined",
-  },
-  {
-    id: "#004",
-    date: "17 Feb, 2024",
-    requester: "John Doe",
-    approver: "Jane Smith",
-    vehicle: "Sedan",
-    driver: "Michael Smith",
-    pickup: "Location A",
-    destination: "Location B",
-    reason: "Business Trip",
-    status: "Accepted",
-  },
-  {
-    id: "#005",
-    date: "19 Feb, 2024",
-    requester: "Alice Johnson",
-    approver: "Tom Johnson",
-    vehicle: "SUV",
-    driver: "Robert Brown",
-    pickup: "Location C",
-    destination: "Location D",
-    reason: "Conference",
-    status: "Accepted",
-  },
-  {
-    id: "#006",
-    date: "21 Feb, 2024",
-    requester: "David Lee",
-    approver: "Alice Williams",
-    vehicle: "Truck",
-    driver: "William Davis",
-    pickup: "Location E",
-    destination: "Location F",
-    reason: "Cargo Transport",
-    status: "Declined",
-  },
-];
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function RequestTrackingPage() {
   const t = useTranslations("history");
+  const { data, isLoading, error } = useSWR("/api/employe_history", fetcher);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress />
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="p-8 text-center text-red-600">Failed to load data</div>;
+  }
+
+  const totalRequests = data?.total_requests || 0;
+  const acceptedRequests = data?.accepted_requests || 0;
+  const declinedRequests = data?.declined_requests || 0;
+  const requests = data?.requests || [];
+  const totalPages = Math.ceil(requests.length / rowsPerPage);
+  const paginatedRequests = requests.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   return (
     <div className="max-w-7xl w-full mx-auto py-6 px-4">
@@ -89,19 +45,15 @@ export default function RequestTrackingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 md:w-2/3">
         <div className="bg-white text-[#043755] p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold">{t("totalRequests")}</h3>
-          <p className="text-2xl font-bold">{requests.length}</p>
+          <p className="text-2xl font-bold">{totalRequests}</p>
         </div>
         <div className="bg-green-100 text-[#043755] p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold">{t("acceptedRequests")}</h3>
-          <p className="text-2xl font-bold">
-            {requests.filter((r) => r.status === "Accepted").length}
-          </p>
+          <p className="text-2xl font-bold">{acceptedRequests}</p>
         </div>
         <div className="bg-red-100 text-[#043755] p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold">{t("declinedRequests")}</h3>
-          <p className="text-2xl font-bold">
-            {requests.filter((r) => r.status === "Declined").length}
-          </p>
+          <p className="text-2xl font-bold">{declinedRequests}</p>
         </div>
       </div>
 
@@ -123,23 +75,23 @@ export default function RequestTrackingPage() {
             </tr>
           </thead>
           <tbody>
-            {requests.map((req) => (
-              <tr key={req.id} className="border-t text-[#043755]">
-                <td className="p-2">{req.id}</td>
+            {paginatedRequests.map((req) => (
+              <tr key={req.request_id} className="border-t text-[#043755]">
+                <td className="p-2">{req.request_id}</td>
                 <td className="p-2">{req.date}</td>
                 <td className="p-2">{req.requester}</td>
-                <td className="p-2">{req.approver}</td>
-                <td className="p-2">{req.vehicle}</td>
-                <td className="p-2">{req.driver}</td>
+                <td className="p-2">{req.approver || "-"}</td>
+                <td className="p-2">{req.vehicle || "-"}</td>
+                <td className="p-2">{req.driver || "-"}</td>
                 <td className="p-2">{req.pickup}</td>
                 <td className="p-2">{req.destination}</td>
                 <td className="p-2">{req.reason}</td>
                 <td className="p-2 font-semibold">
                   <span
                     className={
-                      req.status === "Accepted"
+                      req.status === "Assigned"
                         ? "text-green-600"
-                        : req.status === "Declined"
+                        : req.status === "Rejected"
                         ? "text-red-600"
                         : "text-yellow-500"
                     }
@@ -151,6 +103,29 @@ export default function RequestTrackingPage() {
             ))}
           </tbody>
         </table>
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-sm text-gray-600">
+            {t("showing")} {(currentPage - 1) * rowsPerPage + 1}
+            –{Math.min(currentPage * rowsPerPage, requests.length)} {t("of")} {requests.length}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-[#043755] text-white rounded hover:bg-gray-300 disabled:opacity-50"
+            >
+              {t("previous")}
+            </button>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-[#043755] text-white rounded hover:bg-gray-300 disabled:opacity-50"
+            >
+              {t("next")}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

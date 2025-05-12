@@ -19,6 +19,8 @@ export const POST = async (req) => {
       password,
     };
 
+    console.log("Request Body:", requestBody);
+    console.log("Request URL:", `${API_BASE_URL}${API_ENDPOINTS.LOGIN}`);
     // Make the POST request to the token API
     const response = await axios.post(
       `${API_BASE_URL}${API_ENDPOINTS.LOGIN}`,
@@ -30,6 +32,7 @@ export const POST = async (req) => {
         },
       }
     );
+    console.log("Response Data:", response);
     return new Response(JSON.stringify(response.data), {
         status: response.status,
       });
