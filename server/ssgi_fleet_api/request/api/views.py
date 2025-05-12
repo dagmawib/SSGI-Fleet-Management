@@ -19,7 +19,8 @@ from .docs import (
     reject_request_docs,
     request_status_docs,
     admin_requests_docs,
-    approve_request_docs
+    approve_request_docs,
+    user_request_history_docs,  # <-- import the docs string
 )
 
 
@@ -316,3 +317,50 @@ class DepartmentListWithDirectorsView(APIView):
         serializer = DepartmentListSerializer(departments, many=True)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserRequestHistoryAPIView(APIView):
+    """
+    Returns the request history for a user (current user if user_id is not provided).
+    See user_request_history_docs in docs.py for full documentation.
+    """
+    permission_classes = [IsAuthenticated]
+    def get(self, request, user_id=None):
+        """
+        Returns the request history for a user (current user if user_id is not provided).
+        See user_request_history_docs in docs.py for full documentation.
+        """
+        # If user_id is not provided, default to current user
+        if user_id is None:
+            user = request.user
+        else:
+            # Only allow access to own history or if admin
+            if not (request.user.is_superuser or request.user.id == int(user_id)):
+                return Response({'detail': 'Not authorized.'}, status=403)
+            user = get_object_or_404(User, pk=user_id)
+
+        requests = Vehicle_Request.objects.filter(requester=user).order_by('-created_at')
+        total_requests = requests.count()
+        accepted_requests = requests.filter(status=Vehicle_Request.Status.APPROVED).count()
+        declined_requests = requests.filter(status=Vehicle_Request.Status.REJECTED).count()
+
+        request_list = []
+        for req in requests:
+            request_list.append({
+                "request_id": req.request_id,
+                "date": req.created_at.strftime('%d %b, %Y'),
+                "requester": req.requester.get_full_name(),
+                "approver": req.department_approver.get_full_name() if req.department_approver else None,
+                "vehicle": req.vehicle.vehicle_type if hasattr(req, 'vehicle') and req.vehicle else None,
+                "driver": req.driver.get_full_name() if hasattr(req, 'driver') and req.driver else None,
+                "pickup": req.pickup_location,
+                "destination": req.destination,
+                "reason": req.purpose,
+                "status": req.status,
+            })
+
+        return Response({
+            "total_requests": total_requests,
+            "accepted_requests": accepted_requests,
+            "declined_requests": declined_requests,
+            "requests": request_list
+        })

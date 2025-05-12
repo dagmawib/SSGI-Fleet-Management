@@ -7,7 +7,8 @@ from .views import (
     RequestRejectAPI,
     RequestsListAPIView,
     EmployeeRequestStatusView,
-    DepartmentListWithDirectorsView
+    DepartmentListWithDirectorsView,
+    UserRequestHistoryAPIView,
 )
 
 urlpatterns = [
@@ -18,8 +19,8 @@ urlpatterns = [
     path('requests/<int:request_id>/reject/', RequestRejectAPI.as_view(), name='reject-request'),
     path('requests/<int:request_id>/cancel/', RequestCancelAPI.as_view(), name='cancel-request'),
     path('requests/list/',RequestsListAPIView.as_view(), name='request-list'),
-    path('requests/status/',EmployeeRequestStatusView.as_view(), name= 'employee-pr-requests')
-
-,
-    path('list/dir/' , DepartmentListWithDirectorsView.as_view() , name='list-dept')
-] # all are working , possible BLOC mis-understandings...
+    path('requests/status/',EmployeeRequestStatusView.as_view(), name= 'employee-pr-requests'),
+    path('list/dir/' , DepartmentListWithDirectorsView.as_view() , name='list-dept'),
+    path('user/history/', UserRequestHistoryAPIView.as_view(), name='user-request-history'),
+    path('user/<int:user_id>/history/', UserRequestHistoryAPIView.as_view(), name='user-request-history-specific'),
+]
