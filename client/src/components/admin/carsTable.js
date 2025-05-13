@@ -5,6 +5,9 @@ import { useTranslations } from "next-intl";
 import "react-toastify/dist/ReactToastify.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import useSWR from "swr";
+import CarEditModal from "./CarEditModal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -29,6 +32,7 @@ export default function CarsTable() {
     data: cars = [],
     isLoading,
     error,
+    mutate,
   } = useSWR("/api/get_vehicles", fetcher);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,6 +40,86 @@ export default function CarsTable() {
   const [clearLoading, setClearLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const handleRowClick = (car) => {
+    setSelectedCar(car);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedCar(null);
+  };
+
+  const handleEdit = async (updatedCar) => {
+    setModalLoading(true);
+    try {
+      // Create an object to hold only the modified fields
+      const updatedFields = {};
+
+      // Iterate over the keys of updatedCar
+      for (const key in updatedCar) {
+        if (
+          updatedCar.hasOwnProperty(key) &&
+          updatedCar[key] !== selectedCar[key]
+        ) {
+          updatedFields[key] = updatedCar[key];
+        }
+      }
+
+      if (Object.keys(updatedFields).length === 0) {
+        toast.info("No changes detected.");
+        setModalLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/update_vehicle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedCar.id,
+          ...updatedFields,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error:", errorData.error);
+        throw new Error(errorData.error || "Failed to update vehicle");
+      }
+
+      toast.success("Vehicle updated successfully");
+      await mutate(); // Refresh the data after update
+      setModalOpen(false);
+    } catch (err) {
+      toast.error(err.message || "Failed to update vehicle");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleDelete = async (carId) => {
+    setModalLoading(true);
+    try {
+      const res = await fetch("/api/delete_vehicle", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicle_id: carId }),
+      });
+      if (!res.ok) throw new Error("Failed to delete vehicle");
+      toast.success("Vehicle deleted successfully");
+      await mutate(); // Refresh the data after deletion
+    } catch (err) {
+      toast.error(err.message || "Failed to delete vehicle");
+    } finally {
+      setModalLoading(false);
+      setModalOpen(false);
+    }
+  };
 
   const resetFilters = async () => {
     setClearLoading(true);
@@ -158,7 +242,8 @@ export default function CarsTable() {
             {currentCars.map((car, index) => (
               <tr
                 key={car.id}
-                className="border-t hover:bg-gray-50 transition text-[#043755]"
+                className="border-t hover:bg-gray-50 transition text-[#043755] cursor-pointer"
+                onClick={() => handleRowClick(car)}
               >
                 <td className="px-4 py-2">{startIndex + index + 1}</td>
                 <td className="px-4 py-2">{car.license_plate}</td>
@@ -205,19 +290,28 @@ export default function CarsTable() {
         </table>
       </div>
 
+      <CarEditModal
+        open={modalOpen}
+        onClose={handleModalClose}
+        car={selectedCar}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        loading={modalLoading}
+      />
+
       {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4 space-x-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1 || loading}
+            disabled={currentPage === 1 || isLoading}
             className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${
-              currentPage === 1 || loading
+              currentPage === 1 || isLoading
                 ? "bg-gray-200 cursor-not-allowed"
                 : "bg-[#043755] text-white hover:bg-blue-700"
             }`}
           >
-            {loading ? (
+            {isLoading ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
               t("previous")
@@ -228,27 +322,31 @@ export default function CarsTable() {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              disabled={loading}
+              disabled={isLoading}
               className={`px-3 py-1 rounded flex items-center justify-center min-w-[32px] ${
                 currentPage === page
                   ? "bg-[#043755] text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
             >
-              {loading ? <CircularProgress size={20} color="inherit" /> : page}
+              {isLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                page
+              )}
             </button>
           ))}
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || loading}
+            disabled={currentPage === totalPages || isLoading}
             className={`px-3 py-1 rounded flex items-center justify-center min-w-[100px] ${
-              currentPage === totalPages || loading
+              currentPage === totalPages || isLoading
                 ? "bg-gray-200 cursor-not-allowed"
                 : "bg-[#043755] text-white hover:bg-blue-700"
             }`}
           >
-            {loading ? (
+            {isLoading ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
               t("next")

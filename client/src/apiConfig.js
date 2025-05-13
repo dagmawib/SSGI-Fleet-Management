@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
     // Vehicle Management Endpoints
     ADD_VEHICLE:"/vehicles/vehicles/add/",
     GET_VEHICLE:"/vehicles/vehicles/list/",
+    DELETE_VEHICLE:"/vehicles/vehicles",
+    EDIT_VEHICLE:"/vehicles/vehicles",
     GET_DRIVERS:"/vehicles/drivers/unassigned/",
     VEHICLE_REQUEST:"/request/requests/",
     REQUESTS_FOR_DIRECTOR:"/request/requests/pending/",
