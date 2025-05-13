@@ -100,6 +100,22 @@
     "page": "ገፅ",
     "showing": "በማሳየት ላይ"
   },
+  "admin_history": {
+    "assignedDate": "የተመደበበት ቀን",
+    "requester": "ጠያቂ",
+    "vehicle": "ተሽከርካሪ",
+    "driver": "አሽከርካሪ",
+    "approver": "አጽዳቂ",
+    "pickup": "መነሻ ቦታ",
+    "destination": "መድረሻ",
+    "totalKm": "ጠቅላላ ኪ.ሜ.",
+    "showing": "በማሳየት ላይ",
+    "of": "ከ",
+    "previous": "የቀደመው",
+    "next": "የቀጣዩ",
+    "loading": "በመጫን ላይ...",
+    "failed": "መረጃውን ማግኘት አልተቻለም"
+  },
   "login": {
     "title": "መግቢያ",
     "email": "ኢሜይል",

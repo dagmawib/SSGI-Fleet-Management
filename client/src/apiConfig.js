@@ -1,4 +1,4 @@
-export const API_BASE_URL = "http://backend:8000/api"; 
+export const API_BASE_URL = "http://localhost:8000/api"; 
 
 export const API_ENDPOINTS = {
     // Authentication Endpoints
@@ -43,5 +43,6 @@ export const API_ENDPOINTS = {
     DRIVER_COMPLETED_TRIPS:"/assignments/driver/completed-trips/",
 
     HISTORY:"/request/user/history/",
+    ADMIN_HISTORY:"/assignments/admin/history/"
 }
 

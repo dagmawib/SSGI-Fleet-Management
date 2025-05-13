@@ -387,5 +387,21 @@
     "fuelEfficiencyValidationError": "Invalid fuel efficiency format. Please enter a valid number.",
     "currentMileageValidationError": "Invalid current mileage format. Please enter a valid number.",
     "nextMaintenanceMileageValidationError": "Invalid next maintenance mileage format. Please enter a valid number."
+  },
+  "admin_history": {
+    "assignedDate": "Assigned Date",
+    "requester": "Requester",
+    "vehicle": "Vehicle",
+    "driver": "Driver",
+    "approver": "Approver",
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "totalKm": "Total KM",
+    "showing": "Showing",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next",
+    "loading": "Loading...",
+    "failed": "Failed to load data"
   }
 }
