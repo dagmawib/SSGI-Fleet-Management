@@ -6,6 +6,11 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from rest_framework.views import APIView
+from assignment.models import Trips
+from django.utils import timezone
+from datetime import datetime
+from rest_framework.permissions import IsAdminUser
 
 from vehicles.models import Vehicle
 from users.models import User
@@ -99,6 +104,91 @@ class VehicleViewSet(viewsets.ModelViewSet):
     def _log_status_change(self, vehicle):
         # Implement status change logging here
         pass
+
+@extend_schema(
+    summary="Monthly vehicle usage report (all vehicles)",
+    description="Returns a list of all vehicles with their name, plate, driver, and total kilometers driven for the current month. Only accessible to admins and superadmins.",
+    responses={
+        200: OpenApiResponse(
+            response=None,
+            description="A list of all vehicles with their monthly usage [{vehicle, license_plate, driver, total_km_this_month}]"
+        )
+    },
+    tags=["Vehicle History"]
+)
+class VehicleHistoryListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
+
+    def get(self, request):
+        """
+        Returns a list of all vehicles with their name, plate, driver, and total km for the current month.
+        """
+        now = timezone.now()
+        first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        vehicles = Vehicle.objects.select_related('assigned_driver').all()
+        data = []
+        for vehicle in vehicles:
+            trips = Trips.objects.filter(
+                assignment__vehicle=vehicle,
+                status=Trips.TripStatus.COMPLETED,
+                start_time__gte=first_day,
+                start_time__lte=now
+            )
+            total_km = sum([t.distance for t in trips])
+            driver = vehicle.assigned_driver
+            data.append({
+                "vehicle": f"{vehicle.make} {vehicle.model}",
+                "license_plate": vehicle.license_plate,
+                "driver": f"{driver.first_name} {driver.last_name}" if driver else None,
+                "total_km_this_month": total_km
+            })
+        return Response(data)
+
+@extend_schema(
+    summary="Monthly vehicle usage report (single vehicle)",
+    description="Returns the name, plate, driver, and total kilometers driven for the current month for a single vehicle. Only accessible to admins and superadmins.",
+    responses={
+        200: OpenApiResponse(
+            response=None,
+            description="Vehicle monthly usage: {vehicle, license_plate, driver, total_km_this_month}"
+        ),
+        404: OpenApiResponse(
+            response=None,
+            description="Vehicle not found."
+        )
+    },
+    tags=["Vehicle History"]
+)
+class VehicleHistoryView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
+
+    def get(self, request, id):
+        """
+        Returns vehicle name, plate, driver, and total km for the current month.
+        """
+        try:
+            vehicle = Vehicle.objects.select_related('assigned_driver').get(id=id)
+        except Vehicle.DoesNotExist:
+            return Response({"detail": "Vehicle not found."}, status=404)
+
+        # Get first and last day of current month
+        now = timezone.now()
+        first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # Get all completed trips for this vehicle in the current month
+        trips = Trips.objects.filter(
+            assignment__vehicle=vehicle,
+            status=Trips.TripStatus.COMPLETED,
+            start_time__gte=first_day,
+            start_time__lte=now
+        )
+        total_km = sum([t.distance for t in trips])
+        driver = vehicle.assigned_driver
+        return Response({
+            "vehicle": f"{vehicle.make} {vehicle.model}",
+            "license_plate": vehicle.license_plate,
+            "driver": f"{driver.first_name} {driver.last_name}" if driver else None,
+            "total_km_this_month": total_km
+        })
 
 @extend_schema(
     summary="List unassigned drivers",
