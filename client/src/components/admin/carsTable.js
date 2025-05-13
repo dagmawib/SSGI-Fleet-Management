@@ -78,7 +78,7 @@ export default function CarsTable() {
       }
 
       const res = await fetch("/api/update_vehicle", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: selectedCar.id,

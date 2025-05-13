@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
-export async function POST(req) {
+export async function PATCH(req) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token")?.value;
@@ -51,8 +51,8 @@ export async function POST(req) {
       }
     }
 
-    const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.EDIT_VEHICLE}/${id}/maintenance/`,
+    const response = await axios.patch(
+      `${API_BASE_URL}${API_ENDPOINTS.EDIT_VEHICLE}/${id}/`,
       payload,
       {
         headers: {
@@ -62,8 +62,6 @@ export async function POST(req) {
         },
       }
     );
-
-    console.log("Vehicle updated successfully:", response);
 
     return new Response(JSON.stringify(response.data), {
       status: 200,
