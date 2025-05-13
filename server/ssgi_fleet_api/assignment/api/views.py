@@ -21,7 +21,6 @@ from .docs import (
     ACCEPT_ASSIGNMENT_DOCS,
     DECLINE_ASSIGNMENT_DOCS,
     COMPLETE_ASSIGNMENT_DOCS,
-    admin_requests_docs,
     admin_assignment_history_docs
 )
 from ..models import Vehicle_Assignment, Trips

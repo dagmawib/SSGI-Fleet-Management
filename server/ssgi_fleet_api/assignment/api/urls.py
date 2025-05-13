@@ -21,6 +21,5 @@ urlpatterns = [
         name='complete-assignment'
     ),
     path('driver/completed-trips/', DriverCompletedTripsView.as_view(), name='driver-completed-trips'),
-    path('admin/assignment-history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history'),
-    path('assignments/admin/history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history')
+    path('admin/history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history')
 ]
