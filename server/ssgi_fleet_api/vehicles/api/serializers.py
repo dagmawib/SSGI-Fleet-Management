@@ -28,13 +28,17 @@ class VehicleSerializer(serializers.ModelSerializer):
                 is_active=True
             ).first()
             if not driver:
-                raise serializers.ValidationError(
-                    "No active driver found with this ID. Please ensure the driver exists and is active."
-                )
+                raise serializers.ValidationError({
+                    "driver_id": "No active driver found with this ID. Please ensure the driver exists and is active.",
+                    "error_code": "driver_not_found"
+                })
             self.context['driver'] = driver
             return value
         except Exception as e:
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError({
+                "driver_id": str(e),
+                "error_code": "driver_validation_error"
+            })
 
     def create(self, validated_data):
         driver_id = validated_data.pop('driver_id', None)
@@ -50,6 +54,9 @@ class VehicleSerializer(serializers.ModelSerializer):
         driver = self.context.get('driver')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        # Enforce one driver per car: unassign driver from any other vehicle
+        if driver:
+            Vehicle.objects.filter(assigned_driver=driver).exclude(id=instance.id).update(assigned_driver=None)
         instance.assigned_driver = driver
         instance.save()
         return instance
@@ -57,9 +64,10 @@ class VehicleSerializer(serializers.ModelSerializer):
     def validate_status(self, value):
         if self.instance and self.instance.status == Vehicle.Status.OUT_OF_SERVICE:
             if value != Vehicle.Status.OUT_OF_SERVICE:
-                raise serializers.ValidationError(
-                    "Out-of-service vehicles require special reactivation"
-                )
+                raise serializers.ValidationError({
+                    "status": "Out-of-service vehicles require special reactivation.",
+                    "error_code": "out_of_service_reactivation"
+                })
         return value
 
     def validate_category(self, value):
@@ -68,7 +76,8 @@ class VehicleSerializer(serializers.ModelSerializer):
         For 'pool' cars: Note that all pool cars that have been in use or available within the last 24 hours will be set to available at 8:40 AM automatically.
         """
         if value not in [Vehicle.Category.FIELD, Vehicle.Category.POOL]:
-            raise serializers.ValidationError(
-                "Category must be either 'field' or 'pool'."
-            )
+            raise serializers.ValidationError({
+                "category": "Category must be either 'field' or 'pool'.",
+                "error_code": "invalid_category"
+            })
         return value

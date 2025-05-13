@@ -125,3 +125,38 @@ def unassigned_drivers(request):
         for d in drivers
     ]
     return Response(data)
+
+@extend_schema(
+    summary="List all active drivers",
+    description="Returns a list of all active drivers (id, first_name, last_name, email, and assigned_vehicle if any). Useful for admin assignment UI.",
+    responses={
+        200: OpenApiResponse(
+            response=None,
+            description="A list of all active drivers [{id, first_name, last_name, email, assigned_vehicle}]"
+        )
+    },
+    tags=["Drivers"]
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated, IsAdminOrSuperAdmin])
+def all_drivers(request):
+    """
+    List all active drivers, including their current assigned vehicle (if any).
+    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ..., "assigned_vehicle": {"id": ..., "license_plate": ...} or null}]
+    """
+    drivers = User.objects.filter(role=User.Role.DRIVER, is_active=True)
+    data = []
+    for d in drivers:
+        assigned_vehicle = None
+        vehicle = getattr(d, 'assigned_vehicles', None)
+        if vehicle and vehicle.exists():
+            v = vehicle.first()
+            assigned_vehicle = {"id": v.id, "license_plate": v.license_plate}
+        data.append({
+            "id": d.id,
+            "first_name": d.first_name,
+            "last_name": d.last_name,
+            "email": d.email,
+            "assigned_vehicle": assigned_vehicle
+        })
+    return Response(data)
