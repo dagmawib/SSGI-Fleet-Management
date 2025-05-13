@@ -51,13 +51,15 @@ class VehicleSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         driver_id = validated_data.pop('driver_id', None)
-        driver = self.context.get('driver') if driver_id is not None else instance.assigned_driver
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        # Enforce one driver per car: unassign driver from any other vehicle
+        # Only change driver if driver_id is provided
         if driver_id is not None:
+            driver = self.context.get('driver')
+            # Unassign this driver from any other vehicle
             Vehicle.objects.filter(assigned_driver=driver).exclude(id=instance.id).update(assigned_driver=None)
             instance.assigned_driver = driver
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
         return instance
 
