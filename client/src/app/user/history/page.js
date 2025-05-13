@@ -93,10 +93,14 @@ export default function RequestTrackingPage() {
                         ? "text-green-600"
                         : req.status === "Rejected"
                         ? "text-red-600"
+                        : req.status === "Approved"
+                        ? "text-yellow-500"
                         : "text-yellow-500"
                     }
                   >
-                    {t(`statuses.${req.status.toLowerCase()}`)}
+                    {req.status === "Approved"
+                      ? t("statuses.pending")
+                      : t(`statuses.${req.status.toLowerCase()}`)}
                   </span>
                 </td>
               </tr>

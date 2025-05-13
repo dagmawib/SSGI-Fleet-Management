@@ -403,5 +403,20 @@
     "next": "Next",
     "loading": "Loading...",
     "failed": "Failed to load data"
+  },
+  "director":{
+    "pickup": "Pickup",
+    "destination": "Destination",
+    "requester": "Requester",
+    "department": "Department",
+    "phone": "Phone",
+    "passengers": "Passengers",
+    "approve": "Approve",
+    "reject": "Reject",
+    "requestDetails": "Request Details",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "reason": "Reason",
+    "urgency": "Urgency"
   }
 }

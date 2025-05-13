@@ -91,7 +91,7 @@
     },
     "statuses": {
       "assigned": "ተቀብሏል",
-      "rejected": "ተተውቷል",
+      "rejected": "ተቀባይነት አላገኘም።",
       "pending": "በመጠባበቅ ላይ"
     },
     "previous": "ቀዳሚ",
@@ -370,5 +370,21 @@
     "currentMileageValidationError": "ልክ ያልሆነ የአሁኑ ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
     "nextMaintenanceMileageValidationError": "ልክ ያልሆነ ቀጣይ የጥገና ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።"
 
-  }
+  },
+  "director": {
+  "pickup": "መነሻ ቦታ",
+  "destination": "መድረሻ ቦታ",
+  "requester": "ጠያቂ",
+  "department": "ክፍል",
+  "phone": "ስልክ",
+  "passengers": "ተሳፋሪዎች",
+  "approve": "አጽድቅ",
+  "reject": "አስወግድ",
+  "requestDetails": "የጥያቄ ዝርዝሮች",
+  "startTime": "የመጀመሪያ ሰአት",
+  "endTime": "የመጨረሻ ሰአት",
+  "reason": "ምክንያት",
+  "urgency": "አስቸኳይነት"
+}
+
 }
