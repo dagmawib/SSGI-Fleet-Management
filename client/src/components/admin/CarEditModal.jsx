@@ -4,6 +4,9 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function CarEditModal({
   open,
@@ -15,6 +18,13 @@ export default function CarEditModal({
 }) {
   const [form, setForm] = useState(car || {});
 
+  const {
+    data: drivers = [],
+    isLoading,
+    error,
+    mutate,
+  } = useSWR("/api/get_all_drivers", fetcher);
+
   React.useEffect(() => {
     setForm(car || {});
   }, [car]);
@@ -24,14 +34,19 @@ export default function CarEditModal({
   };
 
   const handleEdit = () => {
-    onEdit(form);
+    // If assigned_driver is present, send its id; otherwise, send null
+    const payload = {
+      ...form,
+      assigned_driver: form.assigned_driver ? form.assigned_driver.id : null,
+    };
+    onEdit(payload);
   };
 
   const handleDelete = () => {
     onDelete(car.id);
   };
 
-  if (!car) return null;
+  if (!drivers) return null;
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -127,13 +142,28 @@ export default function CarEditModal({
             onChange={handleChange}
             fullWidth
           />
-          <TextField
-            label="Driver"
-            name="driver"
-            value={form.assigned_driver?.first_name || ""}
-            onChange={handleChange}
-            fullWidth
-          />
+          {/* Driver Dropdown */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Driver</label>
+            <select
+              name="assigned_driver"
+              value={form.assigned_driver?.id || ""}
+              onChange={(e) => {
+                const selected = drivers?.find((d) => d.id == e.target.value);
+                setForm({ ...form, assigned_driver: selected || null });
+              }}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              disabled={isLoading}
+            >
+              <option value="">Unassigned</option>
+              {Array.isArray(drivers) &&
+                drivers.map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.first_name} {driver.last_name}
+                  </option>
+                ))}
+            </select>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
