@@ -43,7 +43,7 @@ export default function CarsTable() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
-  const [modalLoading, setModalLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(null);
 
   const handleRowClick = (car) => {
     setSelectedCar(car);
@@ -56,7 +56,7 @@ export default function CarsTable() {
   };
 
   const handleEdit = async (updatedCar) => {
-    setModalLoading(true);
+    setModalLoading("edit");
     try {
       // Create an object to hold only the modified fields
       const updatedFields = {};
@@ -103,7 +103,7 @@ export default function CarsTable() {
   };
 
   const handleDelete = async (carId) => {
-    setModalLoading(true);
+    setModalLoading("delete");
     try {
       const res = await fetch("/api/delete_vehicle", {
         method: "DELETE",
