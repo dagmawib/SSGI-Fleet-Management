@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     GET_VEHICLE:"/vehicles/vehicles/list/",
     DELETE_VEHICLE:"/vehicles/vehicles",
     EDIT_VEHICLE:"/vehicles/vehicles",
+    VEHICLES_HISTORY:"/vehicles/vehicles/history",
     GET_DRIVERS:"/vehicles/drivers/unassigned/",
     VEHICLE_REQUEST:"/request/requests/",
     REQUESTS_FOR_DIRECTOR:"/request/requests/pending/",

@@ -247,6 +247,7 @@
   "AdminNavbar": {
     "request": "ጥያቄዎች",
     "history": "ታሪክ",
+    "vehicles": "የተሽከርካሪዎች ታሪክ",
     "car": "ተሽከርካሪዎች",
     "changeLanguage": "ቋንቋ ይለውጡ",
     "logout": "ውጣ"
@@ -369,22 +370,38 @@
     "fuelEfficiencyValidationError": "ልክ ያልሆነ የነዳጅ ቅልጥፍና ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
     "currentMileageValidationError": "ልክ ያልሆነ የአሁኑ ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።",
     "nextMaintenanceMileageValidationError": "ልክ ያልሆነ ቀጣይ የጥገና ማይል ርቀት ቅርጸት። እባክዎ ትክክለኛ ቁጥር ያስገቡ።"
-
   },
   "director": {
-  "pickup": "መነሻ ቦታ",
-  "destination": "መድረሻ ቦታ",
-  "requester": "ጠያቂ",
-  "department": "ክፍል",
-  "phone": "ስልክ",
-  "passengers": "ተሳፋሪዎች",
-  "approve": "አጽድቅ",
-  "reject": "አስወግድ",
-  "requestDetails": "የጥያቄ ዝርዝሮች",
-  "startTime": "የመጀመሪያ ሰአት",
-  "endTime": "የመጨረሻ ሰአት",
-  "reason": "ምክንያት",
-  "urgency": "አስቸኳይነት"
-}
-
+    "pickup": "መነሻ ቦታ",
+    "destination": "መድረሻ ቦታ",
+    "requester": "ጠያቂ",
+    "department": "ክፍል",
+    "phone": "ስልክ",
+    "passengers": "ተሳፋሪዎች",
+    "approve": "አጽድቅ",
+    "reject": "አስወግድ",
+    "requestDetails": "የጥያቄ ዝርዝሮች",
+    "startTime": "የመጀመሪያ ሰአት",
+    "endTime": "የመጨረሻ ሰአት",
+    "reason": "ምክንያት",
+    "urgency": "አስቸኳይነት"
+  },
+  "vehciles_history": {
+    "vehicle": "መኪና",
+    "license_plate": "የፈቃድ ቁጥር",
+    "department": "ክፍል",
+    "category": "ምድብ",
+    "status": "ሁኔታ",
+    "current_driver": "የአሁኑ ሹፌር",
+    "trip_count": "የጉዞ ብዛት",
+    "total_km": "ጠቅላላ ኪ.ሜ.",
+    "maintenance_due": "የጥገና ጊዜ ደርሷል",
+    "previousDrivers": "የቀድሞ አሽከርካሪዎች",
+    "noPreviousDrivers": "ምንም የቀድሞ አሽከርካሪዎች አልተገኙም።",
+    "close": "ዝጋ",
+    "loading": "በመጫን ላይ...",
+    "error": "ውሂብ ማስመጣት አልተሳካም።",
+    "previous": "ቀደም",
+    "next": "ቀጣይ"
+  }
 }

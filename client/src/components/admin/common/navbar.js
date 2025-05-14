@@ -135,6 +135,16 @@ export default function Navbar() {
               >
                 {t("history")}
               </Link>
+              <Link
+                href="/admin/vehicles"
+                className={
+                  isActive("/admin/vehicles")
+                    ? "text-[#FFAE02] font-medium"
+                    : "text-[#043755] hover:text-afPrimary"
+                }
+              >
+                {t("vehicles")}
+              </Link>
             </div>
           </nav>
         </div>
@@ -258,6 +268,17 @@ export default function Navbar() {
                       onClick={closeSidebar}
                     >
                       {t("history")}
+                    </Link>
+                    <Link
+                      href="/admin/vehicles"
+                      className={
+                        isActive("/admin/vehicles")
+                          ? "text-afPrimary underline underline-offset-4"
+                          : "text-afPrimary/80 hover:text-afPrimary"
+                      }
+                      onClick={closeSidebar}
+                    >
+                      {t("vehicles")}
                     </Link>
                   </nav>
 

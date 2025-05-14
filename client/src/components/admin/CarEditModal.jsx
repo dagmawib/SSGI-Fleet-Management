@@ -5,11 +5,6 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import useSWR from "swr";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import ListSubheader from "@mui/material/ListSubheader";
 import Autocomplete from "@mui/material/Autocomplete";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

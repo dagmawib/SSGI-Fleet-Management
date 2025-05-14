@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CircularProgress from "@mui/material/CircularProgress";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import useSWR from "swr";
 
 const statusColors = {
@@ -84,19 +84,10 @@ export default function RequestTable() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-4">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-6 gap-4 animate-pulse bg-white p-4 rounded-lg shadow"
-          >
-            {[...Array(6)].map((_, j) => (
-              <Skeleton key={j} className="h-6 w-16 rounded-full bg-gray-300" />
-            ))}
+          <div className="flex justify-center items-center h-32">
+            <CircularProgress />
           </div>
-        ))}
-      </div>
-    );
+        );
   }
 
 

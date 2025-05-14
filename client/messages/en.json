@@ -240,6 +240,7 @@
   "AdminNavbar": {
     "request": "Requests",
     "history": "History",
+    "vehicles": "Vehicles History",
     "car": "Vehicles",
     "changeLanguage": "Change Language",
     "logout": "Logout"
@@ -404,7 +405,7 @@
     "loading": "Loading...",
     "failed": "Failed to load data"
   },
-  "director":{
+  "director": {
     "pickup": "Pickup",
     "destination": "Destination",
     "requester": "Requester",
@@ -418,5 +419,24 @@
     "endTime": "End Time",
     "reason": "Reason",
     "urgency": "Urgency"
+  },
+  "vehciles_history": {
+    "vehicle": "Vehicle",
+    "license_plate": "License Plate",
+    "department": "Department",
+    "category": "Category",
+    "status": "Status",
+    "current_driver": "Current Driver",
+    "trip_count": "Trip Count",
+    "total_km": "Total KM",
+    "maintenance_due": "Maintenance Due",
+    "previousDrivers": "Previous Drivers",
+    "noPreviousDrivers": "No Previous Drivers found.",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error loading data.",
+
+    "previous": "Previous",
+    "next": "Next"
   }
 }
