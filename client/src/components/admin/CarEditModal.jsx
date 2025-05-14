@@ -5,6 +5,12 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import useSWR from "swr";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import ListSubheader from "@mui/material/ListSubheader";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -17,6 +23,7 @@ export default function CarEditModal({
   loading,
 }) {
   const [form, setForm] = useState(car || {});
+  const [driverSearch, setDriverSearch] = useState("");
 
   const {
     data: drivers = [],
@@ -34,17 +41,27 @@ export default function CarEditModal({
   };
 
   const handleEdit = () => {
-    // If assigned_driver is present, send its id; otherwise, send null
     const payload = {
       ...form,
-      assigned_driver: form.assigned_driver ? form.assigned_driver.id : null,
+      driver_id: form.assigned_driver ? form.assigned_driver.id : null,
     };
-    onEdit(payload, 'edit');
+    delete payload.assigned_driver;
+
+    onEdit(payload, "edit");
   };
 
   const handleDelete = () => {
-    onDelete(car.id, 'delete');
+    onDelete(car.id, "delete");
   };
+
+  // Filter drivers by search
+  const filteredDrivers = Array.isArray(drivers)
+    ? drivers.filter((driver) =>
+        (driver.first_name + " " + driver.last_name)
+          .toLowerCase()
+          .includes(driverSearch.toLowerCase())
+      )
+    : [];
 
   if (!drivers) return null;
 
@@ -145,49 +162,48 @@ export default function CarEditModal({
           {/* Driver Dropdown */}
           <div>
             <label className="block text-sm font-medium mb-1">Driver</label>
-            <select
-              name="assigned_driver"
-              value={form.assigned_driver?.id || ""}
-              onChange={(e) => {
-                const selected = drivers?.find((d) => d.id == e.target.value);
-                setForm({ ...form, assigned_driver: selected || null });
+            <Autocomplete
+              options={drivers}
+              getOptionLabel={(driver) =>
+                driver ? `${driver.first_name} ${driver.last_name}` : ""
+              }
+              value={form.assigned_driver || null}
+              onChange={(e, newValue) => {
+                setForm({ ...form, assigned_driver: newValue });
               }}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              disabled={isLoading}
-            >
-              <option value="">Unassigned</option>
-              {Array.isArray(drivers) &&
-                drivers.map((driver) => (
-                  <option key={driver.id} value={driver.id}>
-                    {driver.first_name} {driver.last_name}
-                  </option>
-                ))}
-            </select>
+              isOptionEqualToValue={(option, value) => option.id === value?.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Driver"
+                  placeholder="Search driver"
+                  size="small"
+                />
+              )}
+              fullWidth
+            />
           </div>
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
-          <Button
-            onClick={onClose}
-            variant="outlined"
-          >
+          <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>
           <Button
             onClick={handleDelete}
             color="error"
             variant="contained"
-            disabled={loading === 'delete'}
+            disabled={loading === "delete"}
           >
-            {loading === 'delete' ? <CircularProgress size={18} /> : "Delete"}
+            {loading === "delete" ? <CircularProgress size={18} /> : "Delete"}
           </Button>
           <Button
             onClick={handleEdit}
             color="primary"
             variant="contained"
-            disabled={loading === 'edit'}
+            disabled={loading === "edit"}
           >
-            {loading === 'edit' ? <CircularProgress size={18} /> : "Edit"}
+            {loading === "edit" ? <CircularProgress size={18} /> : "Edit"}
           </Button>
         </div>
       </Box>

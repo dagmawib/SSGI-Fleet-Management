@@ -93,8 +93,8 @@ export default function CarsTable() {
       }
 
       toast.success("Vehicle updated successfully");
-      await mutate(); // Refresh the data after update
       setModalOpen(false);
+      await mutate(); 
     } catch (err) {
       toast.error(err.message || "Failed to update vehicle");
     } finally {
