@@ -9,14 +9,29 @@ class DriverNameSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "first_name", "last_name"]
 
+class VehicleDriverAssignmentHistorySerializer(serializers.ModelSerializer):
+    driver = DriverNameSerializer(read_only=True)
+    class Meta:
+        model = VehicleDriverAssignmentHistory
+        fields = ["driver", "assigned_at", "unassigned_at"]
+
 class VehicleSerializer(serializers.ModelSerializer):
     driver_id = serializers.IntegerField(write_only=True, required=False, help_text="ID of the driver to assign")
     assigned_driver = DriverNameSerializer(read_only=True)
+    assigned_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Vehicle
         fields = '__all__'
         read_only_fields = ('created_at', 'updated_at')
+
+    def get_assigned_date(self, obj):
+        # Get the latest assignment for the current driver
+        if obj.assigned_driver:
+            assignment = obj.driver_history.filter(driver=obj.assigned_driver, unassigned_at__isnull=True).order_by('-assigned_at').first()
+            if assignment:
+                return assignment.assigned_at
+        return None
 
     def validate_driver_id(self, value):
         """

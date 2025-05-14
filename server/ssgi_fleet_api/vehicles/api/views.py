@@ -18,7 +18,7 @@ import csv
 from vehicles.models import Vehicle, VehicleDriverAssignmentHistory
 from users.models import User
 from users.api.serializers import UserSerializer
-from .serializers import VehicleSerializer
+from .serializers import VehicleSerializer, VehicleDriverAssignmentHistorySerializer
 from .permissions import IsAdminOrSuperAdmin
 from .docs import (
     vehicle_create_docs,
@@ -301,12 +301,12 @@ def unassigned_drivers(request):
     return Response(data)
 
 @extend_schema(
-    summary="List all active drivers",
-    description="Returns a list of all active drivers (id, first_name, last_name, email, and assigned_vehicle if any). Useful for admin assignment UI.",
+    summary="List all active drivers (with assignment dates)",
+    description="Returns a list of all active drivers, their assigned vehicle (if any), and the assigned/unassigned dates for their current assignment.",
     responses={
         200: OpenApiResponse(
             response=None,
-            description="A list of all active drivers [{id, first_name, last_name, email, assigned_vehicle}]"
+            description="A list of all active drivers with assignment info [{id, first_name, last_name, email, assigned_vehicle, assigned_at, unassigned_at}]"
         )
     },
     tags=["Drivers"]
@@ -316,21 +316,30 @@ def unassigned_drivers(request):
 def all_drivers(request):
     """
     List all active drivers, including their current assigned vehicle (if any).
-    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ..., "assigned_vehicle": {"id": ..., "license_plate": ...} or null}]
+    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ..., "assigned_vehicle": {"id": ..., "license_plate": ...} or null, "assigned_at": ..., "unassigned_at": ...}]
     """
     drivers = User.objects.filter(role=User.Role.DRIVER, is_active=True)
     data = []
     for d in drivers:
         assigned_vehicle = None
+        assigned_at = None
+        unassigned_at = None
         vehicle = getattr(d, 'assigned_vehicles', None)
         if vehicle and vehicle.exists():
             v = vehicle.first()
             assigned_vehicle = {"id": v.id, "license_plate": v.license_plate}
+            # Get assignment history for this driver/vehicle
+            assignment = v.driver_history.filter(driver=d, unassigned_at__isnull=True).order_by('-assigned_at').first()
+            if assignment:
+                assigned_at = assignment.assigned_at
+                unassigned_at = assignment.unassigned_at
         data.append({
             "id": d.id,
             "first_name": d.first_name,
             "last_name": d.last_name,
             "email": d.email,
-            "assigned_vehicle": assigned_vehicle
+            "assigned_vehicle": assigned_vehicle,
+            "assigned_at": assigned_at,
+            "unassigned_at": unassigned_at
         })
     return Response(data)
