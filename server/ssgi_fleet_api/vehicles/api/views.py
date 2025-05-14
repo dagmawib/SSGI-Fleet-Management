@@ -195,15 +195,16 @@ class VehicleHistoryListView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="vehicle_history.csv"'
             writer = csv.writer(response)
-            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Status", "Current Driver", "Assigned Drivers This Period", "Trip Count", "Total KM", "Maintenance Due"])
+            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Current Driver", "Trip Count", "Total KM", "Maintenance Due"])
             for row in data:
-                drivers_str = "; ".join([
-                    f"{d['driver']} (from {d['assigned_at'].strftime('%Y-%m-%d')}" + (f" to {d['unassigned_at'].strftime('%Y-%m-%d')}" if d['unassigned_at'] else "") + ")"
-                    for d in row["assigned_drivers_this_period"]
-                ])
                 writer.writerow([
-                    row["vehicle"], row["license_plate"], row["department"], row["category"], row["status"],
-                    row["current_driver"], drivers_str, row["trip_count"], row["total_km"],
+                    row["vehicle"],
+                    row["license_plate"],
+                    row["department"],
+                    row["category"],
+                    row["current_driver"],
+                    row["trip_count"],
+                    row["total_km"],
                     "Yes" if row["maintenance_due"] else "No"
                 ])
             return response

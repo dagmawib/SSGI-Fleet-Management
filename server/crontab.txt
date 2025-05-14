@@ -1,2 +1,4 @@
 # Run update_pool_cars every 2 minutes for testing (Africa/Nairobi timezone is set in Docker)
 */2 * * * * root cd /app/ssgi_fleet_api && /usr/local/bin/python manage.py update_pool_cars >> /cron.log 2>&1
+# Debug: log cron is alive every minute
+* * * * * root echo "cron is alive at $(date)" >> /cron.log
