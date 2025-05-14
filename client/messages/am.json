@@ -399,9 +399,13 @@
     "previousDrivers": "የቀድሞ አሽከርካሪዎች",
     "noPreviousDrivers": "ምንም የቀድሞ አሽከርካሪዎች አልተገኙም።",
     "close": "ዝጋ",
+    "getReport": "ሪፖርት ያግኙ",
     "loading": "በመጫን ላይ...",
     "error": "ውሂብ ማስመጣት አልተሳካም።",
     "previous": "ቀደም",
-    "next": "ቀጣይ"
+    "next": "ቀጣይ",
+    "reportReady":" ሪፖርት ዝግጁ ነው።",	
+    "reportError":" ሪፖርት ማዘጋጀት አልተሳካም።",
+    "reportDownload":" ሪፖርት ይውሰዱ"
   }
 }
