@@ -302,11 +302,11 @@ def unassigned_drivers(request):
 
 @extend_schema(
     summary="List all active drivers (with assignment dates)",
-    description="Returns a list of all active drivers, their assigned vehicle (if any), and the assigned/unassigned dates for their current assignment.",
+    description="Returns a list of all active drivers, their assigned vehicle (if any), and the assigned date for their current assignment.",
     responses={
         200: OpenApiResponse(
             response=None,
-            description="A list of all active drivers with assignment info [{id, first_name, last_name, email, assigned_vehicle, assigned_at, unassigned_at}]"
+            description="A list of all active drivers with assignment info [{id, first_name, last_name, email, assigned_vehicle, assigned_at}]"
         )
     },
     tags=["Drivers"]
@@ -316,14 +316,13 @@ def unassigned_drivers(request):
 def all_drivers(request):
     """
     List all active drivers, including their current assigned vehicle (if any).
-    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ..., "assigned_vehicle": {"id": ..., "license_plate": ...} or null, "assigned_at": ..., "unassigned_at": ...}]
+    Returns: [{"id": ..., "first_name": ..., "last_name": ..., "email": ..., "assigned_vehicle": {"id": ..., "license_plate": ...} or null, "assigned_at": ...}]
     """
     drivers = User.objects.filter(role=User.Role.DRIVER, is_active=True)
     data = []
     for d in drivers:
         assigned_vehicle = None
         assigned_at = None
-        unassigned_at = None
         vehicle = getattr(d, 'assigned_vehicles', None)
         if vehicle and vehicle.exists():
             v = vehicle.first()
@@ -332,14 +331,12 @@ def all_drivers(request):
             assignment = v.driver_history.filter(driver=d, unassigned_at__isnull=True).order_by('-assigned_at').first()
             if assignment:
                 assigned_at = assignment.assigned_at
-                unassigned_at = assignment.unassigned_at
         data.append({
             "id": d.id,
             "first_name": d.first_name,
             "last_name": d.last_name,
             "email": d.email,
             "assigned_vehicle": assigned_vehicle,
-            "assigned_at": assigned_at,
-            "unassigned_at": unassigned_at
+            "assigned_at": assigned_at
         })
     return Response(data)
