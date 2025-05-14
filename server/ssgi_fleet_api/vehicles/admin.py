@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Vehicle
+from .models import Vehicle, VehicleDriverAssignmentHistory
 
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
@@ -50,3 +50,9 @@ class VehicleAdmin(admin.ModelAdmin):
         updated = queryset.update(status='maintenance')
         self.message_user(request, f"{updated} vehicles flagged for maintenance")
     flag_for_maintenance.short_description = "Flag for maintenance"
+
+@admin.register(VehicleDriverAssignmentHistory)
+class VehicleDriverAssignmentHistoryAdmin(admin.ModelAdmin):
+    list_display = ("vehicle", "driver", "assigned_at", "unassigned_at")
+    search_fields = ("vehicle__license_plate", "driver__first_name", "driver__last_name")
+    list_filter = ("vehicle", "driver")

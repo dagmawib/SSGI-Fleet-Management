@@ -74,3 +74,12 @@ class Vehicle(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+class VehicleDriverAssignmentHistory(models.Model):
+    vehicle = models.ForeignKey('Vehicle', on_delete=models.CASCADE, related_name='driver_history')
+    driver = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='vehicle_history')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    unassigned_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.driver} assigned to {self.vehicle} from {self.assigned_at} to {self.unassigned_at or 'present'}"

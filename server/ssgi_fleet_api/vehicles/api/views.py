@@ -3,7 +3,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse, OpenApiParameter, OpenApiTypes
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from rest_framework.views import APIView
@@ -11,8 +11,11 @@ from assignment.models import Trips
 from django.utils import timezone
 from datetime import datetime
 from rest_framework.permissions import IsAdminUser
+from rest_framework.parsers import JSONParser
+from django.http import HttpResponse
+import csv
 
-from vehicles.models import Vehicle
+from vehicles.models import Vehicle, VehicleDriverAssignmentHistory
 from users.models import User
 from users.api.serializers import UserSerializer
 from .serializers import VehicleSerializer
@@ -106,12 +109,17 @@ class VehicleViewSet(viewsets.ModelViewSet):
         pass
 
 @extend_schema(
-    summary="Monthly vehicle usage report (all vehicles)",
-    description="Returns a list of all vehicles with their name, plate, driver, and total kilometers driven for the current month. Only accessible to admins and superadmins.",
+    summary="Monthly vehicle usage report (all vehicles, filterable)",
+    description="Returns a list of all vehicles with their name, plate, driver(s), department, category, status, trip count, and total kilometers driven for the selected period (default: current month). Supports CSV export. Only accessible to admins and superadmins.",
+    parameters=[
+        OpenApiParameter("start", OpenApiTypes.DATE, OpenApiParameter.QUERY, description="Start date (YYYY-MM-DD) for the report period. Default: first day of current month."),
+        OpenApiParameter("end", OpenApiTypes.DATE, OpenApiParameter.QUERY, description="End date (YYYY-MM-DD) for the report period. Default: today."),
+        OpenApiParameter("export", OpenApiTypes.STR, OpenApiParameter.QUERY, description="If 'csv', returns a CSV file instead of JSON."),
+    ],
     responses={
         200: OpenApiResponse(
             response=None,
-            description="A list of all vehicles with their monthly usage [{vehicle, license_plate, driver, total_km_this_month}]"
+            description="A list of all vehicles with their usage and stats for the selected period."
         )
     },
     tags=["Vehicle History"]
@@ -120,28 +128,70 @@ class VehicleHistoryListView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
 
     def get(self, request):
-        """
-        Returns a list of all vehicles with their name, plate, driver, and total km for the current month.
-        """
+        # Date range
         now = timezone.now()
-        first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        vehicles = Vehicle.objects.select_related('assigned_driver').all()
+        start_str = request.query_params.get('start')
+        end_str = request.query_params.get('end')
+        try:
+            if start_str:
+                start = timezone.make_aware(datetime.strptime(start_str, "%Y-%m-%d"))
+            else:
+                start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            if end_str:
+                end = timezone.make_aware(datetime.strptime(end_str, "%Y-%m-%d"))
+            else:
+                end = now
+        except Exception:
+            return Response({"detail": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+
+        vehicles = Vehicle.objects.select_related('assigned_driver', 'department').all()
         data = []
         for vehicle in vehicles:
+            # All completed trips for this vehicle in the period
             trips = Trips.objects.filter(
                 assignment__vehicle=vehicle,
                 status=Trips.TripStatus.COMPLETED,
-                start_time__gte=first_day,
-                start_time__lte=now
+                start_time__gte=start,
+                start_time__lte=end
             )
             total_km = sum([t.distance for t in trips])
-            driver = vehicle.assigned_driver
+            trip_count = trips.count()
+            # All drivers for this vehicle in the period
+            driver_ids = trips.values_list('assignment__driver', flat=True).distinct()
+            drivers = User.objects.filter(id__in=driver_ids)
+            driver_names = [f"{d.first_name} {d.last_name}" for d in drivers]
+            # Current driver
+            current_driver = vehicle.assigned_driver
+            # Maintenance alert
+            maintenance_due = False
+            if vehicle.next_service_mileage and vehicle.current_mileage >= vehicle.next_service_mileage:
+                maintenance_due = True
             data.append({
+                "id": vehicle.id,
                 "vehicle": f"{vehicle.make} {vehicle.model}",
                 "license_plate": vehicle.license_plate,
-                "driver": f"{driver.first_name} {driver.last_name}" if driver else None,
-                "total_km_this_month": total_km
+                "department": vehicle.department.name if vehicle.department else None,
+                "category": vehicle.category,
+                "status": vehicle.status,
+                "current_driver": f"{current_driver.first_name} {current_driver.last_name}" if current_driver else None,
+                "drivers_this_period": driver_names,
+                "trip_count": trip_count,
+                "total_km": total_km,
+                "maintenance_due": maintenance_due
             })
+        # CSV export
+        if request.query_params.get('export') == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="vehicle_history.csv"'
+            writer = csv.writer(response)
+            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Status", "Current Driver", "Drivers This Period", "Trip Count", "Total KM", "Maintenance Due"])
+            for row in data:
+                writer.writerow([
+                    row["vehicle"], row["license_plate"], row["department"], row["category"], row["status"],
+                    row["current_driver"], ", ".join(row["drivers_this_period"]), row["trip_count"], row["total_km"],
+                    "Yes" if row["maintenance_due"] else "No"
+                ])
+            return response
         return Response(data)
 
 @extend_schema(
@@ -189,6 +239,40 @@ class VehicleHistoryView(APIView):
             "driver": f"{driver.first_name} {driver.last_name}" if driver else None,
             "total_km_this_month": total_km
         })
+
+@extend_schema(
+    summary="Vehicle assignment history (all drivers)",
+    description="Returns the full assignment history for a vehicle, including all drivers, assigned_at, and unassigned_at dates. Only accessible to admins and superadmins.",
+    responses={
+        200: OpenApiResponse(
+            response=None,
+            description="A list of driver assignments for the vehicle [{driver, assigned_at, unassigned_at}]"
+        ),
+        404: OpenApiResponse(
+            response=None,
+            description="Vehicle not found."
+        )
+    },
+    tags=["Vehicle History"]
+)
+class VehicleAssignmentHistoryView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
+
+    def get(self, request, id):
+        try:
+            vehicle = Vehicle.objects.get(id=id)
+        except Vehicle.DoesNotExist:
+            return Response({"detail": "Vehicle not found."}, status=404)
+        assignments = VehicleDriverAssignmentHistory.objects.filter(vehicle=vehicle).select_related('driver').order_by('-assigned_at')
+        data = [
+            {
+                "driver": f"{a.driver.first_name} {a.driver.last_name}",
+                "assigned_at": a.assigned_at,
+                "unassigned_at": a.unassigned_at
+            }
+            for a in assignments
+        ]
+        return Response(data)
 
 @extend_schema(
     summary="List unassigned drivers",
