@@ -6,9 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set timezone to Africa/Nairobi
-RUN apt-get update && apt-get install -y tzdata
-ENV TZ=Africa/Nairobi
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime && echo "Africa/Nairobi" > /etc/timezone
 
 # Set work directory
 WORKDIR /app
@@ -39,11 +37,8 @@ RUN python manage.py collectstatic --noinput
 # Set workdir back to /app for Gunicorn
 WORKDIR /app
 
-# Make sure start.sh is executable
-RUN chmod +x /app/start.sh
-
 # Expose port (default for Django)
 EXPOSE 8000
 
-# Start cron and gunicorn together using start.sh
-CMD ["sh", "/app/start.sh"]
+# Start cron in the background and gunicorn in the foreground
+CMD cron && gunicorn ssgi_fleet_api.wsgi:application --chdir ssgi_fleet_api --bind 0.0.0.0:8000

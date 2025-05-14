@@ -156,10 +156,21 @@ class VehicleHistoryListView(APIView):
             )
             total_km = sum([t.distance for t in trips])
             trip_count = trips.count()
-            # All drivers for this vehicle in the period
-            driver_ids = trips.values_list('assignment__driver', flat=True).distinct()
-            drivers = User.objects.filter(id__in=driver_ids)
-            driver_names = [f"{d.first_name} {d.last_name}" for d in drivers]
+            # All drivers for this vehicle in the period (from assignment history)
+            assignments = VehicleDriverAssignmentHistory.objects.filter(
+                vehicle=vehicle,
+                assigned_at__lte=end
+            ).filter(
+                Q(unassigned_at__gte=start) | Q(unassigned_at__isnull=True)
+            ).select_related('driver')
+            assigned_drivers_this_period = [
+                {
+                    "driver": f"{a.driver.first_name} {a.driver.last_name}",
+                    "assigned_at": a.assigned_at,
+                    "unassigned_at": a.unassigned_at
+                }
+                for a in assignments
+            ]
             # Current driver
             current_driver = vehicle.assigned_driver
             # Maintenance alert
@@ -174,7 +185,7 @@ class VehicleHistoryListView(APIView):
                 "category": vehicle.category,
                 "status": vehicle.status,
                 "current_driver": f"{current_driver.first_name} {current_driver.last_name}" if current_driver else None,
-                "drivers_this_period": driver_names,
+                "assigned_drivers_this_period": assigned_drivers_this_period,
                 "trip_count": trip_count,
                 "total_km": total_km,
                 "maintenance_due": maintenance_due
@@ -184,11 +195,15 @@ class VehicleHistoryListView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="vehicle_history.csv"'
             writer = csv.writer(response)
-            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Status", "Current Driver", "Drivers This Period", "Trip Count", "Total KM", "Maintenance Due"])
+            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Status", "Current Driver", "Assigned Drivers This Period", "Trip Count", "Total KM", "Maintenance Due"])
             for row in data:
+                drivers_str = "; ".join([
+                    f"{d['driver']} (from {d['assigned_at'].strftime('%Y-%m-%d')}" + (f" to {d['unassigned_at'].strftime('%Y-%m-%d')}" if d['unassigned_at'] else "") + ")"
+                    for d in row["assigned_drivers_this_period"]
+                ])
                 writer.writerow([
                     row["vehicle"], row["license_plate"], row["department"], row["category"], row["status"],
-                    row["current_driver"], ", ".join(row["drivers_this_period"]), row["trip_count"], row["total_km"],
+                    row["current_driver"], drivers_str, row["trip_count"], row["total_km"],
                     "Yes" if row["maintenance_due"] else "No"
                 ])
             return response
