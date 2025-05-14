@@ -39,11 +39,11 @@ export default function CarEditModal({
       ...form,
       assigned_driver: form.assigned_driver ? form.assigned_driver.id : null,
     };
-    onEdit(payload);
+    onEdit(payload, 'edit');
   };
 
   const handleDelete = () => {
-    onDelete(car.id);
+    onDelete(car.id, 'delete');
   };
 
   if (!drivers) return null;
@@ -167,24 +167,27 @@ export default function CarEditModal({
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
-          <Button onClick={onClose} variant="outlined">
+          <Button
+            onClick={onClose}
+            variant="outlined"
+          >
             Cancel
           </Button>
           <Button
             onClick={handleDelete}
             color="error"
             variant="contained"
-            disabled={loading}
+            disabled={loading === 'delete'}
           >
-            {loading ? <CircularProgress size={18} /> : "Delete"}
+            {loading === 'delete' ? <CircularProgress size={18} /> : "Delete"}
           </Button>
           <Button
             onClick={handleEdit}
             color="primary"
             variant="contained"
-            disabled={loading}
+            disabled={loading === 'edit'}
           >
-            {loading ? <CircularProgress size={18} /> : "Edit"}
+            {loading === 'edit' ? <CircularProgress size={18} /> : "Edit"}
           </Button>
         </div>
       </Box>
