@@ -15,6 +15,7 @@ export default function HistoryTable() {
     isLoading,
     error,
   } = useSWR("/api/vehicles_history", fetcher);
+
   const t = useTranslations("vehciles_history");
   const tableHeaders = [
     t("vehicle"),
@@ -30,6 +31,31 @@ export default function HistoryTable() {
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Fetch report data with a simple async handler
+  const [reportUrl, setReportUrl] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState(null);
+
+  const handleGetReport = async () => {
+    setReportLoading(true);
+    setReportError(null);
+    setReportUrl(null);
+    try {
+      // Request Excel export from backend
+      const res = await fetch("/api/get_report?export=excel");
+      if (!res.ok) throw new Error("Failed to fetch report");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setReportUrl(url);
+    } catch (e) {
+      console.error("Report fetch error:", e);
+      setReportError("Error loading report");
+    } finally {
+      setReportLoading(false);
+    }
+  };
 
   const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
   const paginatedData = data.slice(
@@ -65,6 +91,37 @@ export default function HistoryTable() {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-0 py-4">
       <div className="overflow-x-auto">
+        {/* Get Report Button */}
+        <div className="flex justify-end px-4 pt-4 mb-4">
+          <button
+            className="bg-[#043755] text-white px-4 py-2 rounded hover:bg-[#03294a] transition"
+            onClick={handleGetReport}
+            disabled={reportLoading}
+          >
+            {reportLoading ? (
+              <CircularProgress
+                size={18}
+                className="inline-block align-middle"
+              />
+            ) : (
+              t("getReport", { defaultValue: "Get Report" })
+            )}
+          </button>
+        </div>
+        {reportUrl && (
+          <div className="px-4 pb-2 text-green-700 flex justify-end items-center gap-2 my-4">
+            {t("reportReady", { defaultValue: "Report ready!" })}
+            <a
+              href={reportUrl}
+              download="vehicles_report.xlsx"
+              className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Download
+            </a>
+          </div>
+        )}
         <table className="min-w-full text-sm sm:text-base text-black">
           <thead className="bg-[#043755] text-white">
             <tr>
@@ -142,17 +199,54 @@ export default function HistoryTable() {
           style={{ transform: "translate(-50%, -50%)" }}
         >
           <h2 className="text-lg font-semibold mb-4">{t("previousDrivers")}</h2>
-          <ul className="mb-4 max-h-60 overflow-y-auto">
-            {selectedRow?.drivers_this_period?.length ? (
-              selectedRow.drivers_this_period.map((driver, idx) => (
-                <li key={idx} className="py-1 border-b last:border-b-0">
-                  {driver}
-                </li>
-              ))
-            ) : (
-              <li>{t("noPreviousDrivers")}</li>
-            )}
-          </ul>
+
+          {selectedRow?.assigned_drivers_this_period?.length ? (
+            <div className="mb-4 max-h-60 overflow-y-auto">
+              {/* Table Header */}
+              <div className="grid grid-cols-3 font-semibold border-b pb-2 mb-2">
+                <span>{t("driverName") }</span>
+                <span>{t("assignedAt") }</span>
+                <span>{t("unassignedAt") }</span>
+              </div>
+
+              {/* Table Rows */}
+              {selectedRow.assigned_drivers_this_period.map(
+                (driverObj, idx) => {
+                  const formatDate = (dateStr) => {
+                    const date = new Date(dateStr);
+                    const day = date.getDate().toString().padStart(2, "0");
+                    const month = date.toLocaleString("en-US", {
+                      month: "long",
+                    });
+                    const year = date.getFullYear();
+                    return `${day} - ${month} - ${year}`;
+                  };
+
+                  return (
+                    <div
+                      key={idx}
+                      className="grid grid-cols-3 py-1 border-b last:border-b-0 text-sm"
+                    >
+                      <span>{driverObj.driver}</span>
+                      <span>
+                        {driverObj.assigned_at
+                          ? formatDate(driverObj.assigned_at)
+                          : "-"}
+                      </span>
+                      <span>
+                        {driverObj.unassigned_at
+                          ? formatDate(driverObj.unassigned_at)
+                          : "-"}
+                      </span>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          ) : (
+            <p>{t("noPreviousDrivers")}</p>
+          )}
+
           <button
             onClick={handleClose}
             className="w-full sm:w-auto px-4 py-2 bg-[#043755] text-white rounded hover:bg-blue-700"

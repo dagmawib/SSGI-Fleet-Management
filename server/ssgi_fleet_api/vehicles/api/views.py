@@ -14,6 +14,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse
 import csv
+import pandas as pd
+import io
 
 from vehicles.models import Vehicle, VehicleDriverAssignmentHistory
 from users.models import User
@@ -128,6 +130,7 @@ class VehicleHistoryListView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
 
     def get(self, request):
+        print("Query params:", request.query_params)  # Debug log
         # Date range
         now = timezone.now()
         start_str = request.query_params.get('start')
@@ -190,23 +193,49 @@ class VehicleHistoryListView(APIView):
                 "total_km": total_km,
                 "maintenance_due": maintenance_due
             })
-        # CSV export
-        if request.query_params.get('export') == 'csv':
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="vehicle_history.csv"'
-            writer = csv.writer(response)
-            writer.writerow(["Vehicle", "License Plate", "Department", "Category", "Current Driver", "Trip Count", "Total KM", "Maintenance Due"])
-            for row in data:
-                writer.writerow([
-                    row["vehicle"],
-                    row["license_plate"],
-                    row["department"],
-                    row["category"],
-                    row["current_driver"],
-                    row["trip_count"],
-                    row["total_km"],
-                    "Yes" if row["maintenance_due"] else "No"
-                ])
+        # # CSV export
+        # if request.query_params.get('export') == 'csv':
+        #     df = pd.DataFrame([
+        #         {
+        #             "Vehicle": row["vehicle"],
+        #             "License Plate": row["license_plate"],
+        #             "Department": row["department"],
+        #             "Category": row["category"],
+        #             "Current Driver": row["current_driver"],
+        #             "Trip Count": row["trip_count"],
+        #             "Total KM": row["total_km"],
+        #             "Maintenance Due": "Yes" if row["maintenance_due"] else "No"
+        #         }
+        #         for row in data
+        #     ])
+        #     response = HttpResponse(content_type='text/csv; charset=utf-8')
+        #     response['Content-Disposition'] = 'attachment; filename="vehicle_history.csv"'
+        #     df.to_csv(response, index=False, encoding='utf-8-sig')  # utf-8-sig adds BOM for Excel
+        #     return response
+        # Excel export
+        if request.query_params.get('export') == 'excel':
+            df = pd.DataFrame([
+                {
+                    "Vehicle": row["vehicle"],
+                    "License Plate": row["license_plate"],
+                    "Department": row["department"],
+                    "Category": row["category"],
+                    "Current Driver": row["current_driver"],
+                    "Trip Count": row["trip_count"],
+                    "Total KM": row["total_km"],
+                    "Maintenance Due": "Yes" if row["maintenance_due"] else "No"
+                }
+                for row in data
+            ])
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:  # Use openpyxl
+                df.to_excel(writer, index=False, sheet_name='vehicles_report')
+            output.seek(0)
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = 'attachment; filename="vehicle_history.xlsx"'
             return response
         return Response(data)
 

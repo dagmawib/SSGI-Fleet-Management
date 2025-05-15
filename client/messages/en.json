@@ -435,8 +435,14 @@
     "close": "Close",
     "loading": "Loading...",
     "error": "Error loading data.",
-
+    "getReport": "Get Report",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "reportReady":"Report is ready for download",
+    "reportError":"Error generating report",
+    "reportDownload":"Download Report",
+    "driverName":"Driver Name",
+    "assignedAt":"Assigned At",
+    "unassignedAt":"Unassigned At"
   }
 }
