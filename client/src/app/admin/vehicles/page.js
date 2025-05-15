@@ -42,19 +42,13 @@ export default function HistoryTable() {
     setReportError(null);
     setReportUrl(null);
     try {
-      const res = await fetch("/api/get_report");
+      // Request Excel export from backend
+      const res = await fetch("/api/get_report?export=excel");
       if (!res.ok) throw new Error("Failed to fetch report");
 
-      const csvContent = await res.text();
-
-      // Fix encoding by prepending BOM
-      const blob = new Blob(["\uFEFF" + csvContent], {
-        type: "text/csv;charset=utf-8;",
-      });
-
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       setReportUrl(url);
-      // Set as blob URL, not external URL
     } catch (e) {
       console.error("Report fetch error:", e);
       setReportError("Error loading report");
@@ -119,7 +113,7 @@ export default function HistoryTable() {
             {t("reportReady", { defaultValue: "Report ready!" })}
             <a
               href={reportUrl}
-              download="vehicles_report.csv"
+              download="vehicles_report.xlsx"
               className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
               target="_blank"
               rel="noopener noreferrer"

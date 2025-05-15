@@ -23,3 +23,5 @@ python-dotenv
 psycopg2-binary
 whitenoise
 pytz
+pandas
+openpyxl

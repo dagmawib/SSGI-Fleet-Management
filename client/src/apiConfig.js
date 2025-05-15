@@ -51,6 +51,6 @@ export const API_ENDPOINTS = {
     HISTORY:"/request/user/history/",
     ADMIN_HISTORY:"/assignments/admin/history/",
 
-    EXPORT_CSV:"/vehicles/vehicles/history/?export=csv",
+    EXPORT_CSV:"/vehicles/vehicles/history",
 }
 
