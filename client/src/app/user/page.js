@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +10,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { getCookie } from 'cookies-next';
 import DirectorDashboard from "@/components/user/director";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import axios from "axios";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 // Zod validation schema
 const formSchema = z.object({
@@ -41,13 +42,157 @@ export default function Page() {
   const [removePassengerLoading, setRemovePassengerLoading] = useState(false);
   const [approvingRequests, setApprovingRequests] = useState({});
   const [rejectingRequests, setRejectingRequests] = useState({});
+
+  // Suggestions
+  const [pickupSuggestions, setPickupSuggestions] = useState([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState([]);
+  const [pickupLoading, setPickupLoading] = useState(false);
+  const [destinationLoading, setDestinationLoading] = useState(false);
+  const [pickupCoords, setPickupCoords] = useState(null); // { lat: number, lng: number } or null
+  const [destinationCoords, setDestinationCoords] = useState(null); // { lat: number, lng: number } or null
+  const [pickupLocation, setPickupLocation] = useState(""); // Store location name
+  const [destination, setDestination] = useState(""); // Store location name
+
+  const [geolocationStatus, setGeolocationStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
+
   const t = useTranslations("vehicleRequest");
   const now = new Date();
   const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
     .toISOString()
     .slice(0, 16); // Format: "YYYY-MM-DDTHH:MM"
 
+    const {
+      register,
+      handleSubmit,
+      control,
+      setValue,
+      reset,
+      formState: { errors },
+    } = useForm({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        passengers: [{ name: "" }],
+      },
+    });
+  
+    
+    const getCurrentLocation = useCallback(() => {
+      setGeolocationStatus('loading');
+      
+      if (!navigator.geolocation) {
+        setGeolocationStatus('error');
+        toast.error(t("geolocationNotSupported"), {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        return;
+      }
+    
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            
+            // Reverse geocode to get address
+            const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+              params: {
+                lat: latitude,
+                lon: longitude,
+                format: 'json',
+                addressdetails: 1,
+              },
+              headers: {
+                'User-Agent': 'VehicleRequestApp/1.0 (your.email@example.com)',
+              },
+            });
+    
+            const address = response.data.display_name;
+            
+            // Update form values
+            setValue('pickupLocation', address);
+            setPickupLocation(address);
+            setPickupCoords({ lat: latitude, lng: longitude });
+            
+            setGeolocationStatus('success');
+            toast.success("Location Set Successfully", {
+              position: "top-right",
+              autoClose: 3000,
+            });
+          } catch (error) {
+            console.error('Reverse geocoding error:', error);
+            setGeolocationStatus('error');
+            toast.error("Address Lookup Failed", {
+              position: "top-right",
+              autoClose: 5000,
+            });
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setGeolocationStatus('error');
+          toast.error("Location Access Denied", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+    }, [setValue, t]);
 
+    const fetchNominatimSuggestions = async (input, type) => {
+      if (input.length < 3) {
+        type === 'pickup' ? setPickupSuggestions([]) : setDestinationSuggestions([]);
+        return;
+      }
+      try {
+        type === 'pickup' ? setPickupLoading(true) : setDestinationLoading(true);
+        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+          params: {
+            q: input,
+            format: 'json',
+            limit: 5,
+            addressdetails: 1,  
+            countrycodes: 'ET'
+          },
+          headers: {
+            'User-Agent': 'VehicleRequestApp/1.0 (your.email@example.com)', // Replace with your app name and email
+          },
+        });
+        const suggestions = response.data.map(item => ({
+          id: item.place_id,
+          description: item.display_name,
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lon),
+
+        }));
+        type === 'pickup' ? setPickupSuggestions(suggestions) : setDestinationSuggestions(suggestions);
+      } catch (error) {
+        console.error(`Error fetching ${type} suggestions:`, error);
+        toast.error(t("autocompleteError"), {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      } finally {
+        type === 'pickup' ? setPickupLoading(false) : setDestinationLoading(false);
+      }
+    };
+  
+    // Debounce function to limit API calls
+    const debounce = (func, wait) => {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    };
+
+    // Use inline function to avoid useCallback warning
+    const debouncedFetchSuggestions = debounce(fetchNominatimSuggestions, 300);
+  
   const fetchPendingRequests = useCallback(async () => {
     try {
       setLoading(true);
@@ -76,8 +221,10 @@ export default function Page() {
       setIsDirector(true);
       fetchPendingRequests();
     }
-  }, [fetchPendingRequests]);
-
+    if (!pickupCoords && setValue) {
+      getCurrentLocation();
+    }
+  }, [fetchPendingRequests, getCurrentLocation, pickupCoords, setValue]);
 
   const handleApprove = async (request) => {
     try {
@@ -166,18 +313,9 @@ export default function Page() {
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      passengers: [{ name: "" }],
-    },
-  });
+ 
+
+
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -277,12 +415,69 @@ export default function Page() {
                 {t("pickupLocation")}
                 <span className="text-red-500">*</span>
               </label>
-              <input
-                {...register("pickupLocation")}
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder={t("pickupLocationPlaceholder")}
-              />
+              <div className="relative">
+                <input
+                  {...register("pickupLocation")}
+                  type="text"
+                  className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                  placeholder={
+                    geolocationStatus === 'loading' 
+                      ? "Detecting Location" 
+                      : "Pickup Location"
+                  }
+                  disabled={geolocationStatus === 'loading'}
+                  onChange={(e) => {
+                    setValue("pickupLocation", e.target.value);
+                    setPickupLocation(e.target.value);
+                    debouncedFetchSuggestions(e.target.value, 'pickup');
+                  }}
+                />
+                {/* After the pickup location input */}
+                  <div className="flex items-center mt-2">
+                    <button
+                      type="button"
+                      onClick={getCurrentLocation}
+                      disabled={geolocationStatus === 'loading'}
+                      className="flex items-center text-sm text-[#043755] hover:underline"
+                    >
+                      {geolocationStatus === 'loading' ? (
+                        <>
+                          <CircularProgress size={16} className="mr-1" />
+                          {"Detecting Location"}
+                        </>
+                      ) : (
+                        <>
+                          <LocationOnIcon fontSize="small" className="mr-1" />
+                          {"Use Current Location"}
+                        </>
+                      )}
+                    </button>
+                    {geolocationStatus === 'error' && (
+                      <span className="text-red-500 text-sm ml-2">{"Location Error"}</span>
+                    )}
+                  </div>
+                {pickupSuggestions.length > 0 && (
+                    <div className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                      {pickupLoading ? (
+                        <div className="px-4 py-2 text-gray-500">Loading...</div>
+                      ) : (
+                        pickupSuggestions.map((suggestion) => (
+                          <div
+                            key={suggestion.id}
+                            className="px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-100"
+                            onClick={() => {
+                              setValue("pickupLocation", suggestion.description);
+                              setPickupCoords({ lat: suggestion.lat, lng: suggestion.lng });
+                              setPickupSuggestions([]);
+                            }}
+                          >
+                            {suggestion.description}
+                          </div>
+                        ))
+                      )}
+                        </div>
+                      )}
+              </div>
               {errors.pickupLocation && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.pickupLocation.message}
@@ -296,12 +491,40 @@ export default function Page() {
                 {t("dropoffLocation")}
                 <span className="text-red-500">*</span>
               </label>
-              <input
-                {...register("destination")}
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
-                placeholder={t("destinationPlaceholder")}
-              />
+              <div className="relative">
+                <input
+                  {...register("destination")}
+                  type="text"
+                  className="w-full px-4 py-2 border rounded-lg text-[#043755] focus:ring-2 focus:ring-[#043755]"
+                  placeholder={t("destinationPlaceholder")}
+                  onChange={(e) => {
+                    setValue("destination", e.target.value);
+                    setDestination(e.target.value);
+                    debouncedFetchSuggestions(e.target.value, 'destination');
+                  }}
+                />
+                {destinationSuggestions.length > 0 && (
+                  <div className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                    {destinationLoading ? (
+                        <div className="px-4 py-2 text-gray-500">Loading...</div>
+                      ) : (
+                        destinationSuggestions.map((suggestion) => (
+                          <div
+                            key={suggestion.id}
+                            className="px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-100"
+                            onClick={() => {
+                              setValue("destination", suggestion.description);
+                              setDestinationCoords({ lat: suggestion.lat, lng: suggestion.lng });
+                              setDestinationSuggestions([]);
+                            }}
+                          >
+                            {suggestion.description}
+                          </div>
+                        ))
+                      )}
+                  </div>
+                )}
+              </div>
               {errors.destination && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.destination.message}
@@ -469,7 +692,12 @@ export default function Page() {
         </div>
 
         {/* Map Section */}
-        <MapComponent />
+        <MapComponent
+          pickupCoords={pickupCoords}
+          destinationCoords={destinationCoords}
+          pickupLocation={pickupLocation}
+          destination={destination}
+        />
       </div>
     </div>
   );
