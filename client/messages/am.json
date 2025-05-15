@@ -406,6 +406,9 @@
     "next": "ቀጣይ",
     "reportReady":" ሪፖርት ዝግጁ ነው።",	
     "reportError":" ሪፖርት ማዘጋጀት አልተሳካም።",
-    "reportDownload":" ሪፖርት ይውሰዱ"
+    "reportDownload":" ሪፖርት ይውሰዱ",
+    "driverName":"የሹፌር ስም",
+    "assignedAt":"የተመደበው በ",
+    "unassignedAt":"ያስረከበው በ"
   }
 }

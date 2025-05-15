@@ -440,6 +440,9 @@
     "next": "Next",
     "reportReady":"Report is ready for download",
     "reportError":"Error generating report",
-    "reportDownload":"Download Report"
+    "reportDownload":"Download Report",
+    "driverName":"Driver Name",
+    "assignedAt":"Assigned At",
+    "unassignedAt":"Unassigned At"
   }
 }

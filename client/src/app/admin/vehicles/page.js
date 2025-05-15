@@ -199,17 +199,54 @@ export default function HistoryTable() {
           style={{ transform: "translate(-50%, -50%)" }}
         >
           <h2 className="text-lg font-semibold mb-4">{t("previousDrivers")}</h2>
-          <ul className="mb-4 max-h-60 overflow-y-auto">
-            {selectedRow?.drivers_this_period?.length ? (
-              selectedRow.drivers_this_period.map((driver, idx) => (
-                <li key={idx} className="py-1 border-b last:border-b-0">
-                  {driver}
-                </li>
-              ))
-            ) : (
-              <li>{t("noPreviousDrivers")}</li>
-            )}
-          </ul>
+
+          {selectedRow?.assigned_drivers_this_period?.length ? (
+            <div className="mb-4 max-h-60 overflow-y-auto">
+              {/* Table Header */}
+              <div className="grid grid-cols-3 font-semibold border-b pb-2 mb-2">
+                <span>{t("driverName") }</span>
+                <span>{t("assignedAt") }</span>
+                <span>{t("unassignedAt") }</span>
+              </div>
+
+              {/* Table Rows */}
+              {selectedRow.assigned_drivers_this_period.map(
+                (driverObj, idx) => {
+                  const formatDate = (dateStr) => {
+                    const date = new Date(dateStr);
+                    const day = date.getDate().toString().padStart(2, "0");
+                    const month = date.toLocaleString("en-US", {
+                      month: "long",
+                    });
+                    const year = date.getFullYear();
+                    return `${day} - ${month} - ${year}`;
+                  };
+
+                  return (
+                    <div
+                      key={idx}
+                      className="grid grid-cols-3 py-1 border-b last:border-b-0 text-sm"
+                    >
+                      <span>{driverObj.driver}</span>
+                      <span>
+                        {driverObj.assigned_at
+                          ? formatDate(driverObj.assigned_at)
+                          : "-"}
+                      </span>
+                      <span>
+                        {driverObj.unassigned_at
+                          ? formatDate(driverObj.unassigned_at)
+                          : "-"}
+                      </span>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          ) : (
+            <p>{t("noPreviousDrivers")}</p>
+          )}
+
           <button
             onClick={handleClose}
             className="w-full sm:w-auto px-4 py-2 bg-[#043755] text-white rounded hover:bg-blue-700"
