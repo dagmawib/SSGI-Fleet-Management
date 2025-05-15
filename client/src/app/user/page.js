@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,6 @@ import DirectorDashboard from "@/components/user/director";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-
 
 // Zod validation schema
 const formSchema = z.object({
@@ -44,7 +43,6 @@ export default function Page() {
   const [approvingRequests, setApprovingRequests] = useState({});
   const [rejectingRequests, setRejectingRequests] = useState({});
 
-
   // Suggestions
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
@@ -56,7 +54,6 @@ export default function Page() {
   const [destination, setDestination] = useState(""); // Store location name
 
   const [geolocationStatus, setGeolocationStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
-
 
   const t = useTranslations("vehicleRequest");
   const now = new Date();
@@ -192,16 +189,10 @@ export default function Page() {
         timeout = setTimeout(() => func(...args), wait);
       };
     };
+
+    // Use inline function to avoid useCallback warning
+    const debouncedFetchSuggestions = debounce(fetchNominatimSuggestions, 300);
   
-    const debouncedFetchSuggestions = useCallback(
-      debounce(fetchNominatimSuggestions, 300),
-      []
-    );
-  
-
-
-
-
   const fetchPendingRequests = useCallback(async () => {
     try {
       setLoading(true);
@@ -233,8 +224,7 @@ export default function Page() {
     if (!pickupCoords && setValue) {
       getCurrentLocation();
     }
-  }, [fetchPendingRequests, getCurrentLocation, pickupCoords]);
-
+  }, [fetchPendingRequests, getCurrentLocation, pickupCoords, setValue]);
 
   const handleApprove = async (request) => {
     try {
