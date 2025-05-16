@@ -59,14 +59,27 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to accept request");
+        let errorMsg = "Failed to accept request";
+        try {
+          const errorData = await response.json();
+          if (
+            errorData.details &&
+            errorData.details.errors &&
+            errorData.details.errors.start_mileage
+          ) {
+            errorMsg = errorData.details.errors.start_mileage[0];
+          } else {
+            errorMsg = errorData.error || errorData.message || errorMsg;
+          }
+        } catch {}
+        toast.error(errorMsg);
+        return;
       }
 
       const data = await response.json();
       setTripId(data.trip_id);
       setAccepted(true);
-      toast.success("Request accepted successfully!");
+      toast.success(data.message || "Request accepted successfully!");
     } catch (error) {
       console.error("Error accepting request:", error);
       toast.error(error.message || "Failed to accept request");
@@ -136,18 +149,32 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit trip");
+        let errorMsg = "Failed to submit trip";
+        try {
+          const errorData = await response.json();
+          if (
+            errorData.details &&
+            errorData.details.errors &&
+            errorData.details.errors.start_mileage
+          ) {
+            errorMsg = errorData.details.errors.start_mileage[0];
+          } else {
+            errorMsg = errorData.error || errorData.message || errorMsg;
+          }
+        } catch {}
+        toast.error(errorMsg);
+        return;
       }
 
+      const result = await response.json();
       setSubmitted(true);
       setAccepted(false);
       setKmBefore("");
       setKmAfter("");
       setTripId(null);
-      toast.success("Trip completed successfully!");
+      toast.success(result.message || "Trip completed successfully!");
 
-     await refetchCompletedTrips();
+      await refetchCompletedTrips();
     } catch (error) {
       console.error("Error submitting trip:", error);
       toast.error(error.message || "Failed to submit trip");

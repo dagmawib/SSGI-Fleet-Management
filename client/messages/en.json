@@ -443,6 +443,8 @@
     "reportDownload":"Download Report",
     "driverName":"Driver Name",
     "assignedAt":"Assigned At",
-    "unassignedAt":"Unassigned At"
+    "unassignedAt":"Unassigned At",
+    "endDate": "End Date",
+    "startDate": "Start Date"
   }
 }

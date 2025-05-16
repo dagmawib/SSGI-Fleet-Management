@@ -7,7 +7,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import useSWR from "swr";
 import Autocomplete from "@mui/material/Autocomplete";
 
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
 
 export default function CarEditModal({
   open,
@@ -20,6 +22,7 @@ export default function CarEditModal({
   const [form, setForm] = useState(car || {});
   const [driverSearch, setDriverSearch] = useState("");
 
+
   const {
     data: drivers = [],
     isLoading,
@@ -27,13 +30,16 @@ export default function CarEditModal({
     mutate,
   } = useSWR("/api/get_all_drivers", fetcher);
 
+
   React.useEffect(() => {
     setForm(car || {});
   }, [car]);
 
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
 
   const handleEdit = () => {
     const payload = {
@@ -42,12 +48,15 @@ export default function CarEditModal({
     };
     delete payload.assigned_driver;
 
+
     onEdit(payload, "edit");
   };
+
 
   const handleDelete = () => {
     onDelete(car.id, "delete");
   };
+
 
   // Filter drivers by search
   const filteredDrivers = Array.isArray(drivers)
@@ -58,7 +67,9 @@ export default function CarEditModal({
       )
     : [];
 
+
   if (!drivers) return null;
+
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -69,6 +80,7 @@ export default function CarEditModal({
         <h2 className="text-xl font-semibold mb-4 text-center text-black">
           Edit Vehicle
         </h2>
+
 
         {/* Grid for two-column layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
@@ -154,6 +166,20 @@ export default function CarEditModal({
             onChange={handleChange}
             fullWidth
           />
+          {/* Status Dropdown */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              name="status"
+              value={form.status || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            >
+              <option value="available">Available</option>
+              <option value="in_use">In use</option>
+              <option value="maintenance">On Maintenance</option>
+            </select>
+          </div>
           {/* Driver Dropdown */}
           <div>
             <label className="block text-sm font-medium mb-1">Driver</label>
@@ -179,6 +205,7 @@ export default function CarEditModal({
             />
           </div>
         </div>
+
 
         <div className="flex justify-end gap-2 mt-6">
           <Button onClick={onClose} variant="outlined">

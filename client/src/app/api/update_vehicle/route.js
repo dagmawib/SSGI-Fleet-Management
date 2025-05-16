@@ -2,10 +2,12 @@ import { cookies } from "next/headers";
 import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
+
 export async function PATCH(req) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token")?.value;
+
 
     if (!token) {
       return new Response(
@@ -14,8 +16,10 @@ export async function PATCH(req) {
       );
     }
 
+
     const body = await req.json();
     const { id, ...updateFields } = body;
+
 
     if (!id) {
       return new Response(
@@ -23,6 +27,7 @@ export async function PATCH(req) {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+
 
     const validFields = [
       "driver_id",
@@ -43,13 +48,16 @@ export async function PATCH(req) {
       "department"
     ];
 
+
     const payload = {};
+
 
     for (const key of validFields) {
       if (updateFields[key] !== undefined) {
         payload[key] = updateFields[key];
       }
     }
+
 
     const response = await axios.patch(
       `${API_BASE_URL}${API_ENDPOINTS.EDIT_VEHICLE}/${id}/`,
@@ -63,10 +71,12 @@ export async function PATCH(req) {
       }
     );
 
+
     return new Response(JSON.stringify(response.data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+
 
   } catch (error) {
     console.error("Error updating vehicle:", error.message);

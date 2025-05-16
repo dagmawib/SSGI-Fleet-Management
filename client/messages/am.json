@@ -409,6 +409,8 @@
     "reportDownload":" ሪፖርት ይውሰዱ",
     "driverName":"የሹፌር ስም",
     "assignedAt":"የተመደበው በ",
-    "unassignedAt":"ያስረከበው በ"
+    "unassignedAt":"ያስረከበው በ",
+    "endDate": "የመጨረሻ ቀን",
+    "startDate": "የመጀመሪያ ቀን"
   }
 }

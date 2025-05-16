@@ -4,17 +4,32 @@ import useSWR from "swr";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
+import TextField from "@mui/material/TextField";
 import { useTranslations } from "next-intl";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ROWS_PER_PAGE = 10;
 
 export default function HistoryTable() {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // Build API URL with date filters
+  const buildApiUrl = () => {
+    let url = "/api/vehicles_history";
+    const params = [];
+    if (startDate) params.push(`start=${startDate}`);
+    if (endDate) params.push(`end=${endDate}`);
+    if (params.length) url += `?${params.join("&")}`;
+    return url;
+  };
+
   const {
     data = [],
     isLoading,
     error,
-  } = useSWR("/api/vehicles_history", fetcher);
+    mutate,
+  } = useSWR(buildApiUrl(), fetcher);
 
   const t = useTranslations("vehciles_history");
   const tableHeaders = [
@@ -42,13 +57,15 @@ export default function HistoryTable() {
     setReportError(null);
     setReportUrl(null);
     try {
-      // Request Excel export from backend
-      const res = await fetch("/api/get_report?export=excel");
+      // Build report URL with date filters
+      let url = "/api/get_report?export=excel";
+      if (startDate) url += `&start=${startDate}`;
+      if (endDate) url += `&end=${endDate}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch report");
-
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setReportUrl(url);
+      const urlObj = URL.createObjectURL(blob);
+      setReportUrl(urlObj);
     } catch (e) {
       console.error("Report fetch error:", e);
       setReportError("Error loading report");
@@ -90,38 +107,66 @@ export default function HistoryTable() {
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-0 py-4">
-      <div className="overflow-x-auto">
-        {/* Get Report Button */}
-        <div className="flex justify-end px-4 pt-4 mb-4">
-          <button
-            className="bg-[#043755] text-white px-4 py-2 rounded hover:bg-[#03294a] transition"
-            onClick={handleGetReport}
-            disabled={reportLoading}
-          >
-            {reportLoading ? (
-              <CircularProgress
-                size={18}
-                className="inline-block align-middle"
-              />
-            ) : (
-              t("getReport", { defaultValue: "Get Report" })
-            )}
-          </button>
+      {/* Get Report Button */}
+      <div className="flex flex-col sm:flex-row sm:justify-end px-4 pt-4 mb-4 gap-4">
+        {/* Date Filter Controls */}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center sm:mb-0 mb-2 w-full sm:w-auto">
+          <TextField
+            label={t("startDate", { defaultValue: "Start Date" })}
+            type="date"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setCurrentPage(1);
+              mutate();
+            }}
+            className="w-full sm:w-auto"
+          />
+          <TextField
+            label={t("endDate", { defaultValue: "End Date" })}
+            type="date"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setCurrentPage(1);
+              mutate();
+            }}
+            className="w-full sm:w-auto"
+          />
         </div>
-        {reportUrl && (
-          <div className="px-4 pb-2 text-green-700 flex justify-end items-center gap-2 my-4">
-            {t("reportReady", { defaultValue: "Report ready!" })}
-            <a
-              href={reportUrl}
-              download="vehicles_report.xlsx"
-              className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Download
-            </a>
-          </div>
-        )}
+
+        {/* Report Button */}
+        <button
+          className="bg-[#043755] text-white px-4 py-2 rounded hover:bg-[#03294a] transition w-full sm:w-auto"
+          onClick={handleGetReport}
+          disabled={reportLoading}
+        >
+          {reportLoading ? (
+            <CircularProgress size={18} className="inline-block align-middle" />
+          ) : (
+            t("getReport", { defaultValue: "Get Report" })
+          )}
+        </button>
+      </div>
+      {reportUrl && (
+        <div className="px-4 pb-2 text-green-700 flex justify-end items-center gap-2 my-4">
+          {t("reportReady", { defaultValue: "Report ready!" })}
+          <a
+            href={reportUrl}
+            download="vehicles_report.xlsx"
+            className="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download
+          </a>
+        </div>
+      )}
+      <div className="overflow-x-auto">
         <table className="min-w-full text-sm sm:text-base text-black">
           <thead className="bg-[#043755] text-white">
             <tr>
@@ -204,9 +249,9 @@ export default function HistoryTable() {
             <div className="mb-4 max-h-60 overflow-y-auto">
               {/* Table Header */}
               <div className="grid grid-cols-3 font-semibold border-b pb-2 mb-2">
-                <span>{t("driverName") }</span>
-                <span>{t("assignedAt") }</span>
-                <span>{t("unassignedAt") }</span>
+                <span>{t("driverName")}</span>
+                <span>{t("assignedAt")}</span>
+                <span>{t("unassignedAt")}</span>
               </div>
 
               {/* Table Rows */}

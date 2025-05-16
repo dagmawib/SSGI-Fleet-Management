@@ -204,7 +204,8 @@ const VehicleAssignmentModal = ({ open, selectedRequest, onClose, mutate }) => {
                           <option value="">{t("selectPlaceholder")}</option>
                           {vehicles.map((vehicle) => (
                             <option key={vehicle.id} value={vehicle.id}>
-                              {vehicle.make} {vehicle.model} -{" "}
+                              {vehicle.assigned_driver?.first_name}{" "}
+                              {vehicle.assigned_driver?.last_name} -{" "}
                               {vehicle.license_plate}
                             </option>
                           ))}
