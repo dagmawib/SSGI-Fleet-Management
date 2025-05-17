@@ -208,9 +208,53 @@ class DriverRequestView(APIView):
     permission_classes = [IsAuthenticated, IsDriver]
     @DRIVER_REQUEST_GET_DOCS
     def get(self, request):
-        """Get the driver's current pending assignment."""
+        """Get the driver's current assignment or ongoing trip."""
         try:
-            # Get pending assignment with all related data in one query
+            # 1. Check for an ongoing trip (status=STARTED) for this driver
+            ongoing_trip = Trips.objects.filter(
+                assignment__driver=request.user,
+                status=Trips.TripStatus.STARTED
+            ).select_related(
+                'assignment',
+                'assignment__request',
+                'assignment__request__requester',
+                'assignment__request__requester__department',
+                'assignment__vehicle'
+            ).first()
+            if ongoing_trip:
+                assignment = ongoing_trip.assignment
+                vc_request = assignment.request
+                requester = vc_request.requester
+                return Response({
+                    "assignment_id": assignment.assignment_id,
+                    "trip_id": ongoing_trip.trip_id,
+                    "request_id": vc_request.request_id,
+                    "pickup": vc_request.pickup_location,
+                    "destination": vc_request.destination,
+                    "requester": {
+                        "name": requester.get_full_name(),
+                        "department": requester.department.name if requester.department else None,
+                        "phone": requester.phone_number
+                    },
+                    "vehicle": {
+                        "id": assignment.vehicle.id,
+                        "license_plate": assignment.vehicle.license_plate,
+                        "make_model": f"{assignment.vehicle.make} {assignment.vehicle.model}"
+                    },
+                    "trip_details": {
+                        "passenger_count": vc_request.passenger_count,
+                        "start_time": ongoing_trip.start_time,
+                        "start_mileage": ongoing_trip.start_mileage,
+                        "purpose": vc_request.purpose,
+                        "estimated_distance": assignment.estimated_distance,
+                        "estimated_duration": assignment.estimated_duration
+                    },
+                    "assignment_status": assignment.get_driver_status_display(),
+                    "note": assignment.note,
+                    "assigned_at": assignment.assigned_at
+                }, status=status.HTTP_200_OK)
+
+            # 2. If no ongoing trip, check for a pending assignment
             assignment = Vehicle_Assignment.objects.filter(
                 driver=request.user,
                 driver_status=Vehicle_Assignment.DriverStatus.PENDING
@@ -220,16 +264,14 @@ class DriverRequestView(APIView):
                 'request__requester__department',
                 'vehicle'
             ).first()
-            
             if not assignment:
                 return Response(
                     {
-                        "detail": "No pending assignment found.",
-                        "error_code": "no_pending_assignment"
+                        "detail": "No pending or ongoing assignment found.",
+                        "error_code": "no_pending_or_ongoing_assignment"
                     },
                     status=status.HTTP_404_NOT_FOUND
                 )
-
             vc_request = assignment.request
             if vc_request.status != Vehicle_Request.Status.ASSIGNED:
                 return Response(
@@ -239,7 +281,6 @@ class DriverRequestView(APIView):
                     },
                     status=status.HTTP_404_NOT_FOUND
                 )
-
             requester = vc_request.requester
             return Response({
                 "assignment_id": assignment.assignment_id,
@@ -268,7 +309,6 @@ class DriverRequestView(APIView):
                 "note": assignment.note,
                 "assigned_at": assignment.assigned_at
             }, status=status.HTTP_200_OK)
-            
         except Exception as e:
             return Response(
                 {
@@ -298,28 +338,44 @@ class AcceptAssignmentAPIView(APIView):
     def post(self, request, assignment_id):
         """Accept an assignment and start a trip."""
         try:
-            # First verify the assignment exists and belongs to this driver
-            assignment = Vehicle_Assignment.objects.select_related('vehicle', 'driver').get(
+            # Try to fetch the assignment for this driver
+            assignment = Vehicle_Assignment.objects.select_related('vehicle', 'driver').filter(
                 pk=assignment_id,
-                driver=request.user,
-                driver_status=Vehicle_Assignment.DriverStatus.PENDING
-            )
-            
-        except Vehicle_Assignment.DoesNotExist:
+                driver=request.user
+            ).first()
+            if not assignment:
+                return Response(
+                    {
+                        "error": f"No assignment found with ID {assignment_id} for this driver.",
+                        "error_code": "assignment_not_found",
+                        "user": request.user.get_full_name(),
+                        "assignment_id": assignment_id
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            if assignment.driver_status != Vehicle_Assignment.DriverStatus.PENDING:
+                return Response(
+                    {
+                        "error": f"Assignment {assignment_id} is not pending. Current status: {assignment.driver_status}",
+                        "error_code": "assignment_not_pending",
+                        "current_status": assignment.driver_status
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
             return Response(
                 {
-                    "error": f"No pending assignment found with ID {assignment_id}",
-                    "error_code": "assignment_not_found",
-                    "user": request.user.get_full_name()
+                    "error": str(e),
+                    "error_code": "assignment_lookup_failed",
+                    "details": "Failed to fetch assignment for acceptance."
                 },
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
         serializer = AcceptAssignmentSerializer(
             data=request.data,
             context={'assignment_id': assignment_id}
         )
-        
         if not serializer.is_valid():
             return Response(
                 {
@@ -328,7 +384,6 @@ class AcceptAssignmentAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
         try:
             with transaction.atomic():
                 trip = serializer.save()
