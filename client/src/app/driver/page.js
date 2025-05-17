@@ -39,6 +39,16 @@ export default function Page() {
   } = useSWR("/api/driver/completed_trips", fetcher);
   const completedTrips = completedTripsData?.trips || [];
 
+  useEffect(() => {
+    if (
+      upcomingRequest &&
+      upcomingRequest.assignment_status === "Accepted by Driver" &&
+      upcomingRequest.trip_id
+    ) {
+      setTripId(upcomingRequest.trip_id);
+    }
+  }, [upcomingRequest]);
+
   const handleAccept = async () => {
     if (!kmBefore) {
       toast.error("Please enter the kilometer before start.");
@@ -249,9 +259,17 @@ export default function Page() {
                 <input
                   type="number"
                   className="w-full border border-gray-300 rounded px-3 py-2"
-                  value={kmBefore}
+                  value={
+                    upcomingRequest.assignment_status === "Accepted by Driver" &&
+                    upcomingRequest.trip_details?.start_mileage !== undefined
+                      ? upcomingRequest.trip_details.start_mileage
+                      : kmBefore
+                  }
                   onChange={(e) => setKmBefore(e.target.value)}
-                  disabled={accepted}
+                  disabled={
+                    accepted ||
+                    upcomingRequest.assignment_status === "Accepted by Driver"
+                  }
                 />
               </div>
               <div>
@@ -263,13 +281,28 @@ export default function Page() {
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={kmAfter}
                   onChange={(e) => setKmAfter(e.target.value)}
-                  disabled={!accepted}
+                  disabled={
+                    !accepted &&
+                    !(upcomingRequest.assignment_status === "Accepted by Driver")
+                  }
                 />
               </div>
             </div>
 
             <div className="mt-4 flex gap-3">
-              {!accepted ? (
+              {upcomingRequest.assignment_status === "Accepted by Driver" ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitLoading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
+                >
+                  {submitLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    t("submit")
+                  )}
+                </button>
+              ) : !accepted ? (
                 <>
                   <button
                     onClick={handleAccept}
