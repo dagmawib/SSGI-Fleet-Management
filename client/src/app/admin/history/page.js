@@ -27,9 +27,7 @@ export default function HistoryTable() {
     );
   }
   if (error) {
-    return (
-      <div className="p-8 text-center text-red-600">{t("failed")}</div>
-    );
+    return <div className="p-8 text-center text-red-600">{t("failed")}</div>;
   }
 
   return (
@@ -58,8 +56,16 @@ export default function HistoryTable() {
               <td className="px-4 py-3">{entry.vehicle}</td>
               <td className="px-4 py-3">{entry.driver}</td>
               <td className="px-4 py-3">{entry.approver}</td>
-              <td className="px-4 py-3">{entry.pickup}</td>
-              <td className="px-4 py-3">{entry.destination}</td>
+              <td className="px-4 py-3">
+                {entry.pickup && entry.pickup.length > 20
+                  ? entry.pickup.slice(0, 20) + "..."
+                  : entry.pickup}
+              </td>
+              <td className="px-4 py-3">
+                {entry.destination && entry.destination.length > 20
+                  ? entry.destination.slice(0, 20) + "..."
+                  : entry.destination}
+              </td>
               <td className="px-4 py-3">{entry.total_km}</td>
             </tr>
           ))}
@@ -68,8 +74,9 @@ export default function HistoryTable() {
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4 px-4">
         <p className="text-sm text-gray-600">
-          {t("showing")} {(currentPage - 1) * rowsPerPage + 1}
-          –{Math.min(currentPage * rowsPerPage, history.length)} {t("of")} {history.length}
+          {t("showing")} {(currentPage - 1) * rowsPerPage + 1}–
+          {Math.min(currentPage * rowsPerPage, history.length)} {t("of")}{" "}
+          {history.length}
         </p>
         <div className="flex gap-2">
           <button
@@ -80,7 +87,9 @@ export default function HistoryTable() {
             {t("previous")}
           </button>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-[#043755] text-white rounded hover:bg-gray-300 disabled:opacity-50"
           >

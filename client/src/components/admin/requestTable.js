@@ -35,7 +35,7 @@ export default function RequestTable() {
   const [rejectLoading, setRejectLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const rowsPerPage = 5;
   const { data: requests = [], isLoading, error, mutate } = useSWR("/api/admin/requests", fetcher);
 
   const t = useTranslations("RequestTable");
@@ -142,8 +142,8 @@ export default function RequestTable() {
               >
                 <td className="py-3 px-4">{capitalizeFirstLetters(request.requester_name)}</td>
                 <td className="py-3 px-4">{capitalizeFirstLetters(request.approver_name)}</td>
-                <td className="py-3 px-4">{capitalizeFirstLetters(request.pickup_location)}</td>
-                <td className="py-3 px-4">{capitalizeFirstLetters(request.destination)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.pickup_location.length > 20 ? request.pickup_location.slice(0, 20) + "..." : request.pickup_location)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.destination.length > 20 ? request.destination.slice(0, 20) + "..." : request.destination)}</td>
                 <td className="py-3 px-4">{new Date(request.created_at).toLocaleDateString()}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center justify-between">
