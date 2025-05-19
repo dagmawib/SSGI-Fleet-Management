@@ -59,10 +59,27 @@ class SuperAdminRegistrationView(generics.CreateAPIView):
 
     @super_admin_register_docs
     def post(self, request, *args, **kwargs):
+        from rest_framework import serializers as drf_serializers
         try:
-            return super().post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
+            # If the serializer created a user with a temporary password, mention that in the response
+            if hasattr(response, 'data') and response.data:
+                user_email = response.data.get('email') or response.data.get('username')
+                temp_password = response.data.get('temporary_password')
+                if temp_password:
+                    response.data['message'] = (
+                        f"A welcome email has been sent to {user_email}. "
+                        f"The user should log in with the temporary password and change it immediately."
+                    )
+                    response.data['welcome_email_sent'] = True
+                else:
+                    response.data['welcome_email_sent'] = False
+            return response
+        except drf_serializers.ValidationError as ve:
+            print(f"[SuperAdminRegistrationView][POST] Validation error: {ve}")
+            return Response({"detail": ve.detail}, status=400)
         except Exception as e:
-            print(f"[SuperAdminRegistrationView] Unexpected error in post: {e}")
+            print(f"[SuperAdminRegistrationView][POST] Unexpected error: {e}")
             return Response({"detail": "Unexpected server error.", "error": str(e)}, status=500)
 
     def perform_create(self, serializer):
@@ -77,23 +94,58 @@ class SuperAdminRegistrationView(generics.CreateAPIView):
             raise
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """Customized JWT token obtain view with enhanced documentation."""
     serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            data = serializer.validate(request.data)
+            return Response(data, status=data.get('status_code', 200))
+        except Exception as e:
+            print(f"[CustomTokenObtainPairView][POST] Unexpected error: {e}")
+            return Response({
+                "status": False,
+                "error": "validation_error",
+                "message": str(e),
+                "status_code": 400
+            }, status=400)
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """Allows authenticated users to view and modify their own profile."""
-    
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
-            return UserProfileUpdateSerializer
-        return UserProfileSerializer
+        try:
+            if self.request.method in ['PUT', 'PATCH']:
+                return UserProfileUpdateSerializer
+            return UserProfileSerializer
+        except Exception as e:
+            print(f"[UserProfileView] Error in get_serializer_class: {e}")
+            # Fallback to base serializer
+            return UserProfileSerializer
 
     def get_object(self):
-        return self.request.user
+        try:
+            return self.request.user
+        except Exception as e:
+            print(f"[UserProfileView] Error in get_object: {e}")
+            raise
 
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            return super().retrieve(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserProfileView] Error in retrieve: {e}")
+            return Response({"detail": "Unexpected server error.", "error": str(e)}, status=500)
 
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserProfileView] Error in update: {e}")
+            return Response({"detail": "Unexpected server error.", "error": str(e)}, status=500)
 
 
 class LogoutView(APIView):
@@ -132,22 +184,41 @@ class UserListView(generics.ListCreateAPIView):
 
     @user_list_docs
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        try:
+            return super().get(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserListView][GET] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while listing users.",
+                "error": str(e)
+            }, status=500)
 
     @user_list_docs
     def post(self, request, *args, **kwargs):
         self.serializer_class = UserCreateSerializer
-        return super().post(request, *args, **kwargs)
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserListView][POST] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while creating user.",
+                "error": str(e)
+            }, status=500)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        department_id = self.request.query_params.get('department_id')
-        role = self.request.query_params.get('role')
-        if department_id:
-            queryset = queryset.filter(department_id=department_id)
-        if role:
-            queryset = queryset.filter(role=role)
-        return queryset
+        try:
+            queryset = super().get_queryset()
+            department_id = self.request.query_params.get('department_id')
+            role = self.request.query_params.get('role')
+            if department_id:
+                queryset = queryset.filter(department_id=department_id)
+            if role:
+                queryset = queryset.filter(role=role)
+            return queryset
+        except Exception as e:
+            print(f"[UserListView][get_queryset] Error: {e}")
+            # Return empty queryset on error for safety
+            return User.objects.none()
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -159,119 +230,125 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
-            return UserUpdateSerializer
-        return UserSerializer
+        try:
+            if self.request.method in ['PUT', 'PATCH']:
+                return UserUpdateSerializer
+            return UserSerializer
+        except Exception as e:
+            print(f"[UserDetailView][get_serializer_class] Error: {e}")
+            return UserSerializer
 
-    # @extend_schema(**user_detail_docs['get'])
     @user_detail_docs['get']
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        try:
+            return super().get(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserDetailView][GET] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while retrieving user.",
+                "error": str(e)
+            }, status=500)
 
-    # @extend_schema(**user_detail_docs['put'])
     @user_detail_docs['put']
     def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)
+        try:
+            return super().put(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserDetailView][PUT] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while updating user.",
+                "error": str(e)
+            }, status=500)
 
-    # @extend_schema(**user_detail_docs['patch'])
     @user_detail_docs['patch']
     def patch(self, request, *args, **kwargs):
-        return super().patch(request, *args, **kwargs)
+        try:
+            return super().patch(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[UserDetailView][PATCH] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while partially updating user.",
+                "error": str(e)
+            }, status=500)
 
-    # @extend_schema(**user_delete_docs)  # Now correctly using a dictionary
     @user_delete_docs
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        
-        if instance == request.user:
+        try:
+            instance = self.get_object()
+            if instance == request.user:
+                return Response(
+                    {"error": "You cannot delete your own account"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            with transaction.atomic():
+                user_id = instance.pk
+                instance.is_active = False
+                instance.email = f"deleted_{instance.pk}_{instance.email}"
+                instance.set_unusable_password()
+                instance.save(update_fields=['is_active', 'email', 'password'])
             return Response(
-                {"error": "You cannot delete your own account"},
-                status=status.HTTP_403_FORBIDDEN
+                {
+                    "status": "success",
+                    "message": "User account deactivated",
+                    "user_id": user_id,
+                    "can_be_restored": True
+                },
+                status=status.HTTP_200_OK
             )
-            
-        with transaction.atomic():
-            user_id = instance.pk
-            instance.is_active = False
-            instance.email = f"deleted_{instance.pk}_{instance.email}"
-            instance.set_unusable_password()
-            instance.save(update_fields=['is_active', 'email', 'password'])
-        
-        return Response(
-            {
-                "status": "success",
-                "message": "User account deactivated",
-                "user_id": user_id,
-                "can_be_restored": True
-            },
-            status=status.HTTP_200_OK
-        )
-    
+        except Exception as e:
+            print(f"[UserDetailView][DELETE] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while deactivating user.",
+                "error": str(e)
+            }, status=500)
+
     @user_restore_docs
     @action(detail=True, methods=['post'], url_path='restore')
     def restore(self, request, pk=None):
         try:
-            user = User.objects.get(pk=pk, is_active=False)
-        except User.DoesNotExist:
+            try:
+                user = User.objects.get(pk=pk, is_active=False)
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "No inactive user found with this ID"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            if user.is_active:
+                return Response(
+                    {"error": "User is already active"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            with transaction.atomic():
+                # Restore original email format
+                if user.email.startswith('deleted_'):
+                    original_email = user.email.split('_', 2)[-1]
+                    user.email = original_email
+                user.is_active = True
+                user.save()
+                from django.contrib.auth.tokens import default_token_generator
+                from django.utils.http import urlsafe_base64_encode
+                from django.utils.encoding import force_bytes
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                self._send_restoration_email(user, uid, token)
             return Response(
-                {"error": "No inactive user found with this ID"},
-                status=status.HTTP_404_NOT_FOUND
+                {
+                    "status": "success",
+                    "message": "User account restored",
+                    "user_id": user.pk,
+                    "email": user.email,
+                    "password_reset_required": True,
+                    "reset_link": f"/password-reset/{uid}/{token}/"
+                },
+                status=status.HTTP_200_OK
             )
-
-        if user.is_active:
-            return Response(
-                {"error": "User is already active"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        with transaction.atomic():
-            # Restore original email format
-            if user.email.startswith('deleted_'):
-                original_email = user.email.split('_', 2)[-1]
-                user.email = original_email
-            
-            user.is_active = True
-            user.save()
-
-            # Create password reset token instead of temporary password
-            from django.contrib.auth.tokens import default_token_generator
-            from django.utils.http import urlsafe_base64_encode
-            from django.utils.encoding import force_bytes
-            
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-            # Send password reset email
-            self._send_restoration_email(user, uid, token)
-
-        return Response(
-            {
-                "status": "success",
-                "message": "User account restored",
-                "user_id": user.pk,
-                "email": user.email,
-                "password_reset_required": True,
-                "reset_link": f"/password-reset/{uid}/{token}/"  
-            },
-            status=status.HTTP_200_OK
-        )
-
-
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    """Customized JWT token obtain view with enhanced documentation."""
-    serializer_class = CustomTokenObtainPairSerializer
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        try:
-            data = serializer.validate(request.data)
-            return Response(data, status=data.get('status_code', 200))
         except Exception as e:
-            return Response({   
-                    "status": False,
-                    "error": "validation_error",
-                    "message": str(e),
-                    "status_code": 400
-            }, status=400)
+            print(f"[UserDetailView][RESTORE] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while restoring user.",
+                "error": str(e)
+            }, status=500)
+
 
 @extend_schema(
     summary="List all departments",
@@ -290,27 +367,48 @@ def list_departments(request):
     List all departments in the system.
     Returns: [{"id": ..., "name": ..., "description": ..., "director": ...}]
     """
-    departments = Department.objects.all()
-    serializer = DepartmentSerializer(departments, many=True)
-    return Response(serializer.data)
+    try:
+        departments = Department.objects.all()
+        serializer = DepartmentSerializer(departments, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        print(f"[list_departments] Unexpected error: {e}")
+        return Response({
+            "detail": "Unexpected server error while listing departments.",
+            "error": str(e)
+        }, status=500)
 
 @forgot_password_docs
 class ForgotPasswordAPIView(APIView):
     """Endpoint to request a password reset link."""
     permission_classes = []
     def post(self, request):
-        serializer = ForgotPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        # Always return generic message for security
-        return Response({"message": "If an account with that email exists, a password reset link has been sent."}, status=status.HTTP_200_OK)
+        try:
+            serializer = ForgotPasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            # Always return generic message for security
+            return Response({"message": "If an account with that email exists, a password reset link has been sent."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"[ForgotPasswordAPIView][POST] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while requesting password reset.",
+                "error": str(e)
+            }, status=500)
 
 @reset_password_docs
 class ResetPasswordAPIView(APIView):
     """Endpoint to reset password using token and uid."""
     permission_classes = []
     def post(self, request):
-        serializer = ResetPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"message": "Password has been reset successfully. You can now log in with your new password."}, status=status.HTTP_200_OK)
+        try:
+            serializer = ResetPasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({"message": "Password has been reset successfully. You can now log in with your new password."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"[ResetPasswordAPIView][POST] Unexpected error: {e}")
+            return Response({
+                "detail": "Unexpected server error while resetting password.",
+                "error": str(e)
+            }, status=500)

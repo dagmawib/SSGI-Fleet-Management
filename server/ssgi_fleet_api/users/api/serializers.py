@@ -143,86 +143,117 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
         Ensure only SuperAdmins can create other SuperAdmins
         and enforce role-specific rules
         """
-        requesting_user = self.context["request"].user
-        requested_role = data.get("role", User.Role.EMPLOYEE)
-
-        # Handle department name mapping to department object
-        department_name = data.pop("department_name", None)
-        if department_name:
-            try:
-                department = Department.objects.get(name=department_name)
-                data["department"] = department
-            except Department.DoesNotExist:
-                raise serializers.ValidationError({"department_name": "Department not found"})
-
-
-        # Only current SuperAdmins can create new SuperAdmins
-        if requested_role == User.Role.SUPERADMIN:
-            if not (
-                requesting_user.role == User.Role.SUPERADMIN
-                and requesting_user.is_superuser
-            ):
-                raise serializers.ValidationError(
-                    "Only SuperAdmins can create other SuperAdmins"
-                )
-
-        # SuperAdmins can't be assigned to departments
-        if requested_role == User.Role.SUPERADMIN:
-            data["department"] = None
-
-        return data
+        try:
+            requesting_user = self.context["request"].user
+            requested_role = data.get("role", User.Role.EMPLOYEE)
+            department_name = data.pop("department_name", None)
+            if department_name:
+                try:
+                    department = Department.objects.get(name=department_name)
+                    data["department"] = department
+                except Department.DoesNotExist:
+                    raise serializers.ValidationError({"department_name": "Department not found"})
+            if requested_role == User.Role.SUPERADMIN:
+                if not (
+                    requesting_user.role == User.Role.SUPERADMIN
+                    and requesting_user.is_superuser
+                ):
+                    raise serializers.ValidationError(
+                        {"detail": "Only SuperAdmins can create other SuperAdmins"}
+                    )
+            if requested_role == User.Role.SUPERADMIN:
+                data["department"] = None
+            return data
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[SuperAdminRegistrationSerializer][validate] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during validation: {str(e)}"})
 
     def validate_role(self, value):
-        """Ensure role is valid"""
-        if value not in dict(User.Role.choices):
-            raise serializers.ValidationError("Invalid role selection")
-        return value
+        try:
+            if value not in dict(User.Role.choices):
+                raise serializers.ValidationError("Invalid role selection")
+            return value
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[SuperAdminRegistrationSerializer][validate_role] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during role validation: {str(e)}"})
 
     def create(self, validated_data):
-        generate_creds = validated_data.pop("generate_credentials", True)
-        role = validated_data.get("role", User.Role.EMPLOYEE)
-        first_name = validated_data.get("first_name", "")
-        last_name = validated_data.get("last_name", "")
-        validated_data["username"] = self.generate_unique_username(first_name, last_name)
-        temporary_password = None
+        try:
+            generate_creds = validated_data.pop("generate_credentials", True)
+            role = validated_data.get("role", User.Role.EMPLOYEE)
+            first_name = validated_data.get("first_name", "")
+            last_name = validated_data.get("last_name", "")
+            validated_data["username"] = self.generate_unique_username(first_name, last_name)
+            temporary_password = None
+            if generate_creds:
+                raw_password = get_random_string(8)
+                validated_data["password"] = raw_password
+                temporary_password = raw_password
+            else:
+                raw_password = validated_data.get("password")
+                if not raw_password:
+                    raise serializers.ValidationError(
+                        {"detail": "Password is required if generate_credentials is False"}
+                    )
+                validated_data["password"] = raw_password
+            if role == User.Role.SUPERADMIN:
+                validated_data.update({
+                    "is_superuser": True,
+                    "is_staff": True,
+                    "department": None
+                })
+            user = User.objects.create_user(**validated_data)
+            if generate_creds:
+                user.temporary_password = temporary_password
+                user.save()
+                # Send welcome email with credentials (ensure email is sent after user is saved)
+                try:
+                    # Use transaction.on_commit to ensure email is sent after DB commit
+                    from django.db import transaction
+                    def send_email():
+                        self.send_welcome_email(user.email, temporary_password)
+                    transaction.on_commit(send_email)
+                except Exception as email_exc:
+                    print(f"[SuperAdminRegistrationSerializer][create] Failed to schedule welcome email: {email_exc}")
+            if user.role == User.Role.DIRECTOR and user.department:
+                user.department.director = user
+                user.department.save()
+            return user
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[SuperAdminRegistrationSerializer][create] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during user creation: {str(e)}"})
 
-
-
-
-        # Generate or hash password
-        if generate_creds:
-            raw_password = get_random_string(8)
-            validated_data["password"] = raw_password
-            temporary_password = raw_password
-        else:
-            raw_password = validated_data.get("password")
-            if not raw_password:
-                raise serializers.ValidationError(
-                    "Password is required if generate_credentials is False"
-                )
-            validated_data["password"] = raw_password
-
-        # SuperAdmin settings
-        if role == User.Role.SUPERADMIN:
-            validated_data.update({
-                "is_superuser": True,
-                "is_staff": True,
-                "department": None
-            })
-
-        user = User.objects.create_user(**validated_data)
-
-        if generate_creds:
-            user.temporary_password = temporary_password
-            user.save()
-
-        # Automatically assign as department director if role is director
-        if user.role == User.Role.DIRECTOR and user.department:
-            user.department.director = user
-            user.department.save()
-
-        return user
-
+    def send_welcome_email(self, email, temp_password):
+        """
+        Sends a welcome email to the newly registered user with their credentials and instructions.
+        Uses EMAIL_HOST_USER from settings or .env as the sender.
+        """
+        from django.conf import settings
+        from django.core.mail import send_mail
+        subject = "Welcome to SSGI Fleet Management System"
+        message = (
+            f"Dear User,\n\n"
+            f"Your account has been created successfully.\n"
+            f"Login Email: {email}\n"
+            f"Temporary Password: {temp_password}\n\n"
+            f"For your security, please log in and change your password immediately.\n"
+            f"If you have any issues, contact your administrator.\n\n"
+            f"Thank you,\nSSGI Fleet Management Team"
+        )
+        from_email = getattr(settings, 'EMAIL_HOST_USER', None)
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [email],
+            fail_silently=False,
+        )
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=False, min_length=8)
@@ -238,36 +269,45 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "old_password",
             "new_password"
         ]
-        
+    
     def validate(self, data):
-        old_password = data.get("old_password")
-        new_password = data.get("new_password")
-        # Only validate password change if either field is present
-        if old_password or new_password:
-            if not old_password or not new_password:
-                raise serializers.ValidationError({
-                    "old_password": "Both old_password and new_password are required to change password."
-                })
-            user = self.instance
-            if not user.check_password(old_password):
-                raise serializers.ValidationError({
-                    "old_password": "Old password is incorrect."
-                })
-            if old_password == new_password:
-                raise serializers.ValidationError({
-                    "new_password": "New password must be different from old password."
-                })
-        return data
+        try:
+            old_password = data.get("old_password")
+            new_password = data.get("new_password")
+            # Only validate password change if either field is present
+            if old_password or new_password:
+                if not old_password or not new_password:
+                    raise serializers.ValidationError({
+                        "old_password": "Both old_password and new_password are required to change password."
+                    })
+                user = self.instance
+                if not user.check_password(old_password):
+                    raise serializers.ValidationError({
+                        "old_password": "Old password is incorrect."
+                    })
+                if old_password == new_password:
+                    raise serializers.ValidationError({
+                        "new_password": "New password must be different from old password."
+                    })
+            return data
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[UserProfileUpdateSerializer][validate] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during profile validation: {str(e)}"})
 
     def update(self, instance, validated_data):
-        old_password = validated_data.pop("old_password", None)
-        new_password = validated_data.pop("new_password", None)
-        instance = super().update(instance, validated_data)
-        if old_password and new_password:
-            instance.set_password(new_password)
-            instance.save()
-        return instance
-
+        try:
+            old_password = validated_data.pop("old_password", None)
+            new_password = validated_data.pop("new_password", None)
+            instance = super().update(instance, validated_data)
+            if old_password and new_password:
+                instance.set_password(new_password)
+                instance.save()
+            return instance
+        except Exception as e:
+            print(f"[UserProfileUpdateSerializer][update] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during profile update: {str(e)}"})
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile viewing/updating"""
@@ -297,6 +337,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["email", "role", "date_joined", "last_login"]
 
+    def to_representation(self, instance):
+        try:
+            return super().to_representation(instance)
+        except Exception as e:
+            print(f"[UserProfileSerializer][to_representation] Unexpected error: {e}")
+            return {"detail": f"Server error during profile serialization: {str(e)}"}
+
+    def update(self, instance, validated_data):
+        try:
+            return super().update(instance, validated_data)
+        except Exception as e:
+            print(f"[UserProfileSerializer][update] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during profile update: {str(e)}"})
 
 class UserSerializer(serializers.ModelSerializer):
     """Default serializer for user listing"""
@@ -320,6 +373,12 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    def to_representation(self, instance):
+        try:
+            return super().to_representation(instance)
+        except Exception as e:
+            print(f"[UserSerializer][to_representation] Unexpected error: {e}")
+            return {"detail": f"Server error during user serialization: {str(e)}"}
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer for admin user creation"""
@@ -344,42 +403,47 @@ class UserCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True, "required": False}}
 
     def validate(self, data):
-        """Ensure admins can't create SuperAdmins"""
-        if data.get("role") == User.Role.SUPERADMIN:
-            raise serializers.ValidationError(
-                "Only SuperAdmins can create other SuperAdmins"
-            )
-        return data
+        try:
+            if data.get("role") == User.Role.SUPERADMIN:
+                raise serializers.ValidationError(
+                    "Only SuperAdmins can create other SuperAdmins"
+                )
+            return data
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[UserCreateSerializer][validate] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during user validation: {str(e)}"})
 
     def create(self, validated_data):
-        generate_creds = validated_data.pop('generate_credentials', True)
-        
-        
-        # Handle password
-        if generate_creds:
-            raw_password = get_random_string(8)
-            validated_data['password'] = raw_password  # Will be hashed in create_user
-            temporary_password = raw_password
-        else:
-            if not validated_data.get('password'):
-                raise serializers.ValidationError(
-                    {'password': 'Password is required when generate_credentials=False'}
-                )
-            temporary_password = None
-
-        # Create user - password will be hashed by create_user
-        user = User.objects.create_user(**validated_data)
-        
-        if generate_creds:
-            user.temporary_password = temporary_password
-            user.save()
-            
-        # Automatically assign as department director if role is director
-        if user.role == User.Role.DIRECTOR and user.department:
-            user.department.director = user
-            user.department.save()
-
-        return user
+        try:
+            generate_creds = validated_data.pop('generate_credentials', True)
+            # Handle password
+            if generate_creds:
+                raw_password = get_random_string(8)
+                validated_data['password'] = raw_password  # Will be hashed in create_user
+                temporary_password = raw_password
+            else:
+                if not validated_data.get('password'):
+                    raise serializers.ValidationError(
+                        {'password': 'Password is required when generate_credentials=False'}
+                    )
+                temporary_password = None
+            # Create user - password will be hashed by create_user
+            user = User.objects.create_user(**validated_data)
+            if generate_creds:
+                user.temporary_password = temporary_password
+                user.save()
+            # Automatically assign as department director if role is director
+            if user.role == User.Role.DIRECTOR and user.department:
+                user.department.director = user
+                user.department.save()
+            return user
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[UserCreateSerializer][create] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during user creation: {str(e)}"})
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     """Serializer for admin user updates"""
@@ -401,27 +465,36 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         }
 
     def validate_role(self, value):
-        """Prevent role escalation"""
-        instance = self.instance
-        if instance and value != instance.role:
-            raise serializers.ValidationError(
-                "Role cannot be changed through this endpoint"
-            )
-        return value
+        try:
+            instance = self.instance
+            if instance and value != instance.role:
+                raise serializers.ValidationError(
+                    "Role cannot be changed through this endpoint"
+                )
+            return value
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            print(f"[UserUpdateSerializer][validate_role] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during role validation: {str(e)}"})
 
     def update(self, instance, validated_data):
-        old_department = instance.department
-        instance = super().update(instance, validated_data)
-        # Automatically assign as department director if role is director
-        if instance.role == User.Role.DIRECTOR and instance.department:
-            instance.department.director = instance
-            instance.department.save()
-        # If user is no longer a director or changed department, clear old department's director
-        if (instance.role != User.Role.DIRECTOR or (old_department and old_department != instance.department)):
-            if old_department and old_department.director == instance:
-                old_department.director = None
-                old_department.save()
-        return instance
+        try:
+            old_department = instance.department
+            instance = super().update(instance, validated_data)
+            # Automatically assign as department director if role is director
+            if instance.role == User.Role.DIRECTOR and instance.department:
+                instance.department.director = instance
+                instance.department.save()
+            # If user is no longer a director or changed department, clear old department's director
+            if (instance.role != User.Role.DIRECTOR or (old_department and old_department != instance.department)):
+                if old_department and old_department.director == instance:
+                    old_department.director = None
+                    old_department.save()
+            return instance
+        except Exception as e:
+            print(f"[UserUpdateSerializer][update] Unexpected error: {e}")
+            raise serializers.ValidationError({"detail": f"Server error during user update: {str(e)}"})
 
 class TemporaryPasswordSerializer(serializers.Serializer):
     temporary_password = serializers.CharField()
@@ -430,24 +503,28 @@ class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
-        # Always return success for security, but check if user exists
-        self.user = User.objects.filter(email=value, is_active=True).first()
-        return value
+        try:
+            self.user = User.objects.filter(email=value, is_active=True).first()
+            return value
+        except Exception as e:
+            print(f"[ForgotPasswordSerializer][validate_email] Unexpected error: {e}")
+            raise serializers.ValidationError("Unexpected error during email validation.")
 
     def save(self):
-        if hasattr(self, 'user') and self.user:
-            user = self.user
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            # Set expiry (optional, token already has built-in expiry logic)
-            user.reset_token = token
-            user.reset_token_expires = timezone.now() + timezone.timedelta(hours=1)
-            user.save(update_fields=["reset_token", "reset_token_expires"])
-            # Send email (implement send_password_reset_email on User)
-            if hasattr(user, 'send_password_reset_email'):
-                user.send_password_reset_email(uid, token)
-        # Always return success
-        return True
+        try:
+            if hasattr(self, 'user') and self.user:
+                user = self.user
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                user.reset_token = token
+                user.reset_token_expires = timezone.now() + timezone.timedelta(hours=1)
+                user.save(update_fields=["reset_token", "reset_token_expires"])
+                if hasattr(user, 'send_password_reset_email'):
+                    user.send_password_reset_email(uid, token)
+            return True
+        except Exception as e:
+            print(f"[ForgotPasswordSerializer][save] Unexpected error: {e}")
+            raise serializers.ValidationError("Unexpected error during password reset process.")
 
 class ResetPasswordSerializer(serializers.Serializer):
     uid = serializers.CharField()
