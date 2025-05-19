@@ -36,7 +36,7 @@ export default function EditUserModal({ isOpen, onClose, user, onSave, departmen
   };
 
   const handleSave = () => {
-    onSave(formData); // This will call the parent function with updated data
+    onSave(formData); 
     onClose();
   };
 

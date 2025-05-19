@@ -16,7 +16,6 @@ export default function HistoryTable() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Build API URL with date filters
   const buildApiUrl = () => {
     let url = "/api/vehicles_history";
     const params = [];
@@ -49,7 +48,6 @@ export default function HistoryTable() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch report data with a simple async handler
   const [reportUrl, setReportUrl] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState(null);
@@ -59,7 +57,6 @@ export default function HistoryTable() {
     setReportError(null);
     setReportUrl(null);
     try {
-      // Build report URL with date filters
       let url = "/api/get_report?export=excel";
       if (startDate) url += `&start=${startDate}`;
       if (endDate) url += `&end=${endDate}`;
@@ -111,7 +108,6 @@ export default function HistoryTable() {
     <div className="max-w-7xl mx-auto px-2 sm:px-0 py-4">
       {/* Get Report Button */}
       <div className="flex flex-col sm:flex-row sm:justify-end px-4 pt-4 mb-4 gap-4">
-        {/* Date Filter Controls */}
         {/* Date Filter Controls */}
         <form
           onSubmit={(e) => e.preventDefault()}

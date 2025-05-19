@@ -62,13 +62,8 @@ export default function Navbar() {
         body: JSON.stringify({ refresh }),
       });
 
-      // if (res.status) {
         router.push("/");
         deleteCookie("access_token");
-      // } else {
-      //   const errorData = await res.json();
-      //   console.error("Logout failed:", errorData.error || "Unknown error");
-      // }
     } catch (error) {
       console.error("Logout error:", error.message);
     }
@@ -103,27 +98,6 @@ export default function Navbar() {
               >
                 {t("register")}
               </Link>
-
-              {/* <Link
-                href="/user/profile"
-                className={
-                  isActive("/user/profile")
-                    ? "text-[#FFAE02] font-medium"
-                    : "text-[#043755] hover:text-afPrimary"
-                }
-              >
-                Profile
-              </Link> */}
-              {/* <Link
-                href="/user/contact"
-                className={
-                  isActive("/user/contact")
-                    ? "text-[#FFAE02] font-medium"
-                    : "text-[#043755] hover:text-afPrimary"
-                }
-              >
-                Contact Us
-              </Link> */}
               <Link
                 href="/superAdmin/users"
                 className={
@@ -225,28 +199,7 @@ export default function Navbar() {
                     >
                       {t("register")}
                     </Link>
-                    {/* <Link
-                      href="/user/profile"
-                      className={
-                        isActive("/user/profile")
-                          ? "text-afPrimary underline underline-offset-4"
-                          : "text-afPrimary/80 hover:text-afPrimary"
-                      }
-                      onClick={closeSidebar}
-                    >
-                      Profile
-                    </Link> */}
-                    {/* <Link
-                      href="/user/contact"
-                      className={
-                        isActive("/user/contact")
-                          ? "text-afPrimary underline underline-offset-4"
-                          : "text-afPrimary/80 hover:text-afPrimary"
-                      }
-                      onClick={closeSidebar}
-                    >
-                      Contact Us
-                    </Link> */}
+
                     <Link
                       href="/superAdmin/users"
                       className={

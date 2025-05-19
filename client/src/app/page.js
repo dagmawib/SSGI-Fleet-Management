@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
-import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress from MUI
+import CircularProgress from "@mui/material/CircularProgress"; 
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   DropdownMenu,

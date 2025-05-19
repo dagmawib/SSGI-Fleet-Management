@@ -64,9 +64,9 @@ const VehicleAssignmentModal = ({ open, selectedRequest, onClose, mutate }) => {
         }
 
         toast.success("Vehicle assigned successfully");
-        onClose(); // Close the modal after success
-        await mutate(); // Refresh the requests data
-        return; // Prevent further execution
+        onClose(); 
+        await mutate(); 
+        return; 
       } catch (error) {
         console.error("Error assigning vehicle:", error);
         toast.error("Failed to assign vehicle");
@@ -96,10 +96,10 @@ const VehicleAssignmentModal = ({ open, selectedRequest, onClose, mutate }) => {
         }
 
         toast.success("Request rejected successfully");
-        onClose(); // Close the modal after success
-        await mutate(); // Refresh the requests data
-        setNote(""); // Reset the comment section after rejection
-        return; // Prevent further execution
+        onClose(); 
+        await mutate(); 
+        setNote(""); 
+        return; 
       } catch (error) {
         console.error("Error rejecting request:", error);
         toast.error("Failed to reject request");

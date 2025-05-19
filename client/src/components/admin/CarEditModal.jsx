@@ -30,16 +30,13 @@ export default function CarEditModal({
     mutate,
   } = useSWR("/api/get_all_drivers", fetcher);
 
-
   React.useEffect(() => {
     setForm(car || {});
   }, [car]);
 
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
 
   const handleEdit = () => {
     const payload = {
@@ -48,17 +45,14 @@ export default function CarEditModal({
     };
     delete payload.assigned_driver;
 
-
     onEdit(payload, "edit");
   };
-
 
   const handleDelete = () => {
     onDelete(car.id, "delete");
   };
 
 
-  // Filter drivers by search
   const filteredDrivers = Array.isArray(drivers)
     ? drivers.filter((driver) =>
         (driver.first_name + " " + driver.last_name)
@@ -80,7 +74,6 @@ export default function CarEditModal({
         <h2 className="text-xl font-semibold mb-4 text-center text-black">
           Edit Vehicle
         </h2>
-
 
         {/* Grid for two-column layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">

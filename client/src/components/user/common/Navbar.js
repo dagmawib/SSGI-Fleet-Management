@@ -63,13 +63,8 @@ export default function Navbar() {
         body: JSON.stringify({ refresh }),
       });
 
-      // if (res.status) {
         router.push("/");
         deleteCookie("access_token");
-      // } else {
-      //   const errorData = await res.json();
-      //   console.error("Logout failed:", errorData.error || "Unknown error");
-      // }
     } catch (error) {
       console.error("Logout error:", error.message);
     }
