@@ -6,6 +6,8 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import { useTranslations } from "next-intl";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ROWS_PER_PAGE = 10;
@@ -110,7 +112,11 @@ export default function HistoryTable() {
       {/* Get Report Button */}
       <div className="flex flex-col sm:flex-row sm:justify-end px-4 pt-4 mb-4 gap-4">
         {/* Date Filter Controls */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center sm:mb-0 mb-2 w-full sm:w-auto">
+        {/* Date Filter Controls */}
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex flex-col sm:flex-row flex-wrap gap-4 items-center sm:mb-0 mb-2 w-full sm:w-auto"
+        >
           <TextField
             label={t("startDate", { defaultValue: "Start Date" })}
             type="date"
@@ -118,9 +124,15 @@ export default function HistoryTable() {
             InputLabelProps={{ shrink: true }}
             value={startDate}
             onChange={(e) => {
+              if (endDate && new Date(e.target.value) > new Date(endDate)) {
+                toast.error("Start date cannot be after end date");
+                return;
+              }
               setStartDate(e.target.value);
               setCurrentPage(1);
-              mutate();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
             }}
             className="w-full sm:w-auto"
           />
@@ -133,11 +145,13 @@ export default function HistoryTable() {
             onChange={(e) => {
               setEndDate(e.target.value);
               setCurrentPage(1);
-              mutate();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
             }}
             className="w-full sm:w-auto"
           />
-        </div>
+        </form>
 
         {/* Report Button */}
         <button

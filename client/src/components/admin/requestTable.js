@@ -35,7 +35,7 @@ export default function RequestTable() {
   const [rejectLoading, setRejectLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const { data: requests = [], isLoading, error, mutate } = useSWR("/api/admin/requests", fetcher);
 
   const t = useTranslations("RequestTable");

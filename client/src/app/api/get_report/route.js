@@ -18,6 +18,8 @@ export async function GET(req) {
     const backendUrl = `${API_BASE_URL}${API_ENDPOINTS.EXPORT_CSV}`;
     // Forward all query params as-is
     const urlWithParams = req.nextUrl.search ? `${backendUrl}${req.nextUrl.search}` : backendUrl;
+    console.log("URL with params:", urlWithParams);
+    
     const response = await axios.get(urlWithParams, {
       headers: {
         Authorization: `Bearer ${token}`,
