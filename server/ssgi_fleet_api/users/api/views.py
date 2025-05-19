@@ -44,8 +44,12 @@ from users.api.docs import (
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
 def generate_temp_password(request):
-    password = get_random_string(8)
-    return Response({'temporary_password': password})
+    try:
+        password = get_random_string(8)
+        return Response({'temporary_password': password})
+    except Exception as e:
+        print(f"[generate_temp_password] Unexpected error: {e}")
+        return Response({"detail": "Unexpected server error.", "error": str(e)}, status=500)
 
 class SuperAdminRegistrationView(generics.CreateAPIView):
     """Endpoint exclusively for SuperAdmins to register any type of user."""
@@ -55,14 +59,22 @@ class SuperAdminRegistrationView(generics.CreateAPIView):
 
     @super_admin_register_docs
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            print(f"[SuperAdminRegistrationView] Unexpected error in post: {e}")
+            return Response({"detail": "Unexpected server error.", "error": str(e)}, status=500)
 
     def perform_create(self, serializer):
-        user = serializer.save()
-        if hasattr(user, "temporary_password"):
-            print(
-                f"Created user {user.email} with temp password: {user.temporary_password}"
-            )
+        try:
+            user = serializer.save()
+            if hasattr(user, "temporary_password"):
+                print(
+                    f"Created user {user.email} with temp password: {user.temporary_password}"
+                )
+        except Exception as e:
+            print(f"[SuperAdminRegistrationView] Error in perform_create: {e}")
+            raise
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
