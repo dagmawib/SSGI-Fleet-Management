@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import React from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -21,7 +20,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
-  const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");

@@ -1,13 +1,6 @@
 "use client";
 
-import { Globe, MoreVertical } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "../../ui/sheet";
+import { Globe } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -33,9 +26,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const refresh = getCookie("refresh") || null;
 
-  // Function to close the sidebar
-  const closeSidebar = () => setIsOpen(false);
-  const isActive = (path) => pathname === path;
 
   const handleLanguageChange = (lang) => {
     setCookie("NEXT_LOCALE", lang);
@@ -63,13 +53,8 @@ export default function Navbar() {
         body: JSON.stringify({ refresh }),
       });
 
-      // if (res.status) {
         router.push("/");
         deleteCookie("access_token");
-      // } else {
-      //   const errorData = await res.json();
-      //   console.error("Logout failed:", errorData.error || "Unknown error");
-      // }
     } catch (error) {
       console.error("Logout error:", error.message);
     }

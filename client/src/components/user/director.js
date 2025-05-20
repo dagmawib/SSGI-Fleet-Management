@@ -84,10 +84,17 @@ const DirectorDashboard = ({
                   >
                     <div>
                       <p className="text-[#043755] font-semibold">
-                        {t("pickup")}: {request.pickup_location}
+                        {t("pickup")}:{" "}
+                        {request.pickup_location &&
+                        request.pickup_location.length > 20
+                          ? request.pickup_location.slice(0, 20) + "..."
+                          : request.pickup_location}
                       </p>
                       <p className="text-[#043755] font-semibold">
-                        {t("destination")}: {request.destination}
+                        {t("destination")}:{" "}
+                        {request.destination && request.destination.length > 20
+                          ? request.destination.slice(0, 20) + "..."
+                          : request.destination}
                       </p>
                     </div>
                     <div className="flex justify-end gap-2 mt-2">

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
-import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress from MUI
+import CircularProgress from "@mui/material/CircularProgress"; 
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   DropdownMenu,
@@ -23,6 +23,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import withAuth from "@/withAuth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -35,7 +37,6 @@ function Home() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [message, setMessage] = useState(null);
   const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
   const t = useTranslations("login");
@@ -56,25 +57,28 @@ function Home() {
     try {
       setLoading(true);
       const { email, password } = data;
-
-      const requestBody = {
-        email,
-        password,
-      };
-
+      const requestBody = { email, password };
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-
       if (!response.ok) {
         setLoading(false);
-        setErrorMessage("Login failed. Please check your credentials.");
         const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
+        let backendMsg =
+          errorData?.error ||
+          errorData?.details?.message ||
+          "Login failed. Please check your credentials.";
+        toast.error(backendMsg, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
       }
 
       const responseData = await response.json();
@@ -85,7 +89,7 @@ function Home() {
         setCookie("access_token", responseData.token);
         setCookie("refresh", responseData.refresh);
         setCookie("user_ID", responseData.user_id);
-        setCookie("role", responseData.role)
+        setCookie("role", responseData.role);
 
         const role = responseData.role;
         if (role === "employee" || role === "director") {
@@ -97,12 +101,26 @@ function Home() {
         } else if (role === "driver") {
           router.push("/driver");
         } else {
-          setErrorMessage("Invalid role. Access denied.");
+          toast.error("Invalid role. Access denied.", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         }
-       
       }
     } catch (error) {
       console.error("Login error:", error.message);
+      toast.error(error.message || "Login failed", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -127,6 +145,7 @@ function Home() {
           priority
         />
       </div>
+      <ToastContainer />
       {!isLoginSuccessful ? (
         <>
           {/* Login Form */}

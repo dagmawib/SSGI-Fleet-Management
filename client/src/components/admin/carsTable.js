@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import "react-toastify/dist/ReactToastify.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -58,10 +58,8 @@ export default function CarsTable() {
   const handleEdit = async (updatedCar) => {
     setModalLoading("edit");
     try {
-      // Create an object to hold only the modified fields
       const updatedFields = {};
 
-      // Iterate over the keys of updatedCar
       for (const key in updatedCar) {
         if (
           updatedCar.hasOwnProperty(key) &&
@@ -112,7 +110,7 @@ export default function CarsTable() {
       });
       if (!res.ok) throw new Error("Failed to delete vehicle");
       toast.success("Vehicle deleted successfully");
-      await mutate(); // Refresh the data after deletion
+      await mutate(); 
     } catch (err) {
       toast.error(err.message || "Failed to delete vehicle");
     } finally {
@@ -126,7 +124,7 @@ export default function CarsTable() {
     try {
       setSearchTerm("");
       setSelectedMake("");
-      setCurrentPage(1); // Reset to first page when filters are cleared
+      setCurrentPage(1); 
     } finally {
       setClearLoading(false);
     }
@@ -142,15 +140,13 @@ export default function CarsTable() {
         return "Out of Service";
       default:
         return status
-          .replace(/_/g, " ") // Replace underscores with spaces
-          .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize each word
+          .replace(/_/g, " ") 
+          .replace(/\b\w/g, (c) => c.toUpperCase()); 
     }
   };
 
-  // Get unique makes for the filter dropdown
   const uniqueMakes = [...new Set(cars.map((car) => car.make))].sort();
 
-  // Filter cars based on search term and selected make
   const filteredCars = cars.filter((car) => {
     const matchesSearch = Object.values(car).some((value) =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
@@ -159,7 +155,6 @@ export default function CarsTable() {
     return matchesSearch && matchesMake;
   });
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

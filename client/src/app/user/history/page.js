@@ -83,8 +83,8 @@ export default function RequestTrackingPage() {
                 <td className="p-2">{req.approver || "-"}</td>
                 <td className="p-2">{req.vehicle || "-"}</td>
                 <td className="p-2">{req.driver || "-"}</td>
-                <td className="p-2">{req.pickup}</td>
-                <td className="p-2">{req.destination}</td>
+                <td className="p-2">{req.pickup && req.pickup.length > 20 ? req.pickup.slice(0, 20) + "..." : req.pickup}</td>
+                <td className="p-2">{req.destination && req.destination.length > 20 ? req.destination.slice(0, 20) + "..." : req.destination}</td>
                 <td className="p-2">{req.reason}</td>
                 <td className="p-2 font-semibold">
                   <span

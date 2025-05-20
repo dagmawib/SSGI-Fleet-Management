@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import VehicleAssignmentModal from "@/components/admin/vehicleAssignementModal";
 import { useTranslations } from "next-intl";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -44,15 +44,15 @@ export default function RequestTable() {
     setModalOpen(false);
     setSelectedRequest(null);
     setSelectedCarId("");
-    setRejectLoading(false); // Reset reject loading state
-    setAssignLoading(false); // Reset assign loading state
+    setRejectLoading(false); 
+    setAssignLoading(false); 
   };
 
   const openModal = (request, action) => {
     setSelectedRequest({ ...request, action });
     setModalOpen(true);
-    setRejectLoading(false); // Reset reject loading state on open
-    setAssignLoading(false); // Reset assign loading state on open
+    setRejectLoading(false); 
+    setAssignLoading(false); 
   };
 
   const resetFilters = async () => {
@@ -80,8 +80,6 @@ export default function RequestTable() {
     currentPage * rowsPerPage
   );
 
-
-
   if (isLoading) {
     return (
           <div className="flex justify-center items-center h-32">
@@ -89,8 +87,6 @@ export default function RequestTable() {
           </div>
         );
   }
-
-
 
   return (
     <div className="space-y-4">
@@ -142,8 +138,8 @@ export default function RequestTable() {
               >
                 <td className="py-3 px-4">{capitalizeFirstLetters(request.requester_name)}</td>
                 <td className="py-3 px-4">{capitalizeFirstLetters(request.approver_name)}</td>
-                <td className="py-3 px-4">{capitalizeFirstLetters(request.pickup_location)}</td>
-                <td className="py-3 px-4">{capitalizeFirstLetters(request.destination)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.pickup_location.length > 20 ? request.pickup_location.slice(0, 20) + "..." : request.pickup_location)}</td>
+                <td className="py-3 px-4">{capitalizeFirstLetters(request.destination.length > 20 ? request.destination.slice(0, 20) + "..." : request.destination)}</td>
                 <td className="py-3 px-4">{new Date(request.created_at).toLocaleDateString()}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center justify-between">
