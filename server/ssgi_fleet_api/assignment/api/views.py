@@ -56,8 +56,8 @@ class AssignCarAPIView(APIView):
         try:
             with transaction.atomic():
                 # Get validated objects
-                vehicle_request = Vehicle_Request.objects.get(pk=serializer.validated_data['request_id'])
-                vehicle = Vehicle.objects.get(pk=serializer.validated_data['vehicle_id'])
+                vehicle_request = Vehicle_Request.objects.select_related('requester', 'department_approver').get(pk=serializer.validated_data['request_id'])
+                vehicle = Vehicle.objects.select_related('assigned_driver').get(pk=serializer.validated_data['vehicle_id'])
                 driver = vehicle.assigned_driver
                 
                 # Create the assignment
@@ -78,6 +78,56 @@ class AssignCarAPIView(APIView):
                 # Update vehicle status
                 vehicle.status = Vehicle.Status.IN_USE
                 vehicle.save()
+                
+                # Send emails to requester and driver after commit
+                from django.db import transaction as dj_transaction
+                def send_assignment_emails():
+                    try:
+                        from django.core.mail import send_mail
+                        # Email to requester
+                        requester_email = vehicle_request.requester.email
+                        requester_subject = "Vehicle Assignment Notification"
+                        requester_message = (
+                            f"Dear {vehicle_request.requester.get_full_name()},\n\n"
+                            f"Your vehicle request has been assigned.\n"
+                            f"Vehicle: {vehicle.make} {vehicle.model} ({vehicle.license_plate})\n"
+                            f"Driver: {driver.get_full_name()} ({driver.phone_number})\n\n"
+                            f"Pickup: {vehicle_request.pickup_location}\nDestination: {vehicle_request.destination}\n"
+                            f"Start: {vehicle_request.start_dateTime}\nEnd: {vehicle_request.end_dateTime}\n"
+                            f"Purpose: {vehicle_request.purpose}\n\n"
+                            f"Thank you,\nSSGI Fleet Management Team"
+                        )
+                        send_mail(
+                            requester_subject,
+                            requester_message,
+                            None,
+                            [requester_email],
+                            fail_silently=False,
+                        )
+                        # Email to driver
+                        if driver and driver.email:
+                            driver_subject = "New Vehicle Assignment"
+                            driver_message = (
+                                f"Dear {driver.get_full_name()},\n\n"
+                                f"You have been assigned to a new vehicle request.\n"
+                                f"Requester: {vehicle_request.requester.get_full_name()} ({vehicle_request.requester.phone_number})\n"
+                                f"Vehicle: {vehicle.make} {vehicle.model} ({vehicle.license_plate})\n"
+                                f"Pickup: {vehicle_request.pickup_location}\nDestination: {vehicle_request.destination}\n"
+                                f"Start: {vehicle_request.start_dateTime}\nEnd: {vehicle_request.end_dateTime}\n"
+                                f"Purpose: {vehicle_request.purpose}\n\n"
+                                f"Please check your dashboard for more details.\n\n"
+                                f"Thank you,\nSSGI Fleet Management Team"
+                            )
+                            send_mail(
+                                driver_subject,
+                                driver_message,
+                                None,
+                                [driver.email],
+                                fail_silently=False,
+                            )
+                    except Exception as email_exc:
+                        print(f"[AssignCarAPIView][send_assignment_emails] Email sending failed: {email_exc}")
+                dj_transaction.on_commit(send_assignment_emails)
                 
                 return Response(
                     {
@@ -117,6 +167,7 @@ class AssignCarAPIView(APIView):
                 )
                 
         except (Vehicle_Request.DoesNotExist, Vehicle.DoesNotExist) as e:
+            print(f"[AssignCarAPIView][POST] Not found: {e}")
             return Response(
                 {
                     "error": str(e),
@@ -126,6 +177,7 @@ class AssignCarAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            print(f"[AssignCarAPIView][POST] Assignment failed: {e}")
             return Response(
                 {
                     "error": str(e),
@@ -159,11 +211,36 @@ class CarRejectAPIView(APIView):
         
         try:
             with transaction.atomic():
-                vehicle_request = Vehicle_Request.objects.get(
+                vehicle_request = Vehicle_Request.objects.select_related('requester').get(
                     request_id=serializer.validated_data['request_id']
                 )
                 vehicle_request.status = Vehicle_Request.Status.REJECTED
                 vehicle_request.save()
+                
+                # Send rejection email to requester after commit
+                from django.db import transaction as dj_transaction
+                def send_rejection_email():
+                    try:
+                        from django.core.mail import send_mail
+                        requester_email = vehicle_request.requester.email
+                        subject = "Vehicle Request Rejected"
+                        message = (
+                            f"Dear {vehicle_request.requester.get_full_name()},\n\n"
+                            f"Your vehicle request has been rejected.\n"
+                            f"Reason: {serializer.validated_data.get('note', 'No reason provided.')}\n\n"
+                            f"If you have questions, please contact your administrator.\n\n"
+                            f"Thank you,\nSSGI Fleet Management Team"
+                        )
+                        send_mail(
+                            subject,
+                            message,
+                            None,
+                            [requester_email],
+                            fail_silently=False,
+                        )
+                    except Exception as email_exc:
+                        print(f"[CarRejectAPIView][send_rejection_email] Email sending failed: {email_exc}")
+                dj_transaction.on_commit(send_rejection_email)
                 
                 return Response({
                     "status": "rejected",
@@ -175,6 +252,7 @@ class CarRejectAPIView(APIView):
                 }, status=status.HTTP_200_OK)
                 
         except Vehicle_Request.DoesNotExist:
+            print("[CarRejectAPIView][POST] Request not found.")
             return Response(
                 {
                     'error': 'The requested vehicle request does not exist.',
@@ -183,6 +261,7 @@ class CarRejectAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            print(f"[CarRejectAPIView][POST] Rejection failed: {e}")
             return Response(
                 {
                     "error": str(e),
