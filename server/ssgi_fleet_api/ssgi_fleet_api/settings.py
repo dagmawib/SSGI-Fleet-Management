@@ -120,7 +120,11 @@ DATABASES = {
     }
 }
 
-
+# DB_NAME=postgres
+# DB_USER=postgres.wyskppbfbbydmslwecgo
+# DB_PASSWORD=jMDXNscy0bdIoFSv
+# DB_HOST=aws-0-ap-south-1.pooler.supabase.com
+# DB_PORT=6543
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

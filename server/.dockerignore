@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database and logs
+*.db
+*.sqlite3
+*.log
+update_pool_cars.log
+
+# Environment files
+.env
+.env.*
+
+# Egg and build
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.tar.gz
+
+# Migrations (optional, keep if you want to build from scratch)
+*.migrations/
+
+# VCS
+.git/
+.gitignore
+
+# IDE/editor
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Misc
+*.bak
+*.tmp
+*.orig
+*.old
+run_update_pool_cars.bat
+crontab.txt
