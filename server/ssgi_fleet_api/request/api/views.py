@@ -282,7 +282,7 @@ class RequestCancelAPI(APIView):
 class RequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated , IsRegularAdmin]
     def get(self, request):
-        queryset = Vehicle_Request.objects.filter(department_approver__isnull=False,department_approval=True)
+        queryset = Vehicle_Request.objects.filter(department_approver__isnull=False,department_approval=True).select_related('requester')
         serializer = RequestListSerializer(queryset, many=True)
         return Response(serializer.data)
     
@@ -335,7 +335,7 @@ class UserRequestHistoryAPIView(APIView):
                 return Response({'detail': 'Not authorized.'}, status=403)
             user = get_object_or_404(User, pk=user_id)
 
-        requests = Vehicle_Request.objects.filter(requester=user).order_by('-created_at')
+        requests = Vehicle_Request.objects.filter(requester=user).select_related('requester', 'department_approver').order_by('-created_at')
         total_requests = requests.count()
         accepted_requests = requests.filter(status=Vehicle_Request.Status.ASSIGNED).count()
         declined_requests = requests.filter(status=Vehicle_Request.Status.REJECTED).count()

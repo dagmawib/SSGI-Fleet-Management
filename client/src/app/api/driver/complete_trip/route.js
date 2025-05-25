@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export async function PATCH(request) {
     try {
@@ -24,7 +24,7 @@ export async function PATCH(request) {
         }
 
         const response = await fetch(
-            `${API_BASE_URL}${API_ENDPOINTS.DRIVER_COMPLETE_TRIP}/${trip_id}/complete/`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.DRIVER_COMPLETE_TRIP}/${trip_id}/complete/`,
             {
                 method: 'PATCH',
                 headers: {
@@ -60,4 +60,4 @@ export async function PATCH(request) {
             { status: 500, headers: { "Content-Type": "application/json" } }
         );
     }
-} 
+}

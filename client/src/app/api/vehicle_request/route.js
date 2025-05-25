@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export const POST = async (req) => {
     try {
@@ -53,7 +53,7 @@ export const POST = async (req) => {
         };
 
         const response = await axios.post(
-            `${API_BASE_URL}${API_ENDPOINTS.VEHICLE_REQUEST}`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.VEHICLE_REQUEST}`,
             requestBody,
             {
                 headers: {

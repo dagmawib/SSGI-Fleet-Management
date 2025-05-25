@@ -9,6 +9,9 @@ from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework.decorators import action
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import traceback
 
 from users.api.permissions import IsSuperAdmin
 from users.models import User, Department
@@ -97,6 +100,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """Customized JWT token obtain view with enhanced documentation."""
     serializer_class = CustomTokenObtainPairSerializer
 
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         try:
             serializer = self.get_serializer(data=request.data)
@@ -104,6 +108,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response(data, status=data.get('status_code', 200))
         except Exception as e:
             print(f"[CustomTokenObtainPairView][POST] Unexpected error: {e}")
+            traceback.print_exc()
             return Response({
                 "status": False,
                 "error": "validation_error",

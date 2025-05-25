@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
 export async function PUT(req) {
@@ -18,7 +18,7 @@ export async function PUT(req) {
     const { first_name, last_name, phone_number, email, old_password, new_password } = body;
 
     const response = await axios.put(
-      `${API_BASE_URL}${API_ENDPOINTS.PROFILE}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.PROFILE}`,
       {
         first_name,
         last_name,

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export async function GET() {
     try {
@@ -15,7 +15,7 @@ export async function GET() {
         }
 
         const response = await axios.get(
-            `${API_BASE_URL}${API_ENDPOINTS.HISTORY}`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.HISTORY}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -42,4 +42,4 @@ export async function GET() {
             { status: error.response?.status || 500 }
         );
     }
-} 
+}

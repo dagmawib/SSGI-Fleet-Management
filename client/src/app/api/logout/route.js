@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import { cookies } from "next/headers";
 
 export const POST = async (req) => {
@@ -22,7 +22,7 @@ export const POST = async (req) => {
 
     // Make the POST request to the token API
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.LOGOUT}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.LOGOUT}`,
       requestBody,
       {
         headers: {

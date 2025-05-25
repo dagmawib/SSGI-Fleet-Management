@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
 export async function DELETE(req) {
@@ -25,7 +25,7 @@ export async function DELETE(req) {
     }
 
     const response = await axios.delete(
-      `${API_BASE_URL}${API_ENDPOINTS.DELETE_USER}/${id}/`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.DELETE_USER}/${id}/`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
