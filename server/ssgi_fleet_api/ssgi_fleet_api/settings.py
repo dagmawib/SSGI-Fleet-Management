@@ -14,12 +14,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^bg#z39v3*rzbju1cec&^i04)ycpr10r121s&rhr^#u89$14@v'
 
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG') 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1').split(',') if origin.strip()]
 
 
 # Application definition
@@ -32,10 +33,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',    # Custom user app
-    'vehicles', # Vehicle management app
-    'rest_framework',##for JWT authentication
-    'rest_framework_simplejwt',#for JWT authentication
-    'rest_framework_simplejwt.token_blacklist', #for JWT authentication
+    'vehicles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist', 
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_filters',
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
     
 ]
 
-AUTH_USER_MODEL = 'users.User'  # Replace default User model
+AUTH_USER_MODEL = 'users.User'  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -169,7 +170,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Add this for password reset link in emails
-FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost:3000/forgotPassword')
+FRONTEND_RESET_URL = os.getenv('FRONTEND_RESET_URL', 'http://localhost/forgotPassword')
 
 
 # For production/real email sending, configure Gmail SMTP:

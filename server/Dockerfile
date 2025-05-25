@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Install system dependencies for Python packages
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev && \
+    apt-get install -y --no-install-recommends gcc libpq-dev --fix-missing && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -24,9 +24,8 @@ RUN pip install --upgrade pip && \
 # Copy project files
 COPY . .
 
-# Collect static files
+# Set workdir for Django commands
 WORKDIR /app/ssgi_fleet_api
-RUN python manage.py collectstatic --noinput
 
 # Set workdir back for Gunicorn
 WORKDIR /app

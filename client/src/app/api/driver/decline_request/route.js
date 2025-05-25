@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export async function POST(request) {
     try {
@@ -17,7 +17,7 @@ export async function POST(request) {
         const { rejection_reason, assignment_id } = await request.json();
 
         const response = await axios.post(
-            `${API_BASE_URL}${API_ENDPOINTS.DRIVER_DECLINE_REQUEST}/${assignment_id}/decline/`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.DRIVER_DECLINE_REQUEST}/${assignment_id}/decline/`,
             {
                 rejection_reason: rejection_reason,
             },
@@ -47,4 +47,4 @@ export async function POST(request) {
             { status: error.response?.status || 500 }
         );
     }
-} 
+}

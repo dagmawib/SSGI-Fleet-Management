@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export async function POST(request) {
     try {
@@ -17,7 +17,7 @@ export async function POST(request) {
         const { vehicleId, driverId } = await request.json();
 
         const response = await axios.post(
-            `${API_BASE_URL}${API_ENDPOINTS.ASSIGN_DRIVER}`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.ASSIGN_DRIVER}`,
             {
                 vehicle_id: vehicleId,
                 driver_id: driverId,
@@ -48,4 +48,4 @@ export async function POST(request) {
             { status: error.response?.status || 500 }
         );
     }
-} 
+}

@@ -1,12 +1,10 @@
 # Node dependencies
-node_modules/
-.npm/
+node_modules
 
 # Build output
-.next/
-out/
-build/
-dist/
+.next
+out
+dist
 
 # Logs
 *.log
@@ -19,24 +17,14 @@ yarn-error.log*
 Thumbs.db
 
 # Version control
-.git/
+.git
 .gitignore
 
 # Docker
-Dockerfile*
+Dockerfile
 .dockerignore
 
 # IDE/editor files
-.vscode/
-.idea/
-*.iml
+.vscode
 
-# Miscellaneous
-*.bak
-*.tmp
-*.orig
-*.old
-
-# Environment files
-.env
-.env.*
+# Do NOT exclude package.json or package-lock.json!

@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
-import MapComponent from "@/components/map/MapComponent";
+import dynamic from "next/dynamic";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getCookie } from 'cookies-next';
@@ -12,6 +12,9 @@ import DirectorDashboard from "@/components/user/director";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+
+// Dynamic import of MapComponent
+const MapComponent = dynamic(() => import("@/components/map/MapComponent"), { ssr: false });
 
 // Zod validation schema
 const formSchema = z.object({

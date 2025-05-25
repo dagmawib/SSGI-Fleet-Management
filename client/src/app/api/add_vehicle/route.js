@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export const POST = async (req) => {
   try {
@@ -70,7 +70,7 @@ export const POST = async (req) => {
 
     // Make the POST request to the token API
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.ADD_VEHICLE}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.ADD_VEHICLE}`,
       requestBody,
       {
         headers: {
@@ -85,19 +85,40 @@ export const POST = async (req) => {
       status: response.status,
     });
   } catch (error) {
-    const errorMessage =
-      error.response?.data?.detail ||
-      error.response?.data?.message ||
-      "An unexpected error occurred.";
+    let errorMessage = "An unexpected error occurred.";
+    let errorDetails = "No additional details";
+    let status = 500;
 
-    console.error("Register failed:", errorMessage);
+    if (error.response) {
+      // Try to handle JSON or non-JSON error responses
+      if (
+        error.response.data &&
+        typeof error.response.data === "object"
+      ) {
+        errorMessage = error.response.data.detail || error.response.data.message || errorMessage;
+        errorDetails = error.response.data;
+        status = error.response.status;
+      } else if (typeof error.response.data === "string") {
+        // If backend returned HTML or plain text
+        errorMessage = error.response.data.substring(0, 500);
+        errorDetails = error.response.data;
+        status = error.response.status;
+      }
+    } else if (error.request) {
+      errorMessage = "No response from backend server.";
+      errorDetails = error.request;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    console.error("Add vehicle failed:", errorMessage);
 
     return new Response(
       JSON.stringify({
         error: errorMessage,
-        details: error.response?.data || "No additional details",
+        details: errorDetails,
       }),
-      { status: error.response?.status || 500 }
+      { status, headers: { "Content-Type": "application/json" } }
     );
   }
 };

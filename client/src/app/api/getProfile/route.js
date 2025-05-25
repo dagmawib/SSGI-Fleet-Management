@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
 export async function GET(req) {
@@ -15,7 +15,7 @@ export async function GET(req) {
     }
 
     const response = await axios.get(
-      `${API_BASE_URL}${API_ENDPOINTS.PROFILE}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.PROFILE}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

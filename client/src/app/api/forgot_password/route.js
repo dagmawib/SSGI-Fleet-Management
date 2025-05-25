@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export const POST = async (req) => {
   try {
@@ -22,9 +22,9 @@ export const POST = async (req) => {
         email
     };
 
-    // Make the POST request to the token API
+    // Make the POST request to the Django backend
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.FORGOT_PASSWORD}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.FORGOT_PASSWORD}`,
       requestBody,
       {
         headers: {
