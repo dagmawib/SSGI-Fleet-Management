@@ -5,6 +5,7 @@ export const API_BASE_URL = "/api";
 // This should be the address of your Django backend service from within the Docker network.
 // It can be overridden by an environment variable NEXT_PUBLIC_BACKEND_API_URL.
 export const SERVER_SIDE_API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://backend:8000";
+// export const SERVER_SIDE_API_BASE_URL = "http://localhost:8000"; // Change this to your backend URL
 
 export const API_ENDPOINTS = {
     LOGIN: "/api/auth/login/",
@@ -13,10 +14,10 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: "/api/auth/forgot-password/",
     RESET_PASSWORD: "/api/auth/reset-password/",
 
-    GENERATE_PASSWORD: "/api/auth/generate-password/",
+    GENERATE_PASSWORD: "/api/auth/auth/generate-password/",
     REGISTER_USER: "/api/auth/superadmin/register/",
     USERS_LIST: "/api/auth/users/",
-    EDIT_USER: "/api/auth/users",
+    EDIT_USER: "api/auth/users",
     DELETE_USER: "/api/auth/users",
 
     ADD_VEHICLE:"/api/vehicles/vehicles/add/",

@@ -34,7 +34,7 @@ export async function PUT(req) {
     };
 
     const response = await axios.put(
-      `${SERVER_SIDE_API_BASE_URL}/${API_ENDPOINTS.EDTI_USER}/${id}/`,
+      `${SERVER_SIDE_API_BASE_URL}/${API_ENDPOINTS.EDIT_USER}/${id}/`,
       requestBody,
       {
         headers: {
