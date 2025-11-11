@@ -37,6 +37,8 @@ export default function Page() {
           "Content-Type": "application/json",
         },
       });
+      console.log(res);
+      
       const data = await res.json();
       setTemporaryPassword(data.temporary_password);
     } catch (error) {
