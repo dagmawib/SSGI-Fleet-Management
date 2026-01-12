@@ -200,6 +200,11 @@ class SuperAdminRegistrationSerializer(serializers.ModelSerializer):
                         {"detail": "Password is required if generate_credentials is False"}
                     )
                 validated_data["password"] = raw_password
+            
+            # Save unencrypted password before encryption
+            if raw_password:
+                validated_data["unencrypted_password"] = raw_password
+            
             if role == User.Role.SUPERADMIN:
                 validated_data.update({
                     "is_superuser": True,
@@ -302,6 +307,8 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             new_password = validated_data.pop("new_password", None)
             instance = super().update(instance, validated_data)
             if old_password and new_password:
+                # Save unencrypted password before encryption
+                instance.unencrypted_password = new_password
                 instance.set_password(new_password)
                 instance.save()
             return instance
@@ -370,6 +377,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_superuser",
             "date_joined",
             "last_login",
+            "unencrypted_password",
         ]
         read_only_fields = fields
 

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import VehicleAssignmentModal from "@/components/admin/vehicleAssignementModal";
+import TripManagementModal from "@/components/admin/tripManagementModal";
 import { useTranslations } from "next-intl";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +30,8 @@ export default function RequestTable() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedCarId, setSelectedCarId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [tripModalOpen, setTripModalOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
@@ -37,6 +40,7 @@ export default function RequestTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const { data: requests = [], isLoading, error, mutate } = useSWR("/api/admin/requests", fetcher);
+  const { data: activeAssignments = [], isLoading: assignmentsLoading, mutate: mutateAssignments } = useSWR("/api/admin/active_assignments", fetcher);
 
   const t = useTranslations("RequestTable");
 
@@ -219,6 +223,104 @@ export default function RequestTable() {
         selectedRequest={selectedRequest}
         onClose={closeModal}
         mutate={mutate}
+      />
+
+      {/* Active Assignments Section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold text-[#043755] mb-4">
+          Active Assignments & Trips
+        </h3>
+        {assignmentsLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <CircularProgress />
+          </div>
+        ) : activeAssignments.length > 0 ? (
+          <div className="overflow-x-auto rounded-lg shadow mx-2 md:mx-0">
+            <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+              <thead className="bg-[#043755] text-white text-left">
+                <tr>
+                  <th className="py-3 px-4">Requester</th>
+                  <th className="py-3 px-4">Driver</th>
+                  <th className="py-3 px-4">Vehicle</th>
+                  <th className="py-3 px-4">Pickup</th>
+                  <th className="py-3 px-4">Destination</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeAssignments.map((assignment) => (
+                  <tr
+                    key={assignment.assignment_id || assignment.trip_id}
+                    className="border-t text-[#043755] border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="py-3 px-4">
+                      {assignment.requester?.name || assignment.requester_name || "-"}
+                    </td>
+                    <td className="py-3 px-4">
+                      {assignment.driver?.first_name && assignment.driver?.last_name
+                        ? `${assignment.driver.first_name} ${assignment.driver.last_name}`
+                        : "-"}
+                    </td>
+                    <td className="py-3 px-4">
+                      {assignment.vehicle?.license_plate || assignment.vehicle_plate || "-"}
+                    </td>
+                    <td className="py-3 px-4">
+                      {assignment.pickup || assignment.pickup_location || "-"}
+                    </td>
+                    <td className="py-3 px-4">{assignment.destination || "-"}</td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`text-sm px-3 py-1 rounded-full font-medium ${
+                          assignment.assignment_status === "Pending" ||
+                          assignment.driver_status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : assignment.assignment_status === "Accepted by Driver" ||
+                              assignment.trip_id
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-200 text-gray-800"
+                        }`}
+                      >
+                        {assignment.assignment_status || assignment.driver_status || "Active"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => {
+                          setSelectedAssignment(assignment);
+                          setTripModalOpen(true);
+                        }}
+                        className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      >
+                        {assignment.assignment_status === "Pending" ||
+                        assignment.driver_status === "pending"
+                          ? "Accept"
+                          : "Complete"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <p className="text-[#043755]">No active assignments or trips</p>
+          </div>
+        )}
+      </div>
+
+      <TripManagementModal
+        open={tripModalOpen}
+        assignment={selectedAssignment}
+        onClose={() => {
+          setTripModalOpen(false);
+          setSelectedAssignment(null);
+        }}
+        mutate={() => {
+          mutate();
+          mutateAssignments();
+        }}
       />
     </div>
   );

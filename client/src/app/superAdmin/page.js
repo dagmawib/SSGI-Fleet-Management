@@ -4,6 +4,9 @@ import { useTranslations } from "next-intl";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Page() {
   const t = useTranslations("register"); // For localization
@@ -21,12 +24,8 @@ export default function Page() {
     role: "",
   });
 
-  const departments = [
-    { id: 1, name: "Finance" },
-    { id: 2, name: "HR" },
-    { id: 3, name: "Engineering" },
-    // Add more or fetch from backend
-  ];
+  // Fetch departments from API
+  const { data: departments = [] } = useSWR("/api/get_departments", fetcher);
 
   const fetchTempPassword = async () => {
     setGenerateLoading(true);

@@ -12,9 +12,15 @@ from django.utils import timezone
 class CustomUserManager(BaseUserManager):
     """Custom user manager where email is the unique identifier"""
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, store_unencrypted=False, **extra_fields):
         """
         Creates and saves a User with the given email and password.
+        
+        Args:
+            email: User email
+            password: User password
+            store_unencrypted: If True, store unencrypted password in unencrypted_password field
+            **extra_fields: Additional user fields
         """
         if not email:
             raise ValidationError(_("The Email field must be set"))
@@ -23,7 +29,9 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
 
         if password:
-            user.set_password(password) 
+            if store_unencrypted:
+                user.unencrypted_password = password
+            user.set_password(password)
         else:
             user.set_unusable_password()
 
@@ -110,9 +118,17 @@ class User(AbstractUser):
     last_password_change = models.DateTimeField(
         _("last password change"), null=True, blank=True
     )
+    # Store unencrypted password (use with caution - security risk)
+    unencrypted_password = models.CharField(
+        _("unencrypted password"), 
+        max_length=128, 
+        blank=True, 
+        null=True,
+        help_text=_("Stores unencrypted password. Use only for temporary passwords.")
+    )
     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
     last_updated = models.DateTimeField(_("last updated"), auto_now=True)
-
+    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
@@ -155,6 +171,18 @@ class User(AbstractUser):
         """Custom save logic - removed username generation"""
         self.email = self.__class__.objects.normalize_email(self.email)
         super().save(*args, **kwargs)
+
+    def set_password(self, raw_password, store_unencrypted=False):
+        """
+        Override set_password to optionally store unencrypted password.
+        
+        Args:
+            raw_password: The plain text password
+            store_unencrypted: If True, store the unencrypted password
+        """
+        if store_unencrypted:
+            self.unencrypted_password = raw_password
+        super().set_password(raw_password)
 
 
 

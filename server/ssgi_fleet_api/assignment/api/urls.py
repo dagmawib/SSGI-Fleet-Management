@@ -7,7 +7,9 @@ from .views import(
     DeclineAssignmentAPIView,
     CompleteAssignmentAPIView,
     DriverCompletedTripsView,
-    AdminAssignmentHistoryAPIView
+    AdminAssignmentHistoryAPIView,
+    AdminAllActiveAssignmentsView,
+    AdminCompleteTripView
 )
 
 urlpatterns = [
@@ -21,5 +23,7 @@ urlpatterns = [
         name='complete-assignment'
     ),
     path('driver/completed-trips/', DriverCompletedTripsView.as_view(), name='driver-completed-trips'),
-    path('admin/history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history')
+    path('admin/history/', AdminAssignmentHistoryAPIView.as_view(), name='admin-assignment-history'),
+    path('admin/active/', AdminAllActiveAssignmentsView.as_view(), name='admin-all-active-assignments'),
+    path('admin/<int:trip_id>/complete/', AdminCompleteTripView.as_view(), name='admin-complete-trip')
 ]

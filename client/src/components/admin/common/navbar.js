@@ -130,6 +130,16 @@ export default function Navbar() {
               >
                 {t("vehicles")}
               </Link>
+              <Link
+                href="/admin/assignments"
+                className={
+                  isActive("/admin/assignments")
+                    ? "text-[#FFAE02] font-medium"
+                    : "text-[#043755] hover:text-afPrimary"
+                }
+              >
+                {t("assignments") || "Assignments"}
+              </Link>
             </div>
           </nav>
         </div>
@@ -253,6 +263,17 @@ export default function Navbar() {
                       onClick={closeSidebar}
                     >
                       {t("vehicles")}
+                    </Link>
+                    <Link
+                      href="/admin/assignments"
+                      className={
+                        isActive("/admin/assignments")
+                          ? "text-afPrimary underline underline-offset-4"
+                          : "text-afPrimary/80 hover:text-afPrimary"
+                      }
+                      onClick={closeSidebar}
+                    >
+                      {t("assignments") || "Assignments"}
                     </Link>
                   </nav>
 

@@ -8,3 +8,12 @@ class IsAdminOrSuperAdmin(BasePermission):
 class IsDriver(BasePermission):
     def has_permission(self, request, view):
         return  request.user.is_authenticated and request.user.role == User.Role.DRIVER
+
+
+# server/ssgi_fleet_api/assignment/api/permissions.py
+class IsDriverOrAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (
+            request.user.role == User.Role.DRIVER or
+            request.user.role in [User.Role.ADMIN, User.Role.SUPERADMIN]
+        )

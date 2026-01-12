@@ -13,7 +13,7 @@ from .serializers import (
     DeclineAssignmentSerializer,
     CompleteAssignmentSerializer
 )
-from .permissions import IsAdminOrSuperAdmin, IsDriver
+from .permissions import IsAdminOrSuperAdmin, IsDriver, IsDriverOrAdmin
 from .docs import (
     assign_car_docs,
     reject_car_assignment_docs,
@@ -272,6 +272,115 @@ class CarRejectAPIView(APIView):
             )
         
 
+class AdminAllActiveAssignmentsView(APIView):
+    """
+    API endpoint for admins to view ALL active assignments across all drivers.
+    Returns all pending and ongoing assignments.
+    """
+    # permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
+    
+    def get(self, request):
+        """Get all active assignments for all drivers."""
+        try:
+            all_assignments = []
+            
+            # 1. Get all ongoing trips (status=STARTED) for all drivers
+            ongoing_trips = Trips.objects.filter(
+                status=Trips.TripStatus.STARTED
+            ).select_related(
+                'assignment',
+                'assignment__driver',
+                'assignment__request',
+                'assignment__request__requester',
+                'assignment__request__requester__department',
+                'assignment__vehicle'
+            )
+            for ongoing_trip in ongoing_trips:
+                assignment = ongoing_trip.assignment
+                vc_request = assignment.request
+                requester = vc_request.requester
+                all_assignments.append({
+                    "assignment_id": assignment.assignment_id,
+                    "trip_id": ongoing_trip.trip_id,
+                    "driver_id": assignment.driver.id,
+                    "driver_name": assignment.driver.get_full_name(),
+                    "request_id": vc_request.request_id,
+                    "pickup": vc_request.pickup_location,
+                    "destination": vc_request.destination,
+                    "requester": {
+                        "name": requester.get_full_name(),
+                        "department": requester.department.name if requester.department else None,
+                        "phone": requester.phone_number
+                    },
+                    "vehicle": {
+                        "id": assignment.vehicle.id,
+                        "license_plate": assignment.vehicle.license_plate,
+                        "make_model": f"{assignment.vehicle.make} {assignment.vehicle.model}"
+                    },
+                    "trip_details": {
+                        "passenger_count": vc_request.passenger_count,
+                        "start_time": ongoing_trip.start_time,
+                        "start_mileage": ongoing_trip.start_mileage,
+                        "purpose": vc_request.purpose,
+                    },
+                    "assignment_status": assignment.get_driver_status_display(),
+                    "assigned_at": assignment.assigned_at,
+                    "passenger": vc_request.passenger_count
+                })
+            
+            # 2. Get all pending assignments for all drivers
+            pending_assignments = Vehicle_Assignment.objects.filter(
+                driver_status=Vehicle_Assignment.DriverStatus.PENDING
+            ).select_related(
+                'request',
+                'request__requester',
+                'request__requester__department',
+                'vehicle',
+                'driver'
+            )
+            
+            for assignment in pending_assignments:
+                vc_request = assignment.request
+                if vc_request.status == Vehicle_Request.Status.ASSIGNED:
+                    requester = vc_request.requester
+                    all_assignments.append({
+                        "assignment_id": assignment.assignment_id,
+                        "driver_id": assignment.driver.id,
+                        "driver_name": assignment.driver.get_full_name(),
+                        "request_id": vc_request.request_id,
+                        "pickup": vc_request.pickup_location,
+                        "destination": vc_request.destination,
+                        "requester": {
+                            "name": requester.get_full_name(),
+                            "department": requester.department.name if requester.department else None,
+                            "phone": requester.phone_number
+                        },
+                        "vehicle": {
+                            "id": assignment.vehicle.id,
+                            "license_plate": assignment.vehicle.license_plate,
+                            "make_model": f"{assignment.vehicle.make} {assignment.vehicle.model}"
+                        },
+                        "trip_details": {
+                            "passenger_count": vc_request.passenger_count,
+                            "start_time": vc_request.start_dateTime,
+                            "end_time": vc_request.end_dateTime,
+                            "purpose": vc_request.purpose,
+                        },
+                        "assignment_status": assignment.get_driver_status_display(),
+                        "assigned_at": assignment.assigned_at,
+                        "passenger": vc_request.passenger_count
+                    })
+            
+            return Response(all_assignments, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {
+                    "error": str(e),
+                    "error_code": "fetch_failed",
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class DriverRequestView(APIView):
     """
     API endpoint for drivers to view their current assignments.
@@ -284,7 +393,7 @@ class DriverRequestView(APIView):
     - User must be authenticated
     - User must be a driver
     """
-    permission_classes = [IsAuthenticated, IsDriver]
+    permission_classes = [IsAuthenticated, IsDriverOrAdmin]
     @DRIVER_REQUEST_GET_DOCS
     def get(self, request):
         """Get the driver's current assignment or ongoing trip."""
@@ -410,22 +519,36 @@ class AcceptAssignmentAPIView(APIView):
     
     Permissions:
     - User must be authenticated
-    - User must be a driver
+    - User must be a driver or admin
     """
-    permission_classes = [IsAuthenticated, IsDriver]
+    # permission_classes = [IsAuthenticated, IsDriver]
+    permission_classes = [IsAuthenticated, IsDriverOrAdmin]
+
     @ACCEPT_ASSIGNMENT_DOCS
     def post(self, request, assignment_id):
         """Accept an assignment and start a trip."""
         try:
-            # Try to fetch the assignment for this driver
-            assignment = Vehicle_Assignment.objects.select_related('vehicle', 'driver').filter(
-                pk=assignment_id,
-                driver=request.user
-            ).first()
+            # For admins, allow accepting any assignment
+            # For drivers, only allow accepting their own assignments
+            if request.user.role in [User.Role.ADMIN, User.Role.SUPERADMIN]:
+                assignment = Vehicle_Assignment.objects.select_related('vehicle', 'driver').filter(
+                    pk=assignment_id
+                ).first()
+            else:
+                # Driver can only accept their own assignments
+                assignment = Vehicle_Assignment.objects.select_related('vehicle', 'driver').filter(
+                    pk=assignment_id,
+                    driver=request.user
+                ).first()
+            
             if not assignment:
+                error_msg = f"No assignment found with ID {assignment_id}."
+                if request.user.role not in [User.Role.ADMIN, User.Role.SUPERADMIN]:
+                    error_msg = f"No assignment found with ID {assignment_id} for this driver."
+                
                 return Response(
                     {
-                        "error": f"No assignment found with ID {assignment_id} for this driver.",
+                        "error": error_msg,
                         "error_code": "assignment_not_found",
                         "user": request.user.get_full_name(),
                         "assignment_id": assignment_id
@@ -472,7 +595,7 @@ class AcceptAssignmentAPIView(APIView):
                     "assignment_id": assignment_id,
                     "start_mileage": trip.start_mileage,
                     "start_time": trip.start_time,
-                    "driver": request.user.get_full_name(),
+                    "driver": assignment.driver.get_full_name(),  # Use assignment.driver instead of request.user
                     "vehicle": {
                         "id": assignment.vehicle.id,
                         "license_plate": assignment.vehicle.license_plate,
@@ -483,7 +606,8 @@ class AcceptAssignmentAPIView(APIView):
                         "destination": assignment.request.destination,
                         "purpose": assignment.request.purpose,
                         "passenger_count": assignment.request.passenger_count
-                    }
+                    },
+                    "message": "Assignment accepted successfully"
                 }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(
@@ -509,7 +633,7 @@ class DeclineAssignmentAPIView(APIView):
     - User must be authenticated
     - User must be a driver
     """
-    permission_classes = [IsAuthenticated, IsDriver]
+    permission_classes = [IsAuthenticated, IsDriverOrAdmin]
 
     @DECLINE_ASSIGNMENT_DOCS
     @transaction.atomic  
@@ -595,7 +719,7 @@ class CompleteAssignmentAPIView(APIView):
     - User must be authenticated
     - User must be a driver
     """
-    permission_classes = [IsAuthenticated, IsDriver]
+    permission_classes = [IsAuthenticated, IsDriverOrAdmin]
     @COMPLETE_ASSIGNMENT_DOCS
     @transaction.atomic
     def patch(self, request, trip_id):
@@ -674,6 +798,100 @@ class CompleteAssignmentAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+class AdminCompleteTripView(APIView):
+    """
+    API endpoint for admins to complete trips for any driver.
+    
+    This endpoint allows admins to:
+    1. Complete any ongoing trip (not just their own)
+    2. Record the final mileage
+    3. Update vehicle and assignment status
+    
+    Permissions:
+    - User must be authenticated
+    - User must be an admin or superadmin
+    """
+    permission_classes = [IsAuthenticated, IsAdminOrSuperAdmin]
+    
+    @transaction.atomic
+    def patch(self, request, trip_id):
+        """Complete a trip (admin can complete any trip)."""
+        try:
+            # Admins can complete any trip, not just their own
+            trip = get_object_or_404(
+                Trips.objects.select_related(
+                    'assignment',
+                    'assignment__vehicle',
+                    'assignment__request',
+                    'assignment__request__requester',
+                    'assignment__driver'
+                ),
+                pk=trip_id,
+                status=Trips.TripStatus.STARTED 
+            )
+        except Trips.DoesNotExist:
+            return Response(
+                {
+                    "error": "No active trip found with this ID",
+                    "error_code": "trip_not_found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = CompleteAssignmentSerializer(
+            instance=trip,
+            data=request.data,
+            partial=True
+        )
+        
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "errors": serializer.errors,
+                    "error_code": "validation_error"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            with transaction.atomic():
+                trip = serializer.save()
+                return Response({
+                    "status": "completed",
+                    "trip_id": trip.trip_id,
+                    "assignment_id": trip.assignment.assignment_id,
+                    "trip_details": {
+                        "start_mileage": trip.start_mileage,
+                        "end_mileage": trip.end_mileage,
+                        "distance_km": trip.distance,
+                        "duration_seconds": trip.duration.total_seconds() if trip.duration else None,
+                        "start_time": trip.start_time,
+                        "end_time": trip.end_time
+                    },
+                    "driver": trip.assignment.driver.get_full_name(),  # Use trip's driver, not request.user
+                    "vehicle": {
+                        "id": trip.assignment.vehicle.id,
+                        "license_plate": trip.assignment.vehicle.license_plate,
+                        "current_mileage": trip.assignment.vehicle.current_mileage,
+                        "status": trip.assignment.vehicle.get_status_display()
+                    },
+                    "request": {
+                        "id": trip.assignment.request.request_id,
+                        "requester": trip.assignment.request.requester.get_full_name(),
+                        "purpose": trip.assignment.request.purpose
+                    },
+                    "message": f"Trip completed successfully by admin {request.user.get_full_name()}"
+                })
+        except Exception as e:
+            return Response(
+                {
+                    "error": str(e),
+                    "error_code": "completion_failed",
+                    "details": "Failed to complete the trip. Please try again."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 class DriverCompletedTripsView(APIView):
     """
     API endpoint for drivers to view their completed trips.
@@ -686,7 +904,7 @@ class DriverCompletedTripsView(APIView):
     - User must be authenticated
     - User must be a driver
     """
-    permission_classes = [IsAuthenticated, IsDriver]
+    permission_classes = [IsAuthenticated, IsDriverOrAdmin]
     
     def get(self, request):
         """Get all completed trips for the current driver."""

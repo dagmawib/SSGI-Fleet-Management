@@ -51,7 +51,7 @@ export const POST = async (req) => {
 
     // Make the POST request to the token API
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.REGEISTER_USER}`,
+      `${API_BASE_URL}${API_ENDPOINTS.REGISTER_USER}`,
       requestBody,
       {
         headers: {

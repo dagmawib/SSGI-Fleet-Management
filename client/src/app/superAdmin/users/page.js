@@ -128,6 +128,9 @@ export default function SuperAdminUsersPage() {
                   {t("role")}
                 </th>
                 <th className="px-4 py-2 text-left font-semibold border-b">
+                  Password
+                </th>
+                <th className="px-4 py-2 text-left font-semibold border-b">
                   {t("action")}
                 </th>
               </tr>
@@ -135,7 +138,7 @@ export default function SuperAdminUsersPage() {
             {isLoading ? (
               <tbody>
                 <tr>
-                  <td colSpan="6" className="text-center py-4">
+                  <td colSpan="7" className="text-center py-4">
                     <CircularProgress size={24} color="inherit" />
                   </td>
                 </tr>
@@ -156,6 +159,9 @@ export default function SuperAdminUsersPage() {
                     </td>
                     <td className="px-4 py-2 text-[#043755]">
                       {capitalizeFirstLetters(user.role)}
+                    </td>
+                    <td className="px-4 py-2 text-[#043755] font-mono text-sm">
+                      {user.unencrypted_password || "-"}
                     </td>
                     {/* Action Dropdown */}
                     <td className="px-4 py-2 text-[#043755]">
