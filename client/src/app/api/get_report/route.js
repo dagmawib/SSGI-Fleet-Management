@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
 export async function GET(req) {
@@ -14,7 +14,7 @@ export async function GET(req) {
       );
     }
 
-    const backendUrl = `${API_BASE_URL}${API_ENDPOINTS.EXPORT_CSV}`;
+    const backendUrl = `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.EXPORT_CSV}`;
     const urlWithParams = req.nextUrl.search ? `${backendUrl}${req.nextUrl.search}` : backendUrl;
     
     const response = await axios.get(urlWithParams, {

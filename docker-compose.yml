@@ -1,4 +1,17 @@
+version: '3.8'
+
 services:
+  db:
+    image: postgres:17.2
+    container_name: ssgi_postgres
+    env_file:
+      - ./server/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   backend:
     build:
       context: ./server
@@ -7,11 +20,15 @@ services:
       - ./server/.env
     environment:
       - DJANGO_SETTINGS_MODULE=ssgi_fleet_api.settings
-    ports:
-      - "8000:8000"
+    working_dir: /app/ssgi_fleet_api
+    command: >
+      sh -c "python manage.py collectstatic --noinput && gunicorn ssgi_fleet_api.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - static_data:/app/ssgi_fleet_api/staticfiles
+      - media_data:/app/ssgi_fleet_api/media
+    restart: always
     depends_on:
-      - frontend
-    restart: unless-stopped
+      - db
 
   frontend:
     build:
@@ -19,8 +36,22 @@ services:
     container_name: ssgi_frontend
     env_file:
       - ./client/.env
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
+    restart: always
 
-# No database service, since you are using Supabase
+  nginx:
+    image: nginx:latest
+    container_name: ssgi_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_data:/app/ssgi_fleet_api/staticfiles:ro
+      - media_data:/app/ssgi_fleet_api/media:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  static_data:
+  media_data:

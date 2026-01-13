@@ -236,7 +236,6 @@ export default function SuperAdminUsersPage() {
                 department: updatedUser.department,
               }),
             });
-
             if (res.ok) {
               const updated = await res.json();
               mutateUsers(

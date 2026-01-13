@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 import axios from "axios";
 
 
@@ -60,7 +60,7 @@ export async function PATCH(req) {
 
 
     const response = await axios.patch(
-      `${API_BASE_URL}${API_ENDPOINTS.EDIT_VEHICLE}/${id}/`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.EDIT_VEHICLE}/${id}/`,
       payload,
       {
         headers: {

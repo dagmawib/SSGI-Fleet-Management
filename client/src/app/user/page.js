@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
-import MapComponent from "@/components/map/MapComponent";
+import dynamic from "next/dynamic";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getCookie } from 'cookies-next';
@@ -12,6 +12,9 @@ import DirectorDashboard from "@/components/user/director";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+
+// Dynamic import of MapComponent
+const MapComponent = dynamic(() => import("@/components/map/MapComponent"), { ssr: false });
 
 // Zod validation schema
 const formSchema = z.object({
@@ -93,16 +96,11 @@ export default function Page() {
           try {
             const { latitude, longitude } = position.coords;
             
-            // Reverse geocode to get address
-            const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+            // Reverse geocode to get address via our proxy
+            const response = await axios.get('/api/reverse-geocode', {
               params: {
                 lat: latitude,
                 lon: longitude,
-                format: 'json',
-                addressdetails: 1,
-              },
-              headers: {
-                'User-Agent': 'VehicleRequestApp/1.0 (your.email@example.com)',
               },
             });
     
@@ -150,16 +148,9 @@ export default function Page() {
       }
       try {
         type === 'pickup' ? setPickupLoading(true) : setDestinationLoading(true);
-        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        const response = await axios.get('/api/geocode-search', {
           params: {
             q: input,
-            format: 'json',
-            limit: 5,
-            addressdetails: 1,  
-            countrycodes: 'ET'
-          },
-          headers: {
-            'User-Agent': 'VehicleRequestApp/1.0 (your.email@example.com)', // Replace with your app name and email
           },
         });
         const suggestions = response.data.map(item => ({

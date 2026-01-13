@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export async function PATCH(request) {
     try {
@@ -24,7 +24,7 @@ export async function PATCH(request) {
         }
 
         const response = await fetch(
-            `${API_BASE_URL}${API_ENDPOINTS.APPROVE_REQUEST}/${id}/${API_ENDPOINTS.APPROVE_REQUEST_BY_ID}`,
+            `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.APPROVE_REQUEST}/${id}/${API_ENDPOINTS.APPROVE_REQUEST_BY_ID}`,
             {
                 method: 'PATCH',
                 headers: {
@@ -46,17 +46,12 @@ export async function PATCH(request) {
         const data = await response.json();
         return new Response(JSON.stringify(data), {
             status: response.status,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
         });
-
     } catch (error) {
-        console.error('Error approving request:', error);
         return new Response(
-            JSON.stringify({
-                error: "An unexpected error occurred while approving the request",
-                details: error.message
-            }),
+            JSON.stringify({ error: "An unexpected error occurred.", details: error.message }),
             { status: 500, headers: { "Content-Type": "application/json" } }
         );
     }
-} 
+}

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { cookies } from "next/headers";
-import { API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
+import { SERVER_SIDE_API_BASE_URL, API_ENDPOINTS } from "@/apiConfig";
 
 export const POST = async (req) => {
   try {
@@ -34,9 +34,9 @@ export const POST = async (req) => {
         note,
     };
 
-    // Make the POST request to the token API
+    // Make the POST request to the backend
     const response = await axios.post(
-      `${API_BASE_URL}${API_ENDPOINTS.ADMIN_REJECT_REQUEST}`,
+      `${SERVER_SIDE_API_BASE_URL}${API_ENDPOINTS.ADMIN_REJECT_REQUEST}`,
       requestBody,
       {
         headers: {
