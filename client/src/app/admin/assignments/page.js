@@ -263,7 +263,7 @@ export default function Page() {
           <h2 className="text-2xl font-semibold text-[#043755]">
             Admin Dashboard - All Active Assignments
           </h2>
-          <p className="text-[#043755]">Manage all drivers' assignments</p>
+          <p className="text-[#043755]">Manage all drivers&apos; assignments</p>
         </div>
       </div>
 
